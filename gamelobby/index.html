@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+   <head>
+      <title>Kripp's Paradise</title>
+      
+      <style>
+         body {
+            margin-left: 300px;
+         }
+         .left {
+            margin-left: -300px;
+            float: left;
+            width: 300px;
+            
+            height: 600px; /* Also the 'top' of #chatInput */
+            
+            overflow-y: scroll;
+         }
+         #chatInput {
+            position: fixed;
+            top: 600px; /* Because that's the height of .left */
+         }
+         
+         .red {
+            color: red;
+         }
+         
+         .border {
+            border: 1px solid black;
+         }
+      </style>
+   </head>
+   
+   <body>
+      
+      <div class='left _hidden' id='chatDiv'>
+         <h1>Room Chat</h1>
+         <ul id="messages"></ul>
+         <div id='chatInput'>
+            <form id='chatForm'>
+               <input id="m" autocomplete="off" autofocus/>
+               <button id='chatSendButton'>Send</button>
+            </form>
+         </div>
+      </div>
+      
+      <!--
+      <button id='_debug_close_socket_button'>DEBUG CLOSE SOCKET</button>
+      -->
+      
+      <div class='_hidden' id='loadingDiv'>
+         <h1>Loading, please wait...</h1>
+      </div>
+      
+      <!-- 1. Enter name div -->
+      <div id='enterNameDiv'>
+         <h1>Pretty good</h1>
+         <input type='text' id='name_input'></input>
+         <button id="submit_name_button">Submit name</button>
+      </div>
+      
+      <!-- 2. Create or join -->
+      <div class='_hidden' id='createOrJoin'>
+         <h1>Create or join a game?</h1>
+         <button id='createGameButton'>Create Game</button>
+         <button id='joinGameButton'>Join Game</button>
+      </div>
+      
+      <div class='_hidden' id='createGame'>
+         <h1>CREATE A GAME</h1>
+         <div id='chooseGameForm'></div>
+         <h2 id='selectedGameName'>Selected: None</h2>
+         <br>
+         <h2>Requirements for number of players:</h2>
+         <h3 id='playerNumberRequirements'>(Select a game)</h3>
+         <br>
+         Game Title (optional):
+         <input id='gameTitleInput' type='text'></input>
+         <br>
+         <button id='createGameRoomButton' disabled>Create Lobby!</button>
+      </div>
+      
+      <div class='_hidden' id='joinGame'>
+         <h1>JOIN A GAME</h1>
+         <button id='refreshOpenRooms'>Refresh</button>
+         <br />
+         <div id='openGamesDiv'>
+         </div>
+      </div>
+      
+      <!-- 3. In Lobby -->
+      <div class='_hidden' id='waiting_room'>
+         <h1 id='lobbyTitle'></h1>
+         <h2 id='errorBar' class='red'></h2>
+         <h3 id='playerNumberRequirementBar'></h3>
+         <ul id='connectedPlayersList'>
+         </ul>
+         <button id='startGameButton'>Start Game</button>
+      </div>
+      
+      <!-- 4. In Game (Dynamically Loaded) -->
+      <div class='_hidden' id='_in_game'>
+      </div>
+      
+      <!-- X. Socket Closed -->
+      <div class='_hidden' id='socket_closed'>
+         <h1>Socket Closed</h1>
+         <h3>Refresh page</h3>
+      </div>
+      
+      <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+      <script type='text/javascript' src='newlobby.js'></script>
+   </body>
+</html>

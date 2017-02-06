@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+   <title>Nectarsac SMS Service</title>
+</head>
+<body>
+   <h1>SEND A TEXT MESSAGE</h1>
+   <hr>
+   <br>
+   
+   Phone number (No +1 this is US only):
+   <input type="text" id="phonenumber" />
+   <p />
+   Body:
+   <input type="text" id="body" />
+   <p />
+   <button id='submit_button'>Submit</button>
+   <br>
+   <h2 id='response' />
+   
+   <script>
+   var ENDPOINT = '/sendtextmessage';
+   
+   var button;
+   
+   window.onload = function() {
+      button = document.getElementById('submit_button');
+      button.onclick = submit;
+   };
+   
+   function submit() {
+      button.disabled = true;
+      
+      var response = document.getElementById('response');
+      response.innerHTML = "";
+      
+      var phonenumber = document.getElementById('phonenumber').value;
+      var body = document.getElementById('body').value;
+      
+      var data = '{';
+      data += '"phonenumber":"'+phonenumber+'",';
+      data += '"body":"'+body+'"';
+      data += '}';
+      
+      console.log(data);
+      
+      var request = new XMLHttpRequest();
+      request.onreadystatechange = function() {
+         if (request.readyState == 4) {
+            console.log(request.responseText);
+            response.innerHTML = request.responseText + " (" + request.status + ")";
+            button.disabled = false;
+         }
+      };
+      request.open("POST", ENDPOINT, true);
+      request.send(data);
+   }
+   </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "Flame Cannon",
+  "rarity": "COMMON",
+  "manacost": "RR",
+  "actions": [
+    {
+      "class": "TargetedAction.DAMAGE_TARGET",
+    "selector": "ENEMIESCREATURES",
+    "filter": {
+      "class": "RANDOM"
+    },
+    "amount": 4
+    }
+  ]
+}

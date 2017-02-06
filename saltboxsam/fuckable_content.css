@@ -1,0 +1,411 @@
+@import 'https://fonts.googleapis.com/css?family=Baloo+Tamma';
+
+	body {
+		background-image: url("bg_02.jpg");
+		padding: 0px;
+		margin: 0px;
+		height: 1080px;
+		overflow: hidden;
+		}
+
+	#main {
+		position: relative;
+		padding: 0px;
+		margin: 0px;
+		height: 100%;
+		}	
+		
+	#logo {
+		position: absolute;
+		top: 60px;
+		left: 60px;
+		display: inline-block;
+		}	
+
+	
+	.game_expander {
+		position: absolute;
+		height: 100%;
+		width: 30%;
+		left: 100%;
+		background-color: #111;
+		font-family: 'Baloo Tamma', cursive;
+		color: #eee;
+		opacity: .1;
+		filter: alpha(opacity=10);
+		transition: opacity 1s;
+		-webkit-transition: opacity 1s;
+	}
+	
+	.game_expander.expanded_left {
+		-webkit-transition: 1s;
+		-moz-transition: 1s;
+		transition: 1s;
+		left: 70%;
+		opacity: .8;
+		filter: alpha(opacity=80);
+	}
+	
+	.mod_expander {
+		position: absolute;
+		height: 100%;
+		width: 30%;
+		display: none;
+		background-color: #111;
+		font-family: 'Baloo Tamma', cursive;
+		color: #eee;
+		opacity: .1;
+		filter: alpha(opacity=10);
+		transition: opacity 1s;
+		-webkit-transition: opacity 1s;
+	}
+	
+	#modBox {
+		position: fixed;
+		height: 100%;
+		width: 30%;
+		display: none;
+		background-color: #111;
+		font-family: 'Baloo Tamma', cursive;
+		color: #eee;
+		opacity: .8;
+	}
+	
+	.mod_expander.expanded_right {
+		-webkit-transition: 1s;
+		-moz-transition: 1s;
+		transition: 1s;
+		right: 70%;
+		opacity: .8;
+		filter: alpha(opacity=80);
+	}
+	
+	 .expanded_right.collapse_left {
+		-webkit-transition: 1s;
+		-moz-transition: 1s;
+		transition: 1s;
+		right: 100%;
+	}
+	
+	#ModdingGame {
+		font-size: 3em;
+		color: #eee;
+		text-align: left;
+		margin-bottom: 10px;
+		white-space: nowrap;
+	}
+	
+	#Games {
+		font-size: 3em;
+		color: #eee;
+		text-align: right;
+		margin-bottom: 10px;
+	}
+	
+	#Game_List {
+		list-style-type: none;
+		display: block;
+		height: 100%;
+		margin: 0;
+		padding: 0;
+	}
+
+	
+	@-moz-keyframes custom_effect {
+    0% {
+        background:rgba(255, 255, 255, 0.0);
+        height: 80px;
+    }
+    33% {
+        background:rgba(255, 255, 255, 0.8);
+    }
+    66% {
+        background:rgba(238, 238, 238, 0.6);
+	}
+    100% {
+        background:rgba(255, 255, 255, 0.9);
+        height: 180px;
+    }
+}
+
+	@-webkit-keyframes custom_effect {
+    0% {
+        background:rgba(255, 255, 255, 0.0);
+        height: 80px;
+    }
+    33% {
+        background:rgba(255, 255, 255, 0.8);
+    }
+    66% {
+        background:rgba(238, 238, 238, 0.6);
+	}
+    100% {
+        background:rgba(255, 255, 255, 0.9);
+        height: 180px;
+    }
+}
+	
+	
+	.game_list_items {
+		display: block;
+		height: 80px;
+		line-height: 80px;
+		margin-bottom: 40px;
+		overflow: hidden;
+	}
+	
+	#Game_List .game_list_items:hover {
+    -moz-animation-name: custom_effect;
+    -moz-animation-duration: 1s;
+    -moz-animation-timing-function: ease-in-out;
+    -moz-animation-iteration-count: 1;
+    -moz-animation-direction: normal;
+    -moz-animation-delay: 0s;
+    -moz-animation-play-state: running;
+    -moz-animation-fill-mode: forwards;
+
+    -webkit-animation-name: custom_effect;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-timing-function: ease-in-out;
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-direction: normal;
+    -webkit-animation-delay: 0s;
+    -webkit-animation-play-state: running;
+    -webkit-animation-fill-mode: forwards;
+
+    background:rgba(255, 255, 255, 0.9);
+    height: 240px;
+}
+	
+	.game_names {
+		z-index: 2;
+		background-color: #111;
+		opacity: 1;
+		filter: alpha(opacity=100);
+		display: block;
+		height: 50px;
+		text-decoration: none;
+		padding: 15px 20px;
+		padding-bottom: 45px;
+		margin: 0px;
+		font-size: 2em;
+		color: #FFF;
+		
+		text-decoration: none;
+		vertical-align: middle;
+
+		-moz-transition: all 0 ease-in 0.4s;
+		-ms-transition: all 0 ease-in 0.4s;
+		-o-transition: all 0 ease-in 0.4s;
+		-webkit-transition: all 0 ease-in 0.4s;
+		transition: all 0 ease-in 0.4s;
+		
+	}
+	
+	#mc_image_box {
+		background: url("minecraft_list_image.png");
+		z-index: -1;
+	}
+	
+	#cs_image_box {
+		background: url("counterstrike_list_image.png");
+		z-index: -1;
+	}
+	
+	#mtg_image_box {
+		background: url("mtg_list_image.png");
+		z-index: -1;
+	}
+	
+	#ark_image_box {
+		background: url("ark_list_image.png");
+		z-index: -1;
+	}
+
+	
+	.game_summs {
+		display: block;
+		height: 160px;
+		text-decoration: none;
+		padding: 20px 10px;
+		margin: 0px;
+		font-size: 16px;
+		color: #eee;
+		margin-top: 100px;
+		text-decoration: none;
+		vertical-align: middle;
+
+		-moz-transition: all 0.1s 0.4s;
+		-webkit-transition: all 0.1s 0.4s;
+		transition: all 0.1s 0.4s;		
+	}
+
+	.game_span {
+		position: relative;
+		z-index: 1;
+		display: inline-block;
+		left:0 ;
+		text-align: right;
+		right: 100%;
+		transition-property: all;
+		transition-duration: 1s;
+		transition-timing-function: ease;
+		-webkit-transition-property: all;
+		-webkit-transition-duration: 1s;
+		-webkit-transition-timing-function: ease;
+	}
+	
+	.game_names:visited {
+		text-decoration: none;
+	}
+	
+	.game_list_items:hover .game_names {
+		padding-bottom: 15px;
+	}
+	
+	
+	#mc_list:hover #mc_link {
+		background: rgba(0,0,0,0);
+	}
+	
+	#cs_list:hover #cs_link {
+		background: rgba(0,0,0,0);
+	}
+	
+	#mtg_list:hover #mtg_link {
+		background: rgba(0,0,0,0);
+	}
+	
+	#ark_list:hover #ark_link {
+		background: rgba(0,0,0,0);
+	}
+	
+	
+	.game_list_items .game_summs {
+		display: block;
+		float: none;
+		line-height: 40px;
+		margin-top: 0;	
+		padding-left: 15px;
+	}
+	
+	.game_list_items:hover .game_summs {
+		color: #111;
+		line-height: 40px;
+		margin-top: 0px;
+	}
+	
+	.game_list_items:hover a {
+		margin-top: 0;
+	}
+
+	.game_list_items:hover .game_span {
+		position: absolute;
+		right: 0;
+		left: 0;
+	}
+	
+	#center_box_greatest {
+		position: absolute;
+		top: 25.5%;
+		left: 30% ;
+		width: 40%;
+		text-align: center;
+		font-family: 'Baloo Tamma', cursive; 
+		color: #212121;
+	}
+	
+	#center_text_outer {
+		margin: 0px;
+		padding: 50px;
+		background-color: #1862BC;
+		height: 250px;
+		opacity: .8;
+		filter: alpha(opacity=80);
+		
+		-webkit-box-shadow: 0px 0px 50px 10px rgba(35,35,35,0.5);
+		-moz-box-shadow: 0px 0px 50px 10px rgba(35,35,35,0.5);
+		box-shadow: 0px 0px 50px 10px rgba(35,35,35,0.5);
+	}
+	
+	#center_text_middle {
+		position: relative;
+		padding: 50px;
+		height: 150px;
+		background-color: #3780CE;
+		z-index: 1;
+		
+		-webkit-box-shadow: 0px 0px 35px 10px rgba(35,35,35,0.5);
+		-moz-box-shadow: 0px 0px 35px 10px rgba(35,35,35,0.5);
+		box-shadow: 0px 0px 35px 10px rgba(35,35,35,0.5);
+	
+	}
+	
+	#center_text_inner { 
+		height: 150px;
+		transform-origin: 100% 75px;
+		background-color: #54A2DD;
+		z-index: 2;
+		line-height: 150px;
+		-webkit-box-shadow: 0px 0px 30px 5px rgba(35,35,35,0.4);
+		-moz-box-shadow: 0px 0px 30px 5px rgba(35,35,35,0.4);
+		box-shadow: 0px 0px 30px 5px rgba(35,35,35,0.4);		
+	}
+	
+	#center_text_inner .flip {
+		transform: rotateX(-180deg);
+	}
+	
+	#game_name {
+		margin: 0px;
+		padding: 0px;
+	}
+	
+	#center_text_top {
+		margin: 0px;
+		font-size: 3em;
+		opacity: .7;
+		filter: alpha(opacity=70);
+	}
+	
+	#name_box {
+		width: calc(100% - 40px);
+		height: 50px;
+		margin: 40px 10px 0px 10px;
+		padding: 10px;
+		border: none;
+		background-color: #54A2DD;
+		color: #EEE;
+		font-size: 20px;
+		text-align: center;
+	}
+	
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		

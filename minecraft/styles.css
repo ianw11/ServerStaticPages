@@ -1,0 +1,45 @@
+body {
+    background-color: blanchedalmond;
+}
+h1 {
+    color: blue;
+    text-align:center;
+}
+p {
+    color: black;
+}
+
+.wrap {
+    position:relative;
+    text-align:center;
+    width:75%;
+    left:12.5%;
+    right: 12.5%;
+}
+
+.container {
+    text-align: left;
+    border: 25px solid darkgreen;
+    padding: 25px;
+
+}
+
+.photo {
+    display:inline-block;
+    position:relative;
+    border: 5px solid black;
+    padding: 2px;
+    padding-bottom: 3px;
+    width: 75%;
+    left: 12.5%;
+    object-fit:contain;
+
+}
+
+img {
+    width:100%;
+}
+
+.end {
+    text-align: center;
+}

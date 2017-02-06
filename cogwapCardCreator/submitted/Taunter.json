@@ -1,0 +1,14 @@
+{
+  "name": "Taunter",
+  "rarity": "COMMON",
+  "manacost": "B",
+  "ap": {
+    "maxap": 0,
+    "regenap": 0
+  },
+  "creature": {
+    "attack": 1,
+    "health": 3,
+    "TAUNT": true
+  }
+}

@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+<title>SaltBox</title>
+<link rel="stylesheet" type="text/css" href="fuckable_content.css">
+</head>
+
+<body>
+
+	<div id="main"> <!-- This contains DIVS for the logo, center boxes, "select a game" options, and "select game options" box -->
+	
+	
+		<div id="logo" > <!-- Contains the SaltBox logo -->
+			<img src="logo_placeholder.png">
+		</div>
+
+		
+		<!-- 
+		Contains the list of mod and game creation options //
+		THIS DIV EXPANDS FROM THE LEFT AFTER SELECTING A GAME //
+		Different games' options will be loaded in dynamically with a script //
+		Ian this is where your assistance is needed 
+		-->
+		<div id="modBox"> 
+			<h1 id="ModdingGame">Selected Game Name Here</h1>
+		
+		</div>
+
+		
+		<!--
+		Contains the list of games available to join or host//
+		THIS DIV EXPANDS FROM THE RIGHT AFTER ENTERING YOUR NAME//
+		Games will be loaded in dynamically with custom borders and synopses
+		-->
+		<div class="game_expander">
+		
+			<h1 id='Games'>SaltBox Games</h1>
+			
+			<ul id='Game_List'>
+				<li class='game_list_items' id="mc_list"><!-- the <li>'s are given class to style and ID based on which game they are for-->
+					
+					<div id='mc_image_box'>
+						<a class="game_names" id="mc_link" href="#">
+							<span class="game_span">MineCraft</span>
+						</a>
+					</div>
+					
+					<a class="game_summs" href="#">Explore randomly generated worlds and build amazing things from the simplest of homes to the grandest of castles.</a>
+				</li>
+				
+				
+				<li class='game_list_items' id="cs_list"><!-- the <li>'s are given class to style and ID based on which game they are for-->
+				
+					<div id='cs_image_box'>
+						<a class="game_names" id="cs_link" href="#">
+							<span class="game_span">CS:&nbspGlobal&nbspOffensive</span>
+						</a>
+					</div>
+					
+					<a class="game_summs" href="#">Plant and defuse bombs, rescue and take hostages, or just shoot to kill in the world's most popular competitive first person shooter!</a>
+				</li>
+				
+				
+				<li class='game_list_items' id="mtg_list"><!-- the <li>'s are given class to style and ID based on which game they are for-->
+				
+					<div id='mtg_image_box'>
+						<a class="game_names" href="#" id="mtg_link">
+							<span class="game_span">Magic&nbspthe&nbspGathering</span>
+						</a>
+					</div>
+					
+					<a class="game_summs" href="#">Create your own decks of cards and devise your own strategies. Will you summon hordes of zombies, unleash a flurry of fireballs, or mind control your opponents?</a>
+				</li>
+				
+				
+				<li class='game_list_items' id="ark_list"><!-- the <li>'s are given class to style and ID based on which game they are for-->
+				
+					<div id='ark_image_box'>
+						<a class="game_names" href="#" id="ark_link">
+							<span class="game_span">ARK:&nbspSurvival&nbspEvolved</span>
+						</a>
+					</div>
+					
+					<a class="game_summs" href="#">Stranded naked, freezing and starving on a mysterious island, you must hunt, harvest, craft items, grow crops, and build shelters to survive.</a>
+				</li>
+			</ul><!-- Closes #Game_List -->
+		</div><!-- Closes .game_expander -->
+
+		
+		
+		<!--
+		Creates the heirarchy of DIVs to create the stacked boxes effect//
+		Contains welcome text and name input fields//
+		Would like #center_text_inner to flip around the x-axis on input
+		-->
+		<div id="center_box_greatest">  
+			<h1 id="center_text_top">Welcome to Salt Box</h1><!-- Welcome text. It gets augmented by script on successful name input-->
+			
+			<div id="center_text_outer">
+				
+				<div id="center_text_middle">
+					
+					<div id="center_text_inner">
+						<form id="enter_name">
+							<input id="name_box" type="text" placeholder="Enter your name..." autocomplete="off">
+						</form>
+						
+						<h2 id="game_name" style="display:none;"></h2><!-- used to give #center_text_inner some height-->
+					
+					</div>	
+				</div>								
+			</div>					
+		</div><!--closes #center_box_greatest-->
+	</div><!--closes #main-->
+	
+	<script src="http://code.jquery.com/jquery-2.2.4.min.js"
+  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+  crossorigin="anonymous"></script>
+					
+	<script> 
+	(function() { // Stops page from reloading after entering name and pressing return key
+		$('#enter_name').submit(function() {
+			nameFunction();
+			return false;
+		});
+	})();
+
+	function nameFunction() { //Replaces #center_text_top text with new text and user's name : Then expands the list of available games
+	    var gameBox = document.getElementsByClassName('game_expander')[0];
+		var n = document.getElementById('name_box').value;
+			document.getElementById('center_text_top').innerHTML = "Choose a game, " + n;
+			document.getElementById('enter_name').style.display = 'none';
+			document.getElementById('game_name').style.display = 'inline-block';
+			gameBox.classList.add('expanded_left');
+		return false;
+	}
+	
+	</script>
+	<script>
+	
+		$('.game_list_items').hover( //Adds hovered game selection to #game_name in center screen : Attempts to flip #center_text_inner div around x-axis on hovered selection of a .game_list_item 
+			
+			function() {
+				var selected = $(this).children()[0].innerText;
+				$('#game_name')[0].innerHTML = selected;
+				$('#center_text_inner').addClass('flip');
+				},
+				
+			function() {
+				$('#game_name')[0].innerHTML = "";
+			}
+			
+			);
+			
+	</script>
+	<script>
+	
+	$('.game_names').click(function(){
+			var url = $(this).attr('id') + ".html";
+			console.log(url); //returns mc_link.html if clicking on #mc_link
+            
+                if ($('#modBox').is(':hidden')) {
+                   
+                   $('#modBox').animate({width:"toggle"}, 500);
+				   $('modBox').load(url);
+                } else {
+                   
+                   $('#modBox').animate({width:"toggle"}, 250);
+				   document.getElementById('ModdingGame').innerHTML = "You've Switched Me!"; //for debugging
+				   $('#modBox').delay(200).animate({width:"toggle"},250);				   
+				   $('modBox').load(url);
+                }
+	});
+	</script>
+</body>
+</html>

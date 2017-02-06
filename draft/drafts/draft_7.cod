@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cockatrice_deck version="1">
+<deckname>Draft</deckname>
+<comments></comments>
+<zone name="main">
+<card number="1" price="0" name="Kor Sanctifiers"/>
+<card number="1" price="0" name="Shieldmate's Blessing"/>
+<card number="1" price="0" name="Timbermaw Larva"/>
+<card number="1" price="0" name="Hedron Scrabbler"/>
+<card number="1" price="0" name="Territorial Baloth"/>
+<card number="1" price="0" name="Tempest Owl"/>
+<card number="1" price="0" name="Trusty Machete"/>
+<card number="1" price="0" name="Pitfall Trap"/>
+<card number="1" price="0" name="Oran-Rief Survivalist"/>
+<card number="1" price="0" name="Warren Instigator"/>
+<card number="1" price="0" name="Oran-Rief Recluse"/>
+<card number="1" price="0" name="Caravan Hurda"/>
+<card number="1" price="0" name="Cancel"/>
+<card number="1" price="0" name="Trailblazer's Boots"/>
+<card number="1" price="0" name="Armament Master"/>
+<card number="1" price="0" name="Aether Figment"/>
+<card number="1" price="0" name="Nimbus Wings"/>
+<card number="1" price="0" name="Shoal Serpent"/>
+<card number="1" price="0" name="Windrider Eel"/>
+<card number="1" price="0" name="Disfigure"/>
+<card number="1" price="0" name="Vampire's Bite"/>
+<card number="1" price="0" name="Ravenous Trap"/>
+<card number="1" price="0" name="Tanglesap"/>
+<card number="1" price="0" name="Zektar Shrine Expedition"/>
+<card number="1" price="0" name="Kazandu Refuge"/>
+<card number="1" price="0" name="Goblin War Paint"/>
+<card number="1" price="0" name="Molten Ravager"/>
+<card number="1" price="0" name="Vines of Vastwood"/>
+<card number="1" price="0" name="Grappler Spider"/>
+<card number="1" price="0" name="Treasure Hunt"/>
+<card number="1" price="0" name="Kitesail"/>
+<card number="1" price="0" name="Tomb Hex"/>
+<card number="1" price="0" name="Deathforge Shaman"/>
+<card number="1" price="0" name="Dread Statuary"/>
+<card number="1" price="0" name="Mire's Toll"/>
+<card number="1" price="0" name="Bojuka Bog"/>
+<card number="1" price="0" name="Twitch"/>
+<card number="1" price="0" name="Hammer of Ruin"/>
+<card number="1" price="0" name="Iona's Judgment"/>
+<card number="1" price="0" name="Jace, the Mind Sculptor"/>
+<card number="1" price="0" name="Khalni Garden"/>
+<card number="1" price="0" name="Apex Hawks"/>
+</zone>
+</cockatrice_deck>

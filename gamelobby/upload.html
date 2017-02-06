@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+   <head>
+      <title>Cube File Manager</title>
+   </head>
+<body>
+
+   <h1>Cube File Manager</h1>
+   
+   <form enctype="multipart/form-data">
+      <input type='file' name='file'>
+      </input>
+   </form>
+   Name of cube (optional):
+   <input type='text' id='filename'>
+   </input>
+   <br>
+   <button id='uploadButton'>Upload File</button>
+   <br>
+   <h3 id='successLabel'></h3>
+   <hr>
+   Uploaded Files
+   <br>
+   <ul id='uploadedFiles'>
+   </ul>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+<script>
+   var file = null;
+   
+   window.onload = function() {
+      document.getElementById('uploadButton').onclick = uploadFile;
+      
+      $(':file').change(function() {
+         file = this.files[0];
+      });
+      
+      var request = new XMLHttpRequest();
+      request.onreadystatechange = function() {
+         if (request.readyState == 4) {
+            var files = JSON.parse(request.responseText);
+            var ul = document.getElementById('uploadedFiles');
+            files.forEach(function(val) {
+               var li = document.createElement('li');
+               li.innerHTML = val;
+               ul.append(li);
+            });
+         }
+      };
+      request.open("GET", '/cubelistupload', true);
+      request.send();
+   };
+   
+   function uploadFile() {
+      if (file == null) {
+         updateStatus("No file selected");
+         return;
+      }
+      
+      var submitButton = document.getElementById('uploadButton');
+      submitButton.disabled = true;
+      var successLabel = document.getElementById('successLabel');
+      successLabel.innerHTML = '';
+      
+      var filename = document.getElementById('filename').value;
+      if (filename.length === 0) {
+         filename = file.name;
+      } else {
+         filename = filename.replace(/ /g, '_')
+                            .replace(/'/g,'');
+         filename += '.txt';
+      }
+      
+      var reader = new FileReader();
+      reader.readAsText(file, "UTF-8");
+      reader.onload = function(evt) {
+         //console.log(evt.target.result);
+         var request = new XMLHttpRequest();
+         request.onreadystatechange = function() {
+            if (request.readyState == 4) {
+               console.log(request.responseText);
+               var json = JSON.parse(request.responseText);
+               successLabel.innerHTML = json.status;
+               submitButton.disabled = false;
+            }
+         };
+         request.open("POST", '/cubelistupload', true);
+         request.setRequestHeader('filename', filename);
+         request.send(evt.target.result);
+      };
+      reader.onerror = function(evt) {
+         console.log("Error reading file: " + evt);
+      };
+   };
+   
+   function updateStatus(msg) {
+      document.getElementById('successLabel').innerHTML = msg;
+   };
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "But Smasher",
+  "manacost": "UUUUUUBBBBBBBBB",
+  "ap": {
+    "maxap": 1,
+    "regenap": 1
+  },
+  "creature": {
+    "attack": 20,
+    "health": 9,
+    "CHARGED": true,
+    "TAUNT": true
+  }
+}

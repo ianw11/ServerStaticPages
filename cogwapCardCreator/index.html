@@ -1,0 +1,756 @@
+<!doctype html>
+<html>
+   <head>
+      <title>Cogwap Card Creator</title>
+      
+      <style>
+         html {
+            display: table;
+            margin: auto;
+         }
+         body {
+            display: table-cell;
+            vertical-align: middle;
+            width: 50%;
+         }
+         .numberCircle {
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            
+            //background: #fff;
+            text-align: center;
+            
+            font: 32px Arial, sans-serif;
+            color: black;
+         }
+         .white {
+            border: 4px solid khaki;
+            background: khaki;
+         }
+         .blue {
+            border: 4px solid blue;
+            background: blue;
+         }
+         .black {
+            border: 4px solid black;
+            background: black;
+            color: white;
+         }
+         .red {
+            border: 4px solid red;
+            background: red;
+         }
+         .green {
+            border: 4px solid green;
+            background: green;
+         }
+         
+         table, th, td {
+            border: 1px solid black;
+         }
+         
+         .bordered {
+            border: 1px solid black;
+         }
+         
+         .hidden {
+            display: none;
+         }
+      </style>
+   </head>
+   
+   <body>
+      Name:
+      <input id='nameInput' type='text' oninput='nameInput(this)' />
+      <p/>
+      Rarity:
+      <select id='rarityInput' onchange='raritySelect(this)'>
+         <option selected disabled hidden value=''>--Choose one--</option>
+         <option value="COMMON">Common</option>
+         <option value="RARE">Rare</option>
+         <option value="EPIC">Epic</option>
+         <option value="LEGENDARY">Legendary</option>
+      </select>
+      <p/>
+      Mana Cost:
+      <input id='whiteInput' class='numberCircle white' type='number' min='0' max='12' onchange='manaChange(this, "white")' />
+      <input id='blueInput' class='numberCircle blue' type='number' min='0' max='12' onchange='manaChange(this, "blue")' />
+      <input id='blackInput' class='numberCircle black' type='number' min='0' max='12' onchange='manaChange(this, "black")' />
+      <input id='redInput' class='numberCircle red' type='number' min='0' max='12' onchange='manaChange(this, "red")' />
+      <input id='greenInput' class='numberCircle green' type='number' min='0' max='12' onchange='manaChange(this, "green")' />
+      <p/>
+      Card Type:
+      <select id='cardTypeInput' onchange='cardTypeSelect(this)' >
+         <option selected disabled hidden value=''>--Choose one--</option>
+         <option value="0">Creature</option>
+         <option value="1">Spell</option>
+         <option value="2">Artifact</option>
+      </select>
+      <p/>
+      <div id="creatureInputDiv" class='bordered hidden'>
+         Attack:
+         <input id='attackInput' type='number' min='0' onchange='attackChange(this)' />
+         <p/>
+         Health:
+         <input id='healthInput' type='number' min='0' onchange='healthChange(this)' />
+         <p/>
+         <h3>Keywords</h3>
+         <form id='creatureKeywordForm'>
+         </form>
+      </div>
+      <div id="apInputDiv" class='bordered hidden'>
+         Max AP:
+         <input id='maxApInput' type='number' min='0' onchange='maxApChange(this)' />
+         <p/>
+         Regen AP:
+         <input id='regenApInput' type='number' min='0' onchange='regenApChange(this)' />
+         <p/>
+      </div>
+      
+      <!-- ACTION -->
+      <h2>Action</h2>
+      <p/>
+      Action type:
+      <select id='actionTypeInput' onchange='actionTypeSelect(this)'>
+         <option selected disabled hidden value=''>-- Choose one --</option>
+         <option value="0">Active</option>
+         <option value="1">Triggered</option>
+      </select>
+      <div id='activeTable' style='display: none;' class='bordered'>
+         <h3>Ap Cost</h3>
+         <input id='actionApCostInput' type='number' min='0' onchange='actionApCostChange(this)' />
+      </div>
+      <div id='triggerTable' style='display: none;' class='bordered'>
+         <h3>Triggers</h3>
+         <form id='triggerForm'>
+         </form>
+      </div>
+      <p/>
+      Targeted:
+      <select id='actionTargetInput' onchange='actionTargetSelect(this)'>
+         <option selected disabled hidden value=''>--Choose one--</option>
+         <option value='0'>Targeted</option>
+         <option value='1'>Untargeted</option>
+      </select>
+      <div id='targeted' class='bordered hidden'>
+         <h3>Targeted Action</h3>
+         <select id="targetedInput" onchange='targetedChange(this)' >
+         </select>
+         <div id='selectorDiv' class='hidden'>
+            <h3>Selector</h3>
+            <select id='selectorInput' onchange='selectorChange(this)'>
+            </select>
+         </div>
+         <h3>Filter</h3>
+         <select id='targetFilterInput' onchange='targetFilterChange(this)'>
+         </select>
+      </div>
+      <div id='untargeted' class='bordered hidden'>
+         <h3>Untargeted Action</h3>
+         <select id="untargetedInput" onchange='untargetedChange(this)'>
+         </select>
+      </div>
+      <p/>
+      <table>
+         <tr>
+            <td>
+               IS BATTLECRY
+            </td>
+            <td>
+               <input id='battlecryInput' type='checkbox' onchange='battlecryChange(this)' />
+            </td>
+         </tr>
+         <tr>
+            <td>
+               IS DEATHRATTLE
+            </td>
+            <td>
+               <input id='deathrattleInput' type='checkbox' onchange='deathrattleChange(this)' />
+            </td>
+         </tr>
+         <tr>
+            <td>
+               %AMOUNT%
+            </td>
+            <td>
+               <input id='actionAmountInput' type='number' min='0' onchange='actionAmountChange(this)' />
+            </td>
+         </tr>
+         <tr>
+            <td>
+               %COLORS%
+            </td>
+            <td>
+               <form id='colorsForm'>
+               </form>
+            </td>
+         </tr>
+      </table>
+      
+      <hr>
+      <button id='resetButton' onclick='reset()'>Reset</button>
+      <button id='submitButton' onclick='submitCard()'>Submit</button>
+      <a href='/cogwapCardCreator/submitted'>View Submitted Cards</a>
+      <p/>
+      <h3 id='jsonOutput' />
+      
+      
+      <script src="https://code.jquery.com/jquery-3.1.0.slim.min.js" integrity="sha256-cRpWjoSOw5KcyIOaZNo4i6fZ9tKPhYYb6i5T9RSVJG8=" crossorigin="anonymous"></script>
+      
+      <script>
+         var name;
+         var rarity;
+         var manaWhite;
+         var manaBlue;
+         var manaBlack;
+         var manaRed;
+         var manaGreen;
+         
+         var cardType = -1;
+         var attack;
+         var health;
+         var creatureKeywords = {};
+         var maxAp;
+         var regenAp;
+         
+         var actionIsTargeted;
+         var actionIsActive;
+         
+         var actionApCost;
+         var action;
+         var actionSelector;
+         var actionFilter;
+         var triggers = {};
+         var actionAmount;
+         var colors = {};
+         var isBattlecry;
+         var isDeathrattle;
+         
+         var SPACE = "&nbsp;"
+         
+         // The complete card string
+         var str;
+         
+         // The downloaded rules object
+         var rules;
+         
+         function apply() {
+            str = "{<p>";
+            if (name !== '') {
+               str += SPACE+SPACE+'"name": "' + name + '",<p>';
+            }
+            if (rarity !== '') {
+               str += SPACE+SPACE+'"rarity": "' + rarity + '",<p>';
+            }
+            str += SPACE+SPACE+'"manacost": "';
+            for (var i = 0; i < manaWhite; ++i)
+               str += "W";
+            for (var i = 0; i < manaBlue; ++i)
+               str += "U";
+            for (var i = 0; i < manaBlack; ++i)
+               str += "B";
+            for (var i = 0; i < manaRed; ++i)
+               str += "R";
+            for (var i = 0; i < manaGreen; ++i)
+               str += "G";
+            str += '"';
+            
+            // Spells don't have ap
+            if (cardType != 1 && cardType !== -1) {
+               str += ',<p>'+SPACE+SPACE+'"ap": {<p>';
+               str += SPACE+SPACE+SPACE+SPACE+'"maxap": '+maxAp+',<p>';
+               str += SPACE+SPACE+SPACE+SPACE+'"regenap": '+regenAp+'<p>';
+               str += SPACE+SPACE+"}";
+            }
+            
+            if (cardType == 0) {
+               // Creature
+               str += ',<p>'+SPACE+SPACE+'"creature": {<p>';
+               str += SPACE+SPACE+SPACE+SPACE+'"attack": '+attack+',<p>';
+               str += SPACE+SPACE+SPACE+SPACE+'"health": '+health;
+               var keywordArr = Object.keys(creatureKeywords);
+               if (keywordArr.length > 0) {
+                  for (ndx in keywordArr) {
+                     var keyword = keywordArr[ndx];
+                     str += ',<p>'+SPACE+SPACE+SPACE+SPACE+'"'+keyword+'": true';
+                  }
+               }
+               str += '<p>'+SPACE+SPACE+'}';
+            }
+            
+            if (action != -1) {
+               str += ',<p>'+SPACE+SPACE+'"actions": [<p>';
+               str += SPACE+SPACE+SPACE+SPACE+'{<p>';
+               str += SPACE+SPACE+SPACE+SPACE+SPACE+SPACE+'"class": "';
+               if (actionIsTargeted) {
+                  str += 'TargetedAction.'+rules.targeted[action].name;
+               } else {
+                  str += 'UntargetedAction.'+rules.untargeted[action].name;
+               }
+               str += '"';
+               if (actionApCost > 0) {
+                  str += ',<p>'+SPACE+SPACE+SPACE+SPACE+'"apcost": ' + actionApCost;
+               }
+               
+               if (triggers.size > 0) {
+                  str += ',<p>'+SPACE+SPACE+SPACE+SPACE+'"triggers": "';
+                  for (ndx in triggers) {
+                     if (ndx === 'size')
+                        continue;
+                     var val = triggers[ndx];
+                     str += val.name;
+                     str += "|";
+                  }
+                  str = str.slice(0, str.length-1);
+                  str += '"';
+               }
+               
+               if (actionSelector != null) {
+                  str += ',<p>'+SPACE+SPACE+SPACE+SPACE+'"selector": "';
+                  str += actionSelector.name;
+                  str += '"';
+               }
+               
+               if (actionFilter != null) {
+                  str += ',<p>'+SPACE+SPACE+SPACE+SPACE+'"filter": {<p>';
+                  str += SPACE+SPACE+SPACE+SPACE+SPACE+SPACE+'"class": "';
+                  str += actionFilter.name + '"';
+                  str += '<p>'+SPACE+SPACE+SPACE+SPACE+'}';
+               }
+               
+               if (actionAmount > 0) {
+                  str += ',<p>'+SPACE+SPACE+SPACE+SPACE+'"amount": '+actionAmount;
+               }
+               
+               var colorArr = Object.keys(colors);
+               if (colorArr.length > 0) {
+                  str += ',<p>'+SPACE+SPACE+SPACE+SPACE+'"colors": [';
+                  for (ndx in colorArr) {
+                     str += '"'+colorArr[ndx]+'",'
+                  }
+                  str = str.slice(0, str.length-1);
+                  str += "]";
+               }
+               
+               if (isBattlecry) {
+                  str += ',<p>'+SPACE+SPACE+SPACE+SPACE+'"battlecry": true';
+               }
+               if (isDeathrattle) {
+                  str += ',<p>'+SPACE+SPACE+SPACE+SPACE+'"deathrattle": true';
+               }
+               
+               str += '<p>'+SPACE+SPACE+SPACE+SPACE+"}";
+               str += '<p>'+SPACE+SPACE+']';
+            }
+            
+            str += "<p>}<p>";
+            document.getElementById('jsonOutput').innerHTML = str;
+         };
+         
+         function nameInput(self) {
+            name = self.value;
+            apply();
+         };
+         
+         function raritySelect(self) {
+            rarity = self.value;
+            apply();
+         };
+         
+         function manaChange(self, color) {
+            if (color === 'white')
+               manaWhite = self.value;
+            if (color === 'blue')
+               manaBlue = self.value;
+            if (color === 'black')
+               manaBlack = self.value;
+            if (color === 'red')
+               manaRed = self.value;
+            if (color === 'green')
+               manaGreen = self.value;
+            apply();
+         };
+         
+         function cardTypeSelect(self) {
+            // If creature
+            var creatureInput = document.getElementById('creatureInputDiv');
+            if (self.value == 0) {
+               creatureInput.style.display = "block";
+            } else {
+               creatureInput.style.display = 'none';
+            }
+            
+            // Always show AP unless this is a spell
+            var apInput = document.getElementById('apInputDiv');
+            if (self.value == 1) {
+               apInput.style.display = 'none';
+            } else {
+               apInput.style.display = 'block';
+            }
+            cardType = self.value;
+            apply();
+         };
+         
+         function maxApChange(self) {
+            maxAp = self.value;
+            apply();
+         };
+         
+         function regenApChange(self) {
+            regenAp = self.value;
+            apply();
+         };
+         
+         function attackChange(self) {
+            attack = self.value;
+            apply();
+         };
+         
+         function healthChange(self) {
+            health = self.value;
+            apply();
+         };
+         
+         function creatureKeywordChange(self) {
+            if (self.checked) {
+               creatureKeywords[self.value] = self.value;
+            } else {
+               delete creatureKeywords[self.value];
+            }
+            apply();
+         }
+         
+         function actionApCostChange(self) {
+            actionApCost = self.value;
+            apply();
+         };
+         
+         function targetedChange(self) {
+            action = self.value;
+            apply();
+         };
+         
+         function untargetedChange(self) {
+            action = self.value;
+            apply();
+         };
+         
+         function triggerChange(self) {
+            var trigger = rules.triggers[self.value];
+            if (self.checked) {
+               triggers[self.value] = trigger;
+               triggers.size++;
+            } else {
+               delete triggers[self.value]
+               triggers.size--;
+            }
+            apply();
+         };
+         
+         function actionAmountChange(self) {
+            actionAmount = self.value;
+            apply();
+         };
+         
+         function colorChange(self) {
+            var color = self.value;
+            if (self.checked) {
+               colors[color] = color;
+            } else {
+               delete colors[color];
+            }
+            apply();
+         };
+         
+         function battlecryChange(self) {
+            isBattlecry = self.checked;
+            apply();
+         };
+         
+         function deathrattleChange(self) {
+            isDeathrattle = self.checked;
+            apply();
+         };
+         
+         function targetFilterChange(self) {
+            actionFilter = rules.targetfilter[self.value];
+            apply();
+         };
+         
+         function selectorChange(self) {
+            actionSelector = rules.targetselector[self.value];
+            apply();
+         };
+         
+         // Update visibility
+         function actionTypeSelect(self) {
+            var apcost = document.getElementById('activeTable');
+            var triggers = document.getElementById('triggerTable');
+            if (self.value == 0) {
+               actionIsActive = true;
+               apcost.style.display = 'block';
+               triggers.style.display = 'none';
+               
+               document.getElementById('actionApCostInput').value = 0;
+               actionApCost = 0;
+            } else {
+               actionIsActive = false;
+               apcost.style.display = 'none';
+               triggers.style.display = 'block';
+            }
+            checkSelector();
+            apply();
+         };
+         
+         function actionTargetSelect(self) {
+            var targeted = document.getElementById('targeted');
+            var untargeted = document.getElementById('untargeted');
+            if (self.value == 0) {
+               targeted.style.display = 'block';
+               untargeted.style.display = 'none';
+               document.getElementById("untargetedInput").value = '';
+               actionIsTargeted = true;
+            } else {
+               targeted.style.display = 'none';
+               untargeted.style.display = 'block';
+               document.getElementById("targetedInput").value = '';
+               actionIsTargeted = false;
+            }
+            action = -1;
+            checkSelector();
+            apply();
+         };
+         
+         function checkSelector() {
+            var selectorDiv = document.getElementById('selectorDiv');
+            if (actionIsTargeted && !actionIsActive) {
+               selectorDiv.style.display = 'block';
+            } else {
+               selectorDiv.style.display = 'none';
+            }
+         };
+         
+         function reset() {
+            name = "";
+            rarity = '';
+            manaWhite = 0;
+            manaBlue = 0;
+            manaBlack = 0;
+            manaRed = 0;
+            manaGreen = 0;
+            
+            cardType = -1;
+            attack = 0;
+            health = 0;
+            creatureKeywords = {};
+            maxAp = 0;
+            regenAp = 0;
+            
+            actionApCost = 0;
+            action = -1;
+            triggers = {};
+            triggers.size = 0;
+            actionAmount = 0;
+            colors = {};
+            isBattlecry = false;
+            isDeathrattle = false;
+            
+            document.getElementById('nameInput').value = '';
+            document.getElementById('rarityInput').value = '';
+            document.getElementById('whiteInput').value = 0;
+            document.getElementById('blueInput').value = 0;
+            document.getElementById('blackInput').value = 0;
+            document.getElementById('redInput').value = 0;
+            document.getElementById('greenInput').value = 0;
+            document.getElementById('cardTypeInput').value = '';
+            document.getElementById('creatureInputDiv').style.display = 'none';
+            document.getElementById('apInputDiv').style.display = 'none';
+            document.getElementById('attackInput').value = 0;
+            document.getElementById('healthInput').value = 0;
+            document.getElementById('maxApInput').value = 0;
+            document.getElementById('regenApInput').value = 0;
+            document.getElementById('actionApCostInput').value = 0;
+            document.getElementById('actionAmountInput').value = 0;
+            document.getElementById('battlecryInput').checked = false;
+            document.getElementById('deathrattleInput').checked = false;
+            
+            document.getElementById('actionTypeInput').value = '';
+            document.getElementById('activeTable').style.display = 'none';
+            document.getElementById('triggerTable').style.display = 'none';
+            document.getElementById('actionTargetInput').value = '';
+            document.getElementById('targeted').style.display = 'none';
+            document.getElementById('untargeted').style.display = 'none';
+            
+            buildRules();
+            
+            apply();
+         };
+         
+         function buildRules() {
+            var targetedInput = document.getElementById("targetedInput");
+            while(targetedInput.firstChild)
+               targetedInput.removeChild(targetedInput.firstChild);
+            targetedInput.append(createBlankOption());
+            for (var i = 0; i < rules.targeted.length; ++i) {
+               var targeted = rules.targeted[i];
+               var option = document.createElement("option");
+               option.value = i;
+               option.innerHTML = targeted.name + " -- " + targeted.rules;
+               targetedInput.append(option);
+            }
+            
+            var untargetedInput = document.getElementById('untargetedInput');
+            while(untargetedInput.firstChild)
+               untargetedInput.removeChild(untargetedInput.firstChild);
+            untargetedInput.append(createBlankOption());
+            for (var i = 0; i < rules.untargeted.length; ++i) {
+               var untargeted = rules.untargeted[i];
+               var option = document.createElement("option");
+               option.value = i;
+               option.innerHTML = untargeted.name + " -- " + untargeted.rules;
+               untargetedInput.append(option);
+            }
+            
+            var triggerForm = document.getElementById("triggerForm");
+            while (triggerForm.firstChild)
+               triggerForm.removeChild(triggerForm.firstChild);
+            rules.triggers.forEach(function(val, ndx) {
+               var trigger = rules.triggers[ndx];
+               if (trigger.name === "_DEATHRATTLE") {
+                  return;
+               }
+               
+               var input = document.createElement('input');
+               input.type = "checkbox";
+               input.value = ndx;
+               input.onchange = function() {
+                  triggerChange(input);
+               };
+               
+               var label = document.createElement('label');
+               label.innerHTML = trigger.name + " -- " + trigger.rules;
+               label.append(input);
+               
+               triggerForm.append(label);
+               triggerForm.append(document.createElement('p'));
+            });
+            
+            var colorsForm = document.getElementById('colorsForm');
+            while (colorsForm.firstChild)
+               colorsForm.removeChild(colorsForm.firstChild);
+            rules.colors.forEach(function(val, ndx) {
+               var color = rules.colors[ndx];
+               var input = document.createElement('input');
+               input.type = 'checkbox';
+               input.value = color;
+               input.onchange = function() {
+                  colorChange(input);
+               };
+               
+               var label = document.createElement('label');
+               label.innerHTML = color;
+               label.append(input);
+               
+               colorsForm.append(label);
+               colorsForm.append(document.createElement('p'));
+            });
+            
+            // Target Filter
+            var filterForm = document.getElementById('targetFilterInput');
+            while (filterForm.firstChild)
+               filterForm.removeChild(filterForm.firstChild);
+            filterForm.append(createBlankOption());
+            rules.targetfilter.forEach(function(val, ndx) {
+               var filter = rules.targetfilter[ndx];
+               var option = document.createElement('option');
+               option.value = ndx;
+               option.innerHTML = filter.name + " -- " + filter.rules;
+               filterForm.append(option);
+            });
+            
+            // Target Selector
+            var selectorInput = document.getElementById('selectorInput');
+            while (selectorInput.firstChild)
+               selectorInput.removeChild(selectorInput.firstChild);
+            selectorInput.append(createBlankOption());
+            rules.targetselector.forEach(function(val, ndx) {
+               var selector = rules.targetselector[ndx];
+               var option = document.createElement('option');
+               option.value = ndx;
+               option.innerHTML = selector.name + " -- " + selector.rules;
+               selectorInput.append(option);
+            });
+            
+            var creatureKeywordsForm = document.getElementById('creatureKeywordForm');
+            while (creatureKeywordsForm.firstChild)
+               creatureKeywordsForm.removeChild(creatureKeywordsForm.firstChild);
+            rules.creaturekeywords.forEach(function (val, ndx) {
+               var keyword = rules.creaturekeywords[ndx];
+               var input = document.createElement('input');
+               input.type = 'checkbox';
+               input.value = keyword;
+               input.onchange = function() {
+                  creatureKeywordChange(input);
+               };
+               
+               var label = document.createElement('label');
+               label.innerHTML = keyword;
+               label.append(input);
+               
+               creatureKeywordsForm.append(label);
+               creatureKeywordsForm.append(document.createElement('p'));
+            });
+         };
+         
+         function createBlankOption() {
+            var blankOption = document.createElement('option');
+            blankOption.value = '';
+            blankOption.disabled = true;
+            blankOption.hidden = true;
+            blankOption.selected = true;
+            return blankOption;
+         };
+         
+         function submitCard() {
+            if (name == '') {
+               alert("Name is required");
+               return;
+            }
+            var xmlhttp = new XMLHttpRequest();
+            var url = "/cogwapCardSubmit";
+            var sanitizedName = sanitizeString(name).replace(new RegExp(" ", 'g'), "_");
+            console.log(sanitizedName);
+            xmlhttp.onreadystatechange = function() {
+               if (this.readyState == 4 && this.status == 200) {
+                  alert("Success");
+                  reset();
+               }
+            }
+            xmlhttp.open("POST", url, true);
+            xmlhttp.setRequestHeader("cardname", sanitizedName);
+            xmlhttp.send(sanitizeString(str));
+         };
+         
+         function sanitizeString(str) {
+            return str.replace(new RegExp("'", 'g'), "").replace(new RegExp("<p>", 'g'), "\n").replace(new RegExp(SPACE, 'g'), " ");
+         };
+         
+         function downloadRules() {
+            var xmlhttp = new XMLHttpRequest();
+            var url = "/cogwapCardSubmit";
+            xmlhttp.onreadystatechange = function() {
+               if (this.readyState == 4 && this.status == 200) {
+                  rules = JSON.parse(xmlhttp.responseText);
+                  reset();
+               }
+            }
+            
+            xmlhttp.open("GET", url, true);
+            xmlhttp.send();
+         };
+         
+         window.onload = downloadRules;
+      </script>
+   </body>
+</html>
