@@ -7,6 +7,7 @@ var currentCard;
 
 function start() {
    console.log("Start function called");
+   console.log("Width: " + $(window).width());
    
    $(document).keypress(keypress);
    
@@ -194,7 +195,7 @@ function buildPackTd(packCard, hoverlock) {
    
    var img = document.createElement('img');
    img.src = 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=' + multiverseId + '&type=card';
-   img.width = $(window).width() < 1080 ? 100 : 170;
+   img.width = $(window).width() < 1920 ? 125 : 170;
    img.className = 'unselected';
    div.append(img);
    
@@ -205,6 +206,7 @@ function buildPackTd(packCard, hoverlock) {
       pendingCard(hoverlock.card, true);
    };
    td.onclick = function() {
+      console.log("Single click");
       pendingCard(packCard, true);
       hoverlock.card = packCard;
       var oldElem = hoverlock.elem;
@@ -213,6 +215,10 @@ function buildPackTd(packCard, hoverlock) {
       }
       img.className = "selected";
       hoverlock.elem = img;
+   };
+   td.ondblclick = function() {
+      console.log("Double click");
+      submitCurrentCard();
    };
    
    return td;
@@ -238,6 +244,8 @@ function pendingCard(card, enableButton) {
    var multiverseId = card.card.multiverseId;
    
    pendingImage.src = 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=' + multiverseId + '&type=card';
+   //console.log(pendingImage.width);
+   pendingImage.width = 250;
    
    var oracle = document.createElement('p');
    oracle.innerHTML = cardText;

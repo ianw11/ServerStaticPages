@@ -1,6 +1,8 @@
 #chooseDraftDiv{
 	xposition:fixed;
-	border: 5px solid yellow;
+	xborder: 5px solid yellow;
+	background: rgba(225,225,225, 0.5);
+	position: fixed
 }
 #statusBar {
 	padding-top: 10px;
@@ -97,7 +99,7 @@
 	text-shadow: 1px 1px #000000
 }
 #selectPendingCardButton:disabled {
-	background-color: rgba(225,225,225, 0.5);
+	background-color: rgba(225,225,225, 0);
 	border:none;
 	color: rgba(0,0,0,0);
 	padding: 10px 10px;
@@ -113,7 +115,7 @@
 	padding: 2px;
 	}
 .selected{
-	border: 2px solid green;
+	border: 2px solid white;
 }
 .unselected{
 border: 1px solid rgba(225,225,225, 0.5);
