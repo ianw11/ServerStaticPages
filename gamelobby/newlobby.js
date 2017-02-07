@@ -58,6 +58,7 @@ function applyOnClick() {
    $('#_submit_name_form').submit(sendName);
    $('#createGameButton')[0].onclick = createGame;
    $('#createGameRoomButton')[0].onclick = submitCreateGame;
+   $('#gameTitleInputForm').submit(submitCreateGame);
    $('#joinGameButton')[0].onclick = joinGame;
    $('#refreshOpenRooms')[0].onclick = refreshOpenRooms;
    $('#startGameButton')[0].onclick = requestStartGame;
@@ -120,6 +121,7 @@ function submitCreateGame() {
    } else {
       sendSocketDataWithUI("_create_room", _selected_game.id);
    }
+   return false;
 };
 
 /*

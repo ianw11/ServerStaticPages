@@ -171,7 +171,7 @@ function currentPack(args) {
 function buildCardTable(cards, table, hoverlock) {
    var currentTr;
    cards.forEach(function(packCard, ndx) {
-      if (ndx % 4 == 0) {
+      if (ndx % 5 == 0) {
          currentTr = document.createElement('tr');
          table.append(currentTr);
       }
@@ -189,7 +189,8 @@ function buildPackTd(packCard, hoverlock) {
    
    var img = document.createElement('img');
    img.src = 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=' + multiverseId + '&type=card';
-   img.width = 125;
+   img.width = $(window).width() < 1080 ? 100 : 170;
+   img.className = 'unselected';
    div.append(img);
    
    td.onmouseover = function() {
@@ -203,13 +204,11 @@ function buildPackTd(packCard, hoverlock) {
       hoverlock.card = packCard;
       var oldElem = hoverlock.elem;
       if (oldElem !== undefined) {
-         oldElem.className = "";
+         oldElem.className = "unselected";
       }
       img.className = "selected";
       hoverlock.elem = img;
    };
-   
-   
    
    return td;
 };
@@ -240,6 +239,8 @@ function pendingCard(card, enableButton) {
    
    submitButton.disabled = !enableButton;
    submitButton.onclick = function() {
+      submitButton.disabled = true;
+      dropChildren(detailsDiv);
       pendingImage.src = "";
       sendSocket('card_selected', packId);
       dropChildren(document.getElementById('currentPack'));
@@ -310,5 +311,8 @@ function updateStatusBar(text) {
 
 function desanitizeText(text) {
    return text.split("QUOTE").join("\"")
-      .split("NEWLINE").join("<br>");
+      .split("NEWLINE").join("<br>")
+      .split("{").join("{<i>")
+      .split("}").join("</i>}")
+      ;
 };
