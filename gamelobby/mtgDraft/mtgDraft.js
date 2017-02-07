@@ -7,6 +7,7 @@ function start() {
    console.log("Start function called");
    
    socket.on('_ready', ready);
+   socket.on('background', background);
    socket.on("isOwner", isOwner);
    socket.on("cube_list", cubeList);
    socket.on("set_list", setList);
@@ -20,6 +21,7 @@ function start() {
    socket.on('no_more_packs', draftComplete);
    socket.on('draft_file', draftFile);
    
+   document.getElementById('refreshBackgroundButton').onclick = refreshBackground;
    document.getElementById('toggleCardsButton').onclick = toggleDraftView;
    document.getElementById('submitSets').onclick = submitSets;
    $('#draft').toggle(0);
@@ -33,6 +35,16 @@ function ready() {
    sendSocketTitle('isOwner');
 };
 
+function refreshBackground() {
+   sendSocketTitle('background');
+};
+
+function background(args) {
+   var background = args[0];
+   console.log(background);
+   document.body.style.backgroundImage = 'url('+ background +')';
+};
+
 function isOwner(args) {
    if (args[0] === 'true') {
       sendSocketTitle('list_cubes');
@@ -44,6 +56,7 @@ function isOwner(args) {
    } else {
       updateStatusBar("Please wait.... game creator is choosing what to draft");
       toggleDraftView();
+      refreshBackground();
    }
 };
 
@@ -59,6 +72,8 @@ function cubeList(args) {
       root.append(button);
       root.append(document.createElement('br'));
    });
+   // Finally the owner can make a request to get the background
+   refreshBackground();
 };
 
 function setList(args) {
@@ -131,48 +146,104 @@ function selectionError(args) {
 };
 
 function currentPack(args) {
-   var draftDiv = document.getElementById('draft');
    var packCards = JSON.parse(args[0]);
    var packNum = args[1];
    var pickNum = args[2];
    var passDirection = args[3]; // Unused
    var numCards = packCards.length;
    updateStatusBar("Pack " + packNum + " Pick " + pickNum + " Num cards in pack: " + numCards);
-   packCards.forEach(function(packCard) {
+   
+   document.getElementById('selectPendingCardButton').disabled = true;
+   
+   var hoverlock = new Object();
+   
+   var table = document.createElement('table');
+   var draftDiv = document.getElementById('currentPack')
+   draftDiv.append(table);
+   buildCardTable(packCards, table, hoverlock);
+   /*
+   packCards.forEach(function(packCard, ndx) {
       draftDiv.append(buildPackDiv(packCard));
+   });
+   */
+};
+
+function buildCardTable(cards, table, hoverlock) {
+   var currentTr;
+   cards.forEach(function(packCard, ndx) {
+      if (ndx % 4 == 0) {
+         currentTr = document.createElement('tr');
+         table.append(currentTr);
+      }
+      currentTr.append(buildPackTd(packCard, hoverlock));
    });
 };
 
-function buildPackDiv(packCard) {
-   var name = packCard.card.name;
+function buildPackTd(packCard, hoverlock) {
    var multiverseId = packCard.card.multiverseId;
-   var oracle = desanitizeText(packCard.card.text);
-   var packId = packCard.packId;
    
    var div = document.createElement('div');
    div.className = 'card';
-
-   var h1 = document.createElement('h1');
-   h1.innerHTML = name;
-   div.append(h1);
+   var td = document.createElement('td');
+   td.append(div);
    
    var img = document.createElement('img');
    img.src = 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=' + multiverseId + '&type=card';
+   img.width = 125;
    div.append(img);
    
-   var p = document.createElement('p');
-   p.innerHTML = oracle;
-   div.append(p);
-   
-   var button = document.createElement('button');
-   button.innerHTML = "Select";
-   button.onclick = function() {
-      sendSocket('card_selected', packId);
-      dropChildren(document.getElementById('draft'));
+   td.onmouseover = function() {
+      pendingCard(packCard, false);
    };
-   div.append(button);
+   td.onmouseout = function() {
+      pendingCard(hoverlock.card, true);
+   };
+   td.onclick = function() {
+      pendingCard(packCard, true);
+      hoverlock.card = packCard;
+      var oldElem = hoverlock.elem;
+      if (oldElem !== undefined) {
+         oldElem.className = "";
+      }
+      img.className = "selected";
+      hoverlock.elem = img;
+   };
    
-   return div;
+   
+   
+   return td;
+};
+
+function pendingCard(card, enableButton) {
+   var detailsDiv = document.getElementById('pendingCardDetails');
+   var pendingImage = document.getElementById('pendingCardImg');
+   var submitButton = document.getElementById('selectPendingCardButton');
+   
+   if (card === undefined) {
+      submitButton.disabled = true;
+      return;
+   }
+   
+   dropChildren(detailsDiv);
+   
+   var name = card.card.name;
+   var cardText = desanitizeText(card.card.text);
+   var packId = card.packId;
+   var multiverseId = card.card.multiverseId;
+   
+   pendingImage.src = 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=' + multiverseId + '&type=card';
+   
+   var oracle = document.createElement('p');
+   oracle.innerHTML = cardText;
+   detailsDiv.append(oracle);
+   
+   
+   submitButton.disabled = !enableButton;
+   submitButton.onclick = function() {
+      pendingImage.src = "";
+      sendSocket('card_selected', packId);
+      dropChildren(document.getElementById('currentPack'));
+   };
 };
 
 function waitForPack(args) {

@@ -361,6 +361,34 @@
 		padding: 0px;
 	}
 	
+	.select_button {
+		width: 35%;
+		padding: 20px 40px;
+		display: inline-block;
+		background: #1862BC;
+		border: none;
+		-webkit-box-shadow: 3px 6px 2px 0px rgba(39,73,109,1);
+		-moz-box-shadow: 3px 6px 2px 0px rgba(39,73,109,1);
+		box-shadow: 3px 6px 2px 0px rgba(39,73,109,1);
+	}
+	
+	.select_button:hover {
+		background: #3780CE;
+		box-shadow: inset 0 0 0 1px #27496d,0 5px 15px #193047;
+		-webkit-box-shadow: inset 0 0 0 1px #27496d,0 5px 15px #193047;
+		-moz-box-shadow: inset 0 0 0 1px #27496d,0 5px 15px #193047;
+	}
+	
+	.select_buttons:active {
+		box-shadow: inset 0 0 0 1px #27496d,inset 0 5px 30px #193047;
+		-webkit-box-shadow: inset 0 0 0 1px #27496d,inset 0 5px 30px #193047;
+		-moz-box-shadow: inset 0 0 0 1px #27496d,inset 0 5px 30px #193047;
+	}
+	
+	#createGameButton {
+		margin-right: 40px;
+	}
+	
 	#center_text_top {
 		margin: 0px;
 		font-size: 3em;

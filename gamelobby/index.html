@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
    <head>
-      <title>Kripp's Paradise</title>
+      <title>Dickbutt HQ</title>
       
       <style>
          body {
@@ -55,8 +55,10 @@
       <!-- 1. Enter name div -->
       <div id='enterNameDiv'>
          <h1>Pretty good</h1>
-         <input type='text' id='name_input'></input>
-         <button id="submit_name_button">Submit name</button>
+         <form id='_submit_name_form'>
+            <input id='name_input' autocomplete="off" autofocus>
+            <button id="submit_name_button">Submit name</button>
+         </form>
       </div>
       
       <!-- 2. Create or join -->
@@ -75,7 +77,7 @@
          <h3 id='playerNumberRequirements'>(Select a game)</h3>
          <br>
          Game Title (optional):
-         <input id='gameTitleInput' type='text'></input>
+         <input id='gameTitleInput' type='text'>
          <br>
          <button id='createGameRoomButton' disabled>Create Lobby!</button>
       </div>

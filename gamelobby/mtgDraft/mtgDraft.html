@@ -1,43 +1,62 @@
-<h1 id='statusBar'></h1>
-<p id='download'></p>
-<br />
-<button id='toggleCardsButton' disabled></button>
+<div id='gameBody'>
+   <link href="mtgDraft/new1.css" type="text/css" rel="stylesheet" />
 
-<div id='chooseDraftDiv'>
-   <button id='startDraftButton' disabled>Start Draft</button>
-   <p>
-   Number of packs:
-   <input type='number' id='packNumberInput' min='1' max='99' value='3'>
-   </input>
-   <p>
-   <table style='border: 1px solid black;'>
-      <tr>
-         <th>Choose a file</th>
-         <th>OR</th>
-         <th>Draft an existing set</th>
-      </tr>
-      <tr>
-         <td>
-            <div id='availableCubes'></div>
-         </td>
-         <td>
-         </td>
-         <td>
-            <div id='chooseFormatButtons'></div>
-            <b id='selectedFormat'></b>
-            <p>
-            <div id='availableSets'></div>
-            <br />
-            <button id='submitSets' disabled>Choose Sets</button>
-         </td>
-      </tr>
-   </table>
-</div>
+   <h1 id='statusBar'></h1>
 
-<div id="draft"></div>
-<div id='selected'>
-   <h2 id='numSelectedCards'></h2>
-   <div id='selectedCards'>
+   <p id='download'></p>
+   <br />
+ 
+
+   <div id='chooseDraftDiv'>
+      <button id='startDraftButton' disabled>Start Draft</button>
+      <p>
+      Number of packs:
+      <input type='number' id='packNumberInput' min='1' max='99' value='3'>
+      </input>
+      <p>
+      <table>
+         <tr>
+            <th>Choose a file</th>
+            <th>OR</th>
+            <th>Draft an existing set</th>
+         </tr>
+         <tr>
+            <td>
+               <div id='availableCubes'></div>
+            </td>
+            <td>
+            </td>
+            <td>
+               <div id='chooseFormatButtons'></div>
+               <b id='selectedFormat'></b>
+               <p>
+               <div id='availableSets'></div>
+               <br />
+               <button id='submitSets' disabled>Choose Sets</button>
+            </td>
+         </tr>
+      </table>
    </div>
+
+   <div id="draft">
+      <div id='currentPack'></div>
+      <div id='pendingCard'>
+         <img id='pendingCardImg'></img>
+         <div id='pendingCardDetails'></div>
+         <button id='selectPendingCardButton' disabled>Select current card</button>
+      </div>
+   </div>
+   <div id='selected'>
+      <h2 id='numSelectedCards'></h2>
+      <div id='selectedCards'>
+      </div>
+   </div>
+
+<button id='refreshBackgroundButton'>Refresh background</button>
+   <p id='download'></p>
+   <br />
+   <button id='toggleCardsButton' disabled></button>
+
+
+   <script type='text/javascript' src='mtgDraft/mtgDraft.js'></script>
 </div>
-<script type='text/javascript' src='mtgDraft/mtgDraft.js'></script>

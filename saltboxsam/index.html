@@ -105,8 +105,12 @@
 						<form id="enter_name">
 							<input id="name_box" type="text" placeholder="Enter your name..." autocomplete="off">
 						</form>
+						<div id="create_or_join" style="display: none;">
+							<button id='createGameButton' class="select_button">Create Game</button>
+							<button id='joinGameButton' class="select_button">Join Game</button>
+						</div>
 						
-						<h2 id="game_name" style="display:none;"></h2><!-- used to give #center_text_inner some height-->
+						<h2 id="game_name" style="display: none;"></h2><!-- used to give #center_text_inner some height-->
 					
 					</div>	
 				</div>								
@@ -118,32 +122,19 @@
   src="http://code.jquery.com/jquery-2.2.4.min.js"
   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
   crossorigin="anonymous"></script>
-					
-	<script> 
-	(function() { // Stops page from reloading after entering name and pressing return key
-		$('#enter_name').submit(function() {
-			nameFunction();
-			return false;
-		});
-	})();
-
-	function nameFunction() { //Replaces #center_text_top text with new text and user's name : Then expands the list of available games
-	    var gameBox = document.getElementsByClassName('game_expander')[0];
-		var n = document.getElementById('name_box').value;
-			document.getElementById('center_text_top').innerHTML = "Choose a game, " + n;
-			document.getElementById('enter_name').style.display = 'none';
-			document.getElementById('game_name').style.display = 'inline-block';
-			gameBox.classList.add('expanded_left');
-		return false;
-	}
-	</script>
+  
+  
+	<script type='text/javascript' src='js_websocket_attempt.js'></script>				
+	
+	
+	
 	<script>
 		$('.game_list_items').hover( //Adds hovered game selection to #game_name in center screen : Attempts to flip #center_text_inner div around x-axis on hovered selection of a .game_list_item 
 			
 			function() {
 				var selected = $(this).children()[0].innerText;
 				$('#game_name')[0].innerHTML = selected;
-				$('#center_text_inner').addClass('flip');
+				//$('#center_text_inner').classList.add('flip');
 				},
 				
 			function() {
@@ -152,6 +143,8 @@
 			
 			);		
 	</script>
+	
+	
 	<!--<script>		
 		var list = document.getElementsByClassName('game_names');
 		function expandMods() {
@@ -169,6 +162,8 @@
 			list[i].onclick = expandMods;
 			}			
 	</script>-->
+	
+	
 	<script>
 	$('.game_names').click(function(){
 			var url = $(this).attr('id') + ".html";
@@ -187,6 +182,8 @@
                 }
 	});
 	</script>
+	
+	
 	<!-- <script>
 	$('#cs_link').click(function(){
 				

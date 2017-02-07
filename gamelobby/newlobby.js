@@ -55,6 +55,7 @@ window.onload = function() {
 function applyOnClick() {
    //$('#_debug_close_socket_button')[0].onclick = DEBUGcloseSocket;
    $('#submit_name_button')[0].onclick = sendName;
+   $('#_submit_name_form').submit(sendName);
    $('#createGameButton')[0].onclick = createGame;
    $('#createGameRoomButton')[0].onclick = submitCreateGame;
    $('#joinGameButton')[0].onclick = joinGame;
@@ -72,6 +73,8 @@ function sendName(button) {
       _swapActiveElement('createOrJoin');
    });
    sendSocketDataWithUI("name", input);
+   
+   return false;
 };
 
 /*
@@ -94,6 +97,8 @@ function createGame() {
          button.innerHTML = val.name;
          button.id = val.id;
          
+         console.log("Donal:")
+         console.log(chooseGameForm);
          chooseGameForm.append(button);
          chooseGameForm.append(document.createElement('br'));
       });
