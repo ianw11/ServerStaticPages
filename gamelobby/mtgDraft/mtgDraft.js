@@ -150,7 +150,8 @@ function buildPackDiv(packCard) {
    var packId = packCard.packId;
    
    var div = document.createElement('div');
-   
+   div.className = 'card';
+
    var h1 = document.createElement('h1');
    h1.innerHTML = name;
    div.append(h1);
