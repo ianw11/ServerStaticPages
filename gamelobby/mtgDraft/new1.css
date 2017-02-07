@@ -1,0 +1,156 @@
+#chooseDraftDiv{
+	xposition:fixed;
+	border: 5px solid yellow;
+}
+#statusBar {
+	padding-top: 10px;
+	xborder: 5px solid yellow;
+	margin: 10px 10px 10px 10px;
+	position:static;
+	xfloat:top;
+	text-align:center;
+}
+#currentPack {
+	padding-left:0;
+	xborder: 5px solid yellow;
+	width: 400px;
+	height:750px;
+	float:left;
+}	
+#pendingCard {
+	position:relative;
+	top: 100px;
+	right: 200px;
+	width: 400px;
+	padding: 3px;
+	background: rgba(225,225,225, 0.5);
+	xborder: 5px solid yellow;
+	color:black;
+	font-weight: bold;
+	float:right;
+	text-align:center;
+}
+#refreshBackgroundButton {
+	background-color: rgba(225,225,225, 0.2);
+	border:none;
+	color: black;
+	padding: 8px 8px;
+	text-align: center;
+	text-decoration: none;
+	display:block;
+	font-size: 14px;
+	xmargin: 0 0 0 1040px;
+	position: fixed;
+	right: 20px;
+	bottom: 50px;
+	
+	-webkit-transition-duration: 0.4s; 
+    transition-duration: 0.4s;
+}	
+#refreshBackgroundButton:hover {
+	background-color: rgba(225,225,225, 0.5); 
+    color: white;
+}	
+#toggleCardsButton {
+	background-color: rgba(225,225,225, 0.2);
+	border:none;
+	color: black;
+	padding: 10px 10px;
+	text-align: center;
+	text-decoration: none;
+	display:block;
+	font-size: 14px;
+	bottom: 50px;
+	position: fixed;
+	float:bottom;
+	
+	
+	-webkit-transition-duration: 0.4s; 
+    transition-duration: 0.4s;
+}
+#toggleCardsButton:hover {
+	background-color: rgba(225,225,225, 0.5); 
+    color: #ffffff;
+}
+#selectPendingCardButton{
+	background-color: #ffffff;
+	border:none;
+	color: black;
+	padding: 10px 10px;
+	text-align: center;
+	text-decoration: none;
+	xdisplay:inline-block;
+	font-size: 14px;
+	xmargin: -20px 255px 0 0;
+	xfloat:bottom;
+	
+	-webkit-transition-duration: 0.4s; 
+    transition-duration: 0.4s;
+}
+#selectPendingCardButton:hover{
+	background-color: rgba(225,225,225, 0.2); 
+    color: #ffffff;
+}
+#numSelectedCards{
+	font-family: Arial, Verdana, sans-serif;
+	color: #ffffff;
+	text-shadow: 1px 1px #000000
+}
+#selectPendingCardButton:disabled {
+	background-color: rgba(225,225,225, 0.5);
+	border:none;
+	color: rgba(0,0,0,0);
+	padding: 10px 10px;
+	text-align: center;
+	text-decoration: none;
+	font-size: 14px;
+}
+
+.card {
+	text-align: center;
+	xborder:2px solid #ffffff;
+	xbackground-color: rgba(225,225,225, 0.5);
+	padding: 2px;
+	}
+.selected{
+	border: 2px solid green;
+}
+.unselected{
+border: 1px solid rgba(225,225,225, 0.5);
+}
+
+body {
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-position:center;
+}
+page {
+	xborder: 1px solid #665544;
+	background-color: #efefef;
+	
+}
+table{
+	xbackground: rgba(225,225,225, 0.5);
+	width: 420px;
+	margin: 0 0 0 0
+}
+h1 {
+	font-family: Arial, Verdana, sans-serif;
+	color: #ffffff;
+	text-shadow: 1px 1px #000000
+	
+}
+p {
+	font-family: Arial, Verdana, sans-serif;
+	color: black;
+}
+th {
+	xwidth:300px
+}	
+td {
+	
+}	
+tr {
+	font-family: Arial, Verdana, sans-serif;
+	color: #ffffff;
+}

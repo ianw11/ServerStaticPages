@@ -3,8 +3,12 @@ var currentDiv = $('#chooseDraftDiv');
 
 var sets = [];
 
+var currentCard;
+
 function start() {
    console.log("Start function called");
+   
+   $(document).keypress(keypress);
    
    socket.on('_ready', ready);
    socket.on('background', background);
@@ -24,6 +28,7 @@ function start() {
    document.getElementById('refreshBackgroundButton').onclick = refreshBackground;
    document.getElementById('toggleCardsButton').onclick = toggleDraftView;
    document.getElementById('submitSets').onclick = submitSets;
+   document.getElementById('selectPendingCardButton').onclick = submitCurrentCard;
    $('#draft').toggle(0);
    $('#selected').toggle(0);
    document.getElementById('packNumberInput').onchange = numSetPacksUpdate;
@@ -220,8 +225,10 @@ function pendingCard(card, enableButton) {
    
    if (card === undefined) {
       submitButton.disabled = true;
+      currentCard = null;
       return;
    }
+   currentCard = card;
    
    dropChildren(detailsDiv);
    
@@ -238,13 +245,35 @@ function pendingCard(card, enableButton) {
    
    
    submitButton.disabled = !enableButton;
-   submitButton.onclick = function() {
-      submitButton.disabled = true;
-      dropChildren(detailsDiv);
-      pendingImage.src = "";
-      sendSocket('card_selected', packId);
-      dropChildren(document.getElementById('currentPack'));
-   };
+};
+
+function submitCurrentCard() {
+   if (currentCard === undefined || currentCard === null) {
+      return;
+   }
+   
+   sendSocket('card_selected', currentCard.packId);
+   currentCard = null;
+   document.getElementById('pendingCardImg').src = "";
+   document.getElementById('selectPendingCardButton').disabled = true;
+   dropChildren(document.getElementById('pendingCardDetails'));
+   dropChildren(document.getElementById('currentPack'));
+};
+
+function keypress(evt) {
+   /*
+   evt = evt || window.event;
+   var charCode = evt.keyCode || evt.which;
+   var charStr = String.fromCharCode(charCode);
+   console.log(charStr);
+   */
+   var charCode = evt.which;
+   var charStr = String.fromCharCode(charCode);
+   console.log(charCode + " " + charStr);
+   if (charCode == 13) {
+      // Enter key
+      submitCurrentCard();
+   }
 };
 
 function waitForPack(args) {
