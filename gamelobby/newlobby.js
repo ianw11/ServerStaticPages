@@ -26,6 +26,7 @@ window.onload = function() {
    socket = new WebSocket("ws://"+endpoint+"/gamelobbysocket");
    socket.onopen = function(event) {
       console.log("Socket opened");
+      console.log(event);
    };
    socket.onmessage = function(event) {
       handleSocketData(event.data);

@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+   <head>
+      <title>File Tailer</title>
+   </head>
+   
+   <style>
+      #content {
+         border-style: solid;
+      }
+   </style>
+   
+   <body>
+      <div id='availableFiles'>
+         <h1 id='selectedFile'>Choose a file</h1>
+      </div>
+      
+      <br />
+      
+      <div id='content'>
+      </div>
+      
+      <br />
+      
+      <div>
+         <button id='autoScrollButton'></button>
+         <br>
+         Filter (enter text to filter):
+         <input id='filter' type='text'></input>
+         <br>
+         Number of lines to keep:
+         <input id='maxLines' type='number' value='20' min='0'></input>
+      </div>
+      
+      <script type='text/javascript' src='tail.js'></script>
+   </body>
+</html>

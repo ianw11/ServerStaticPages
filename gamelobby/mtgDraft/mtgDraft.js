@@ -195,7 +195,7 @@ function buildPackTd(packCard, hoverlock) {
    
    var img = document.createElement('img');
    img.src = 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=' + multiverseId + '&type=card';
-   img.width = $(window).width() < 1920 ? 125 : 170;
+   img.width = $(window).width() < 1900 ? 125 : 170;
    img.className = 'unselected';
    div.append(img);
    

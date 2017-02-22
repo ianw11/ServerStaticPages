@@ -1,0 +1,13 @@
+{
+  "name": "Derpo",
+  "rarity": "COMMON",
+  "manacost": "RG",
+  "ap": {
+    "maxap": 2,
+    "regenap": 1
+  },
+  "creature": {
+    "attack": 3,
+    "health": 3
+  }
+}
