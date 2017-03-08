@@ -8,8 +8,6 @@
  
 
    <div id='chooseDraftDiv'>
-      <button id='startDraftButton' disabled>Start Draft</button>
-      <p>
       Number of packs:
       <input type='number' id='packNumberInput' min='1' max='99' value='3'>
       </input>
@@ -27,15 +25,14 @@
             <td>
             </td>
             <td>
-               <div id='chooseFormatButtons'></div>
-               <b id='selectedFormat'></b>
-               <p>
+               <input id='sameSetsCheckbox' type='checkbox' checked></input>
+               <label for='sameSetsCheckbox'>All Same Set?</label>
                <div id='availableSets'></div>
-               <br />
-               <button id='submitSets' disabled>Choose Sets</button>
             </td>
          </tr>
       </table>
+      <br>
+      <button id='startDraftButton' disabled>Start Draft</button>
    </div>
 
    <div id="draft">

@@ -1,6 +1,8 @@
 var showingDraft = false;
 var currentDiv = $('#chooseDraftDiv');
 
+var selectedCube = null;
+
 var sets = [];
 
 var currentCard;
@@ -28,11 +30,11 @@ function start() {
    
    document.getElementById('refreshBackgroundButton').onclick = refreshBackground;
    document.getElementById('toggleCardsButton').onclick = toggleDraftView;
-   document.getElementById('submitSets').onclick = submitSets;
    document.getElementById('selectPendingCardButton').onclick = submitCurrentCard;
    $('#draft').toggle(0);
    $('#selected').toggle(0);
    document.getElementById('packNumberInput').onchange = numSetPacksUpdate;
+   document.getElementById('sameSetsCheckbox').onchange = numSetPacksUpdate;
    
    sendSocketTitle('_ready');
 };
@@ -72,8 +74,8 @@ function cubeList(args) {
       var button = document.createElement('button');
       button.innerHTML = filename;
       button.onclick = function() {
-         var numPacks = document.getElementById('packNumberInput').value;
-         sendSocket('cube_selected', filename, numPacks);
+         selectedCube = filename;
+         submitCube();
       };
       root.append(button);
       root.append(document.createElement('br'));
@@ -82,19 +84,30 @@ function cubeList(args) {
    refreshBackground();
 };
 
+function submitCube() {
+   if (selectedCube == null) {
+      return;
+   }
+   var numPacks = document.getElementById('packNumberInput').value;
+   sendSocket('cube_selected', selectedCube, numPacks);
+};
+
 function setList(args) {
    sets = JSON.parse(args);
    sets.sort(function(a, b) {
       return a.name > b.name ? 1 : -1;
    });
    numSetPacksUpdate();
-   document.getElementById('submitSets').disabled = false;
 };
 
 function numSetPacksUpdate() {
+   var allSame = document.getElementById('sameSetsCheckbox').checked;
    var numPacks = document.getElementById('packNumberInput').value
    var root = document.getElementById('availableSets');
    dropChildren(root);
+   if (allSame) {
+      numPacks = 1;
+   }
    for (var i = 0; i < numPacks; ++i) {
       var select = document.createElement('select');
       var defaultOption = document.createElement('option');
@@ -106,22 +119,32 @@ function numSetPacksUpdate() {
          option.innerHTML = desanitizeText(set.name);
          select.append(option);
       }
+      select.onchange = submitSets;
       root.append(select);
       root.append(document.createElement('br'));
    }
+   
+   // Attempt to submit the cube/sets (this should make life nicer for the creator)
+   submitSets();
+   submitCube();
 };
 
 function submitSets() {
    var selectedSets = [];
    var root = document.getElementById('availableSets');
-   for (var i = 0; i < root.childNodes.length; i+=2) {
-      var setCode = root.childNodes[i].value;
+   //var numSets = root.childNodes.length / 2;
+   var numSets = document.getElementById('packNumberInput').value;
+   var allSameSet = document.getElementById('sameSetsCheckbox').checked;
+   
+   for (var i = 0; i < numSets; ++i) {
+      var setCode = allSameSet ? root.childNodes[0].value : root.childNodes[2*i].value;
       if (setCode.length === 0) {
          return;
       }
       selectedSets.push(setCode);
    }
    selectedSets.splice(0, 0, 'set_selected');
+   selectedCube = null;
    sendSocketData(selectedSets);
 };
 
@@ -244,7 +267,6 @@ function pendingCard(card, enableButton) {
    var multiverseId = card.card.multiverseId;
    
    pendingImage.src = 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=' + multiverseId + '&type=card';
-   //console.log(pendingImage.width);
    pendingImage.width = 250;
    
    var oracle = document.createElement('p');

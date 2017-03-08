@@ -1,5 +1,5 @@
-//var endpoint = 'localhost:8100'
-var endpoint = 'nectarsac.com'
+var DEBUG = false;
+var endpoint = DEBUG ? 'localhost:8100' : 'nectarsac.com';
 
 // The socket to the server
 var socket;
@@ -7,8 +7,6 @@ var socket;
 var _socket_callbacks = {};
 // The current visible element (html)
 var _visibleElem = null;
-// The last sent message, just in case
-var _lastSentMessage = null;
 
 var _selected_game = null;
 
@@ -35,12 +33,13 @@ window.onload = function() {
       console.log("Socket closed");
       console.log(event);
       _swapActiveElement('socket_closed');
-      //document.getElementById('_debug_close_socket_button').disabled = true;
+      if (DEBUG) {
+         document.getElementById('_debug_close_socket_button').disabled = true;
+      }
    };
    socket.on = function(name, callback) {
       addSocketCallback(name, callback);
    }
-   socket.on('_resend_message', resendMessage);
    socket.on('chat_message', chatMessage);
    socket.on('_pending_rooms', openRooms);
    socket.on('_in_room', inRoom);
@@ -54,7 +53,11 @@ window.onload = function() {
  * UI CALLBACKS
  */
 function applyOnClick() {
-   //$('#_debug_close_socket_button')[0].onclick = DEBUGcloseSocket;
+   if (DEBUG) {
+      $('#_debug_close_socket_button')[0].onclick = DEBUGcloseSocket;
+   } else {
+      $('#_debug_close_socket_button')[0].style.display = 'none';
+   }
    $('#submit_name_button')[0].onclick = sendName;
    $('#_submit_name_form').submit(sendName);
    $('#createGameButton')[0].onclick = createGame;
@@ -63,6 +66,14 @@ function applyOnClick() {
    $('#joinGameButton')[0].onclick = joinGame;
    $('#refreshOpenRooms')[0].onclick = refreshOpenRooms;
    $('#startGameButton')[0].onclick = requestStartGame;
+   
+   
+   $('#joinGameBackButton')[0].onclick = function() {
+      _swapActiveElement('createOrJoin');
+   };
+   $('#createGameBackButton')[0].onclick = function() {
+      _swapActiveElement('createOrJoin');
+   };
 };
 
 function sendName(button) {
@@ -112,7 +123,9 @@ function createGame() {
 function showSelectedGame() {
    document.getElementById('createGameRoomButton').disabled = false;
    document.getElementById('selectedGameName').innerHTML = "Selected: " + _selected_game.name;
+   document.getElementById('selectedGameName').className = 'green';
    document.getElementById('playerNumberRequirements').innerHTML = _selected_game.playerRequirementDisplayString;
+   document.getElementById('playerNumberRequirements').className = 'red';
 };
 
 function submitCreateGame() {
@@ -142,14 +155,28 @@ function openRooms(args) {
       var div = document.createElement('div');
       div.className += ' border';
       
-      var top = document.createElement('p');
-      top.innerHTML = "<b>" + room.title + "</b> hosted by <b>" + room.ownerName + '</b>. Connected: ' + room.numConnected;
-      div.append(top);
+      var roomTitle = document.createElement('p');
+      roomTitle.innerHTML = '<h1>' + room.title + '</h1>';
+      roomTitle.className = 'roomTitle';
+      div.append(roomTitle);
+      
+      var gameName = document.createElement('p');
+      gameName.innerHTML = '<b>' + room.game.name + '</b>';
+      gameName.className = 'gameName';
+      div.append(gameName);
+      
+      var hostedBy = document.createElement('p');
+      hostedBy.innerHTML = 'Hosted by <b>' + room.ownerName + '</b>';
+      hostedBy.className = 'hostedBy';
+      div.append(hostedBy);
+      
       var mid = document.createElement('p');
-      mid.innerHTML = 'Game: ' + room.game.name + '.  ' + room.game.playerRequirementDisplayString;
+      mid.innerHTML = '<b>Limits:</b> ' + room.game.playerRequirementDisplayString + '  <b>Currently Connected:</b> ' + room.numConnected;
       div.append(mid);
+      
       var joinButton = document.createElement('button');
       joinButton.innerHTML = "Join";
+      joinButton.className = "_joinButton";
       joinButton.onclick = function() {
          console.log("Joining game " + room.id);
          sendSocketDataWithUI('_join_room', room.id);
@@ -196,6 +223,7 @@ function requestStartGame() {
 
 function roomClosed() {
    alert("Game closed, please choose another");
+   document.body.style.backgroundImage = "";
    joinGame();
 };
 
@@ -303,15 +331,8 @@ function addSocketCallback(name, callback) {
    _socket_callbacks[name] = callback;
 };
 
-function resendMessage(args) {
-   console.log("ERROR! Message needs a resend");
-   console.log("Resending " + _lastSentMessage);
-   socket.send(_lastSentMessage);
-};
-
 function DEBUGcloseSocket() {
    document.getElementById('_debug_close_socket_button').disabled = true;
    console.log("Closing socket");
    socket.close();
 };
-
