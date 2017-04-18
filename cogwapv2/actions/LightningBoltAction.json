@@ -1,0 +1,1 @@
+{"actions":[{"target_requirement":{"source":"BOARD","entity_selectors":["DAMAGABLE"],"amount":1,"is_random":false},"action":"DEAL_DAMAGE","AMOUNT":"3"}]}

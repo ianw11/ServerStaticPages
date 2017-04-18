@@ -1,0 +1,12 @@
+{
+  "rarity": "COMMON",
+  "mana_cost": [
+    ["r"]
+  ],
+  "actions":[
+    {
+      "name": "LIGHTNINGBOLTACTION",
+      "ap_cost": 0
+    }
+  ]
+}

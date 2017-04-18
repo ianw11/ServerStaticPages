@@ -1,0 +1,1 @@
+{"prerequisite":{"type":"SACRIFICE_CREATURES","amount":"1"},"actions":[{"target_requirement":{"source":"BOARD","entity_selectors":["DESTROYABLE","CREATURE"],"amount":1,"is_random":false},"action":"DESTROY_CREATURE"}]}

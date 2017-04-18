@@ -1,0 +1,14 @@
+{
+  "name": "dickbutt",
+  "rarity": "LEGENDARY",
+  "manacost": "WWWWW",
+  "ap": {
+    "maxap": 0,
+    "regenap": 0
+  },
+  "creature": {
+    "attack": 69,
+    "health": 69,
+    "DOUBLEAGENT": true
+  }
+}

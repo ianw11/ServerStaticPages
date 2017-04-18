@@ -1,0 +1,458 @@
+<!doctype html>
+<html>
+<head>
+    <title>Cogwap Card Creator</title>
+    
+    <style>
+        div {
+            border-style: solid;
+            border-width: 1px;
+            width: 75%;
+        }
+        
+        .half_width {
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div id='loading'>
+        Loading, please wait
+    </div>
+    
+    <span id='content' style='display: none'>
+        <h1>Action Builder</h1>
+        <p />
+        
+        <label for='name'><h2>Name:</h2></label><input type='text' id='name'></input>Action
+        <p />
+        <h2>Has Prerequisite?</h2><input type='checkbox' id='prerequisite_checkbox'></input>
+        <div id='prerequisite_div' style='display: none; background: green;'>
+            <h3>PREREQUISITE</h3>
+            <p />
+            Type:<select id='prerequisite_type'></select>
+            <p />
+            Amount:<input id='prerequisite_amount' type='number' min='-1' max='99' value='0'></input> (-1 for X)
+            <p />
+            Filter: <span id='prerequisite_filter'></span>
+        </div>
+        
+        <h2>Actions:</h2>
+        <button id='add_action_button'>Add Action</button>
+        <p />
+        <span id='actions_parent'></span>
+        <p />
+        <h2 id='submit_response'></h2>
+        <button id='submit_button'><b>Submit</b></button>
+    </span>
+<script>
+var data;
+
+function newP() {
+    return document.createElement('p');
+};
+
+function emptyOption() {
+    var option = document.createElement('option');
+    option.selected = true;
+    option.value = "";
+    return option;
+};
+
+window.onload = function() {
+    
+    // Set up div toggle
+    document.getElementById('prerequisite_checkbox').onclick = function() {
+        document.getElementById('prerequisite_div').style.display = this.checked ? 'block' : 'none';
+    };
+    
+    // Add Action
+    document.getElementById('add_action_button').onclick = function() {
+        var parent = document.createElement('div');
+        parent.style.background = 'yellow';
+        
+        // DELETE BUTTON
+        buildActionDeleteButton(parent);
+        
+        // TARGET REQUIREMENT
+        buildTargetRequirementTitle(parent);
+        buildTargetRequirementSourceSelect(parent);
+        buildTargetRequirementFilters(parent);
+        buildTargetRequirementStatic(parent);
+        
+        // ACTION
+        buildActionTitle(parent);
+        buildActionSelectAndParams(parent);
+        
+        document.getElementById('actions_parent').append(parent);
+    };
+    
+    // Submit action
+    document.getElementById('submit_button').onclick = performSubmit;
+    
+    // Then download required data
+    var xmlhttp = new XMLHttpRequest();
+    var url = "/cogwapv2";
+    xmlhttp.onreadystatechange = function() {
+       if (this.readyState == 4 && this.status == 200) {
+          data = JSON.parse(xmlhttp.responseText);
+          
+          // APPLY DATA
+          var prerequisiteTypeSelect = document.getElementById('prerequisite_type');
+          prerequisiteTypeSelect.append(emptyOption());
+          data.prerequisite_types.forEach(function(val) {
+            var option = document.createElement('option');
+            option.requiresFilter = val.filterable;
+            option.innerHTML = val.name;
+            option.value = val.name;
+            prerequisiteTypeSelect.append(option);
+          });
+          
+          var prerequisiteFilter = document.getElementById('prerequisite_filter');
+          buildFilterBox(prerequisiteFilter);
+          prerequisiteFilter.style.display = 'none'; // Because initially nothing selected
+          
+          prerequisiteTypeSelect.onchange = function(self) {
+            var option = self.srcElement.options[self.srcElement.options.selectedIndex];
+            var requiresSelect = option.requiresFilter;
+            if (option.value === "") {
+                requiresSelect = false;
+            }
+            
+            prerequisiteTypeSelect.requiresSelect = requiresSelect;
+            prerequisiteFilter.style.display = requiresSelect ? 'block' : 'none';
+          };
+          
+          document.getElementById('content').style.display = 'block';
+          document.getElementById('loading').style.display = 'none';
+       }
+    }
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+};
+
+/*
+ * ACTION BOX
+ */
+
+function buildActionDeleteButton(parent) {
+    var button = document.createElement('button');
+    button.innerHTML = "<b>Delete</b>";
+    button.onclick = function() {
+        parent.parentElement.removeChild(parent);
+    };
+    parent.append(button);
+};
+
+/*
+ * TARGET REQUIREMENT
+ */
+
+function buildTargetRequirementTitle(parent) {
+    var targetReqTitle = document.createElement('h3');
+    targetReqTitle.innerHTML = "Target Requirement";
+    parent.append(targetReqTitle);
+};
+
+function buildTargetRequirementSourceSelect(parent) {
+    var targetRequirementSourceLabel = document.createElement('label');
+    targetRequirementSourceLabel.innerHTML = "Source:";
+    targetRequirementSourceLabel.for = 'source_select';
+    parent.append(targetRequirementSourceLabel);
+    var targetRequirementSourceSelect = document.createElement('select');
+    targetRequirementSourceSelect.id = "source_select";
+    for (var ndx in data.source_selectors) {
+        var opt = document.createElement('option');
+        opt.innerHTML = data.source_selectors[ndx];
+        targetRequirementSourceSelect.append(opt);
+    }
+    parent.append(targetRequirementSourceSelect);
+    parent.append(newP());
+};
+
+function buildTargetRequirementFilters(parent) {
+    // Target Requirement Filter
+    var targetRequirementFilterLabel = document.createElement('label');
+    targetRequirementFilterLabel.innerHTML = "Filters:";
+    targetRequirementFilterLabel.for = "target_requirement_filter";
+    parent.append(targetRequirementFilterLabel);
+    
+    // Build filters
+    var filter = newP();
+    filter.id = "target_requirement_filter";
+    buildFilterBox(filter);
+    parent.append(filter);
+    
+    parent.append(newP());
+};
+
+function buildTargetRequirementStatic(parent) {
+    // Target Requirement Amount
+    var targetRequirementAmountLabel = document.createElement('label');
+    targetRequirementAmountLabel.innerHTML = "Number of targets (-1 for X, -2 for all):";
+    targetRequirementAmountLabel.for = "target_requirement_amount";
+    parent.append(targetRequirementAmountLabel);
+    var targetRequirementAmount = document.createElement('input');
+    targetRequirementAmount.id = 'target_requirement_amount';
+    targetRequirementAmount.type = "number";
+    targetRequirementAmount.min = '-2';
+    targetRequirementAmount.max = '99';
+    targetRequirementAmount.value = '0';
+    parent.append(targetRequirementAmount);
+    parent.append(newP());
+    
+    // Target Requirement Is Random
+    var targetRequirementIsRandomLabel = document.createElement('label');
+    targetRequirementIsRandomLabel.innerHTML = "Is Random:";
+    targetRequirementIsRandomLabel.for = "target_requirement_is_random";
+    parent.append(targetRequirementIsRandomLabel);
+    var targetRequirementIsRandom = document.createElement('input');
+    targetRequirementIsRandom.id = "target_requirement_is_random";
+    targetRequirementIsRandom.type = 'checkbox';
+    parent.append(targetRequirementIsRandom);
+    parent.append(newP());
+};
+
+/*
+ * ACTION
+ */
+
+function buildActionTitle(parent) {
+    var actionTitle = document.createElement('h3');
+    actionTitle.innerHTML = "Action";
+    parent.append(actionTitle);
+};
+
+function buildActionSelectAndParams(parent) {
+    // Action Params Block
+    var paramsLabel = document.createElement('label');
+    paramsLabel.innerHTML = "Params:";
+    //paramsLabel.for = "params";
+    var params = document.createElement('div');
+    params.className = "half_width";
+    // Append later...
+    
+    
+    // Action
+    var actionLabel = document.createElement('label');
+    actionLabel.innerHTML = "Action:";
+    actionLabel.for = "action_select";
+    parent.append(actionLabel);
+    var actionSelect = document.createElement('select');
+    // Intial (blank) option
+    actionSelect.append(emptyOption());
+    for (var ndx in data.action_types) {
+        var opt = document.createElement('option');
+        opt.innerHTML = data.action_types[ndx].name;
+        opt.value = data.action_types[ndx].name;
+        opt.params = data.action_types[ndx].params;
+        actionSelect.append(opt);
+    }
+    actionSelect.onchange = function(self) {
+        // Build params for action_type
+        while (params.firstChild) {
+            params.removeChild(params.firstChild);
+        }
+        var option = self.srcElement.options[self.srcElement.options.selectedIndex];
+        for (var ndx in option.params) {
+            var param = option.params[ndx];
+            
+            var paramDiv = document.createElement('div');
+            paramDiv.style.background = 'aqua'
+            paramDiv.value = param;
+            var paramName = document.createElement('p');
+            paramName.innerHTML = param.name;
+            paramDiv.append(paramName);
+            if (param.optional) {
+                var paramOptionalLabel = document.createElement('label');
+                paramOptionalLabel.innerHTML = 'This is optional. Apply?';
+                paramOptionalLabel.for = 'paramOptional';
+                paramDiv.append(paramOptionalLabel);
+                var paramOptional = document.createElement('input');
+                paramOptional.id = 'paramOptional';
+                paramOptional.type = 'checkbox';
+                paramDiv.append(paramOptional);
+            }
+            paramDiv.append(newP());
+            var paramInput = document.createElement('input');
+            if (param.type == 'Integer') {
+                paramInput.type = 'number';
+                paramInput.minimum = "0";
+                paramInput.maximum = "99";
+                paramInput.value = "0";
+            } else if (param.type == 'Boolean') {
+                paramInput.type = 'checkbox';
+            } else {
+                paramInput = document.createElement('select');
+                paramInput.multiple = true;
+                paramInput.size = ''+param.type_parameters.length;
+                for (var typeParamNdx in param.type_parameters) {
+                    var typeOption = document.createElement('option');
+                    typeOption.innerHTML = param.type_parameters[typeParamNdx];
+                    paramInput.append(typeOption);
+                }
+            }
+            paramDiv.append(paramInput);
+            
+            params.append(paramDiv);
+        }
+    };
+    parent.append(actionSelect);
+    parent.append(newP());
+    
+    // Appending params block from earlier
+    parent.append(paramsLabel);
+    parent.append(params);
+    parent.append(newP());
+};
+
+/*
+ * HELPER/COMMON
+ */
+function buildFilterBox(parent) {
+    data.filters.forEach(function(val) {
+        if (val.name === 'ANY') {
+            return;
+        }
+        
+        var div = document.createElement('div');
+        div.style.background = 'red';
+        div.className = "half_width";
+        
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = 'filter_checkbox';
+        div.append(checkbox);
+        
+        var text = document.createElement('p');
+        text.innerHTML = val.name;
+        div.append(text);
+        
+        if (val.params !== undefined) {
+            var select = document.createElement('select');
+            for (var ndx in val.params) {
+                var opt = document.createElement('option');
+                opt.innerHTML = val.params[ndx];
+                select.append(opt);
+            }
+            div.append(select);
+        }
+        
+        parent.append(div);
+    });
+};
+
+function performSubmit() {
+    var obj = {};
+    var name = document.getElementById('name').value + "Action";
+    
+    if (document.getElementById('prerequisite_checkbox').checked) {
+        // Prerequisite only if enabled
+        var prereq = {};
+        prereq.type = document.getElementById('prerequisite_type').value;
+        prereq.amount = document.getElementById('prerequisite_amount').value;
+        
+        if (document.getElementById('prerequisite_type').requiresSelect) {
+            var prerequisiteFilters = processFilters(document.getElementById('prerequisite_filter'));
+            if (prerequisiteFilters.length > 0) {
+                prereq.limiters = prerequisiteFilters;
+            }
+        }
+        
+        if (prereq.type !== "") {
+            obj.prerequisite = prereq;
+        }
+    }
+    
+    // Action and Target Requirement
+    obj.actions = [];
+    var actions = document.getElementById('actions_parent');
+    for (var ndx = 0; ndx < actions.children.length; ++ndx) {
+        var actionObj = {};
+        var action = actions.children[ndx];
+        
+        // Target Req
+        var targetReq = {};
+        targetReq.source = action.children[3].value;
+        targetReq.entity_selectors = processFilters(action.children[6]);
+        targetReq.amount = parseInt(action.children[9].value);
+        targetReq.is_random = action.children[12].checked;
+        actionObj.target_requirement = targetReq;
+        
+        // Action
+        actionObj.action = action.children[16].value;
+        
+        // Action Params
+        var actionParams = action.children[19].children;
+        for (var paramNdx = 0; paramNdx < actionParams.length; ++paramNdx) {
+            var actionParam = actionParams[paramNdx];
+            var key = actionParam.children[0].innerHTML;
+            var valueNdx = 2;
+            if (actionParam.value.optional) {
+                if (!actionParam.children[2].checked) {
+                    continue;
+                }
+                valueNdx += 2;
+            }
+            var value = actionParam.children[valueNdx];
+            if (value.type == "number") {
+                actionObj[key] = value.value;
+            } else if (value.type == "checkbox") {
+                actionObj[key] = value.checked;
+            } else {
+                var valueStr = "";
+                for (var multiSelectNdx = 0; multiSelectNdx < value.children.length; ++multiSelectNdx) {
+                    if (value.children[multiSelectNdx].selected) {
+                        valueStr += value.children[multiSelectNdx].value + "|";
+                    }
+                }
+                if (valueStr.length > 0) {
+                    valueStr = valueStr.slice(0, -1);
+                }
+                actionObj[key] = valueStr;
+            }
+        }
+        
+        obj.actions[obj.actions.length] = actionObj;
+    }
+    
+    document.getElementById('submit_response').innerHTML = "Sending request...";
+    
+    var xmlhttp = new XMLHttpRequest();
+    var url = "/cogwapv2";
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log("Submitted");
+            document.getElementById('submit_response').innerHTML = "SUCCESS";
+        } else if (this.readyState == 4) {
+            console.log("Submitted with status " + this.status);
+            document.getElementById('submit_response').innerHTML = "ERROR: " + this.responseText;
+        }
+    }
+    xmlhttp.open("POST", url, true);
+    xmlhttp.setRequestHeader('name', name);
+    xmlhttp.setRequestHeader('type', 'action');
+    xmlhttp.send(JSON.stringify(obj));
+};
+
+function processFilters(domElem) {
+    var prerequisiteFilters = [];
+    
+    for (var ndx = 0; ndx < domElem.children.length; ++ndx) {
+        var filter = domElem.children[ndx];
+        var active = filter.children[0].checked;
+        if (active) {
+            var filterStr = filter.children[1].innerHTML;
+            if (filter.children.length > 2) {
+                filterStr += ":" + filter.children[2].value;
+            }
+            
+            prerequisiteFilters[prerequisiteFilters.length] = filterStr;
+        }
+    }
+    
+    return prerequisiteFilters;
+};
+</script>
+</body>
+</html>
