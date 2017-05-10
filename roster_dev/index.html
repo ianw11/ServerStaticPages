@@ -1,0 +1,181 @@
+<!doctype html>
+<html>
+<head>
+    <title>Roster Test Portal</title>
+    
+    <style>
+    
+        .box {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin: 5px;
+            border: 1px solid rgba(0, 0, 0, .2);
+        }
+    
+    </style>
+</head>
+
+<body>
+    <h1 id='status'>:)</h1>
+    
+    <div style='background: green;'>
+        Login:
+        <p />
+        Email:
+        <input id='loginEmail'></input>
+        Password:
+        <input id='loginPassword'></input>
+        <button id='loginButton'>Login</button>
+        Access token:
+        <h2 id='loginToken'></h2>
+        
+        <p />
+    </div>
+
+    <hr />
+    
+    <div style='background: coral;'>
+        Add Person
+        <p />
+        First Name:
+        <input id='personFirstName'></input>
+        Last Name:
+        <input id='personLastName'></input>
+        Email:
+        <input id="personEmail"></input>
+        Password:
+        <input id="personPassword"></input>
+        <button id='addPerson'>Add Person</button>
+        
+        <hr />
+        
+        Delete Person
+        <p />
+        <button id='deletePerson'>Delete Current Person</button>
+        
+        <hr />
+        
+        <p />
+        <a href="/roster/person">See self</a>
+    </div>
+    
+    <div style='background: gold'>
+        <div class='box' style="background: green"></div>
+        PERMISSION NAME
+        <div class='box' style="background: red"></div>
+    </div>
+    
+    <hr />
+    <p />
+    
+    <div style='background: deepskyblue'>
+        <p />
+        Create Organization
+        <p />
+        Name:
+        <input id='organizationName'></input>
+        <button id='addOrganization'>Add Organization</button>
+        
+        <p />
+        <a href="/roster/organization">See all Organizations you're in</a>
+        <p />
+        <button id='truncateOrganizations'>Truncate Organizations (Reset)</button>
+    </div>
+
+<script>
+var ENDPOINT = "/roster/";
+
+window.onload = function() {
+    document.getElementById('loginButton').onclick = login;
+
+    document.getElementById('addPerson').onclick = addPerson;
+    document.getElementById('deletePerson').onclick = deletePerson;
+    
+    document.getElementById('addOrganization').onclick = addOrganization;
+    document.getElementById('truncateOrganizations').onclick = truncateOrganizations;
+};
+
+function login() {
+    var email = document.getElementById("loginEmail").value;
+    var password = document.getElementById('loginPassword').value;
+    
+    var obj = {};
+    obj.email = email;
+    obj.password = password;
+    
+    sendRequest("POST", "login", JSON.stringify(obj), function(text) {
+        var responseObj = JSON.parse(text);
+        document.getElementById('loginToken').innerHTML = responseObj.access_token;
+    });
+};
+
+function addPerson() {
+    var first_name = document.getElementById('personFirstName').value;
+    var last_name = document.getElementById('personLastName').value;
+    var email = document.getElementById('personEmail').value;
+    var password = document.getElementById('personPassword').value;
+    
+    var obj = {};
+    obj.first_name = first_name;
+    obj.last_name = last_name;
+    obj.email = email;
+    obj.password = password;
+    
+    sendRequest("POST", "person", JSON.stringify(obj));
+};
+
+function deletePerson() {
+    sendRequest("DELETE", "person", "");
+};
+
+function addOrganization() {
+    var name = document.getElementById('organizationName').value;
+    
+    var obj = {
+        name: name
+    };
+    
+    sendRequest("POST", "organization", JSON.stringify(obj));
+};
+
+function truncateOrganizations() {
+    sendRequest("DELETE", "organization", "");
+};
+
+/*
+ * HELPER METHODS
+ */
+
+function sendRequest(method, url, body, successCallback, failCallback) {
+    updateStatus("Sending request...");
+    
+    var accessToken = document.getElementById('loginToken').innerHTML;
+    
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                updateStatus("SUCCESS");
+                if (successCallback != undefined) {
+                    successCallback(this.responseText);
+                }
+            } else {
+                updateStatus("ERROR: " + this.responseText);
+                if (failCallback != undefined) {
+                    failCallback(this.responseText);
+                }
+            }
+        }
+    }
+    xmlhttp.open(method, ENDPOINT + url, true);
+    xmlhttp.setRequestHeader("access_token", accessToken);
+    xmlhttp.send(body);
+};
+
+function updateStatus(message) {
+    document.getElementById('status').innerHTML = message;
+};
+</script>
+</body>
+</html>
