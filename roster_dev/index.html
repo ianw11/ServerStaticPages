@@ -9,16 +9,27 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            margin: 5px;
             border: 1px solid rgba(0, 0, 0, .2);
+        }
+        
+        .off {
+            background: red;
+        }
+        
+        .on {
+            background: green;
         }
     
     </style>
 </head>
 
 <body>
+    <button id='truncateAllButton'>Truncate All</button>
+    <a href='/roster/permission'>All Permissions</a>
+    <p>
     <h1 id='status'>:)</h1>
     
+    <!-- LOGIN AND LOGOUT -->
     <div style='background: green;'>
         Login:
         <p />
@@ -29,12 +40,13 @@
         <button id='loginButton'>Login</button>
         Access token:
         <h2 id='loginToken'></h2>
-        
         <p />
+        <button id='logoutButton'>Logout</button>
     </div>
 
     <hr />
     
+    <!-- PERSON -->
     <div style='background: coral;'>
         Add Person
         <p />
@@ -60,15 +72,22 @@
         <a href="/roster/person">See self</a>
     </div>
     
+    <!-- PERSON PERMISSIONS -->
     <div style='background: gold'>
-        <div class='box' style="background: green"></div>
-        PERMISSION NAME
-        <div class='box' style="background: red"></div>
+        Load Permissions for Organization Id:
+        <input id='organizationPermissionId' type='number' value='1' min='1'></input>
+        and Person Id:
+        <input id='personPermissionId' type='number' value='1' min='1'></input>
+        <button id='refreshPermissions'>Go</button>
+        <p id='orgPermissionText' />
+        <form id='permissionForm'>
+        </form>
     </div>
     
     <hr />
     <p />
     
+    <!-- ORGANIZATION -->
     <div style='background: deepskyblue'>
         <p />
         Create Organization
@@ -79,21 +98,94 @@
         
         <p />
         <a href="/roster/organization">See all Organizations you're in</a>
+        <hr />
         <p />
-        <button id='truncateOrganizations'>Truncate Organizations (Reset)</button>
+        Organization Id:
+        <input type='number' id='organizationId' value='1' min='1'></input>
+        <button id='organizationGetInfo'>Get Info</button>
+        <p />
+        <button id='viewOrgRoster'>View Roster</button>
+        Person Id: <input type='number' id='organizationPersonId' value='1' min='1'></input>
+        <button id='addPersonToOrganization'>Add Person Id To Roster</button>
+        <button id='deletePersonFromOrganization'>Delete Person Id From Roster</button>
+        <p />
+        <button id='deleteOrganization'>Delete Organization</button>
+    </div>
+    
+    <hr />
+    <p />
+    
+    <!-- MODULES -->
+    <div style='background: darkorange'>
+        Modules (WORK IN PROGRESS)
+        <p/>
+        <button id='refreshModuleListButton'>Refresh Module Drop-down Menu</button>
+        <p />
+        <select id='moduleSelect'>
+        </select>
+        Organization Id:
+        <input id='moduleOrganizationId' type='number' value='1' min='1'></input>
+        <button id='addModuleButton'>Add Module to Organization</button>
+        <button id='deleteModuleButton'>Delete Module to Organization (TODO)</button>
+        <button id='viewModuleButton'>View Modules in Organization (TODO)</button>
+        <p />
+    </div>
+    
+    <hr />
+    <p />
+    
+    <!-- ROLES (And Committees, later) -->
+    <div style='background: sienna'>
+        Roles
+        <p />
+        Role name:
+        <input id='roleName'></input>
+        Organization Id:
+        <input id='roleOrganizationId' type='number' value='1' min='1'></input>
+        <button id='addRoleButton'>Add Role To Organization</button>
+        <p />
+        
     </div>
 
 <script>
+var DEBUG = true;
 var ENDPOINT = "/roster/";
 
+var permissions;
+
 window.onload = function() {
+
+    if (location.protocol != "https:") {
+        updateStatus("THIS PAGE MUST BE OPENED ON AN HTTPS CONNECTION. Redirecting...");
+        location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
+        return;
+    }
+    
+    document.getElementById('truncateAllButton').onclick = truncateAll;
+
     document.getElementById('loginButton').onclick = login;
+    document.getElementById('logoutButton').onclick = logout;
 
     document.getElementById('addPerson').onclick = addPerson;
     document.getElementById('deletePerson').onclick = deletePerson;
     
+    document.getElementById('refreshPermissions').onclick = refreshPermissions;
+    
     document.getElementById('addOrganization').onclick = addOrganization;
-    document.getElementById('truncateOrganizations').onclick = truncateOrganizations;
+    document.getElementById('organizationGetInfo').onclick = getOrganizationInfo;
+    document.getElementById('viewOrgRoster').onclick = viewOrgRoster;
+    document.getElementById('addPersonToOrganization').onclick = addPersonToOrganization;
+    document.getElementById('deletePersonFromOrganization').onclick = deletePersonFromOrganization;
+    document.getElementById('deleteOrganization').onclick = deleteOrganization;
+    
+    document.getElementById('refreshModuleListButton').onclick = refreshModuleList;
+    document.getElementById('addModuleButton').onclick = addModule;
+    
+    document.getElementById('addRoleButton').onclick = addRole;
+};
+
+function truncateAll() {
+    sendRequest("POST", "truncate", "", resetPage);
 };
 
 function login() {
@@ -110,6 +202,10 @@ function login() {
     });
 };
 
+function logout() {
+    sendRequest("POST", "logout", "", resetPage);
+};
+
 function addPerson() {
     var first_name = document.getElementById('personFirstName').value;
     var last_name = document.getElementById('personLastName').value;
@@ -122,11 +218,44 @@ function addPerson() {
     obj.email = email;
     obj.password = password;
     
-    sendRequest("POST", "person", JSON.stringify(obj));
+    sendRequest("PUT", "person", JSON.stringify(obj));
 };
 
 function deletePerson() {
-    sendRequest("DELETE", "person", "");
+    sendRequest("DELETE", "person", "", resetPage);
+};
+
+function refreshPermissions() {
+    var orgId = document.getElementById('organizationPermissionId').value;
+    var personId = document.getElementById('personPermissionId').value;
+    // First delete existing values
+    removePermissions();
+    // Then load the new ones
+    if (permissions === undefined || permissions === null) {
+        sendRequest('GET', 'organization/permission?organization_id='+orgId, "", function(text) {
+            permissions = JSON.parse(text).data;
+            buildPermissions(orgId, personId);
+        });
+    } else {
+        buildPermissions(orgId, personId);
+    }
+};
+
+function savePermissions() {
+    var form = document.getElementById('permissionForm');
+    
+    var obj = {};
+    for (var ndx = 0; ndx < (form.elements.length - 1); ++ndx) {
+        var checkbox = form.elements[ndx];
+        obj[checkbox.permission.uri] = checkbox.checked;
+    }
+    removePermissions();
+    console.log(obj);
+    
+    var orgId = document.getElementById('orgPermissionText').organizationId;
+    var personId = document.getElementById('orgPermissionText').personId;
+    sendRequest("POST", "organization/permission?organization_id="+orgId+"&person_id="+personId, JSON.stringify(obj), refreshPermissions);
+    return false; // This button exists in a form
 };
 
 function addOrganization() {
@@ -136,11 +265,72 @@ function addOrganization() {
         name: name
     };
     
-    sendRequest("POST", "organization", JSON.stringify(obj));
+    sendRequest("PUT", "organization", JSON.stringify(obj));
 };
 
-function truncateOrganizations() {
-    sendRequest("DELETE", "organization", "");
+function getOrganizationInfo() {
+    var orgId = document.getElementById('organizationId').value;
+    window.location.href = ENDPOINT + "organization?organization_id=" + orgId;
+};
+
+function viewOrgRoster() {
+    var orgId = document.getElementById('organizationId').value;
+    window.location.href = ENDPOINT + "organization/roster?organization_id=" + orgId;
+};
+
+function addPersonToOrganization() {
+    var orgId = document.getElementById('organizationId').value;
+    var personId = document.getElementById('organizationPersonId').value;
+    sendRequest('PUT', 'organization/roster?organization_id='+orgId+'&person_id='+personId);
+};
+
+function deletePersonFromOrganization() {
+    var orgId = document.getElementById('organizationId').value;
+    var personId = document.getElementById('organizationPersonId').value;
+    sendRequest('DELETE', 'organization/roster?organization_id='+orgId+'&person_id='+personId);
+};
+
+function deleteOrganization() {
+    var orgId = document.getElementById('organizationId').value;
+    sendRequest("DELETE", "organization?organization_id=" + orgId);
+};
+
+function refreshModuleList() {
+    var select = document.getElementById('moduleSelect');
+    while (select.firstChild) {
+        select.removeChild(select.firstChild);
+    }
+    
+    sendRequest('GET', 'organization/module', '', function(dataStr) {
+        var data = JSON.parse(dataStr).data;
+        console.log(data);
+        
+        for (var ndx in data.modules) {
+            var module = data.modules[ndx];
+            var option = document.createElement('option');
+            option.innerHTML = module.uri;
+            option.value = module.uri;
+            select.append(option);
+        }
+    });
+};
+
+function addModule() {
+    var moduleUri = document.getElementById('moduleSelect').value;
+    var orgId = document.getElementById('moduleOrganizationId').value;
+    
+    sendRequest('PUT', 'organization/module?organization_id='+orgId+'&module_uri='+moduleUri);
+};
+
+function addRole() {
+    var roleName = document.getElementById('roleName').value;
+    var orgId = document.getElementById('roleOrganizationId').value;
+    
+    var body = {
+        "name":roleName
+    };
+    
+    sendRequest('PUT', 'organization/role?organization_id='+orgId, JSON.stringify(body));
 };
 
 /*
@@ -155,6 +345,10 @@ function sendRequest(method, url, body, successCallback, failCallback) {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4) {
+            if (DEBUG) {
+                console.log("Response status: " + this.status);
+                console.log(this.responseText);
+            }
             if (this.status == 200) {
                 updateStatus("SUCCESS");
                 if (successCallback != undefined) {
@@ -168,13 +362,114 @@ function sendRequest(method, url, body, successCallback, failCallback) {
             }
         }
     }
+    if (DEBUG) {
+        console.log("Making request to: " + ENDPOINT + url);
+    }
     xmlhttp.open(method, ENDPOINT + url, true);
     xmlhttp.setRequestHeader("access_token", accessToken);
-    xmlhttp.send(body);
+    xmlhttp.send(body !== undefined ? body : "");
 };
 
 function updateStatus(message) {
     document.getElementById('status').innerHTML = message;
+};
+
+function resetPage() {
+    document.getElementById('loginToken').innerHTML = "";
+    removePermissions();
+    permissions = null;
+};
+
+function buildPermissions(orgId, personId) {
+    var form = document.getElementById('permissionForm');
+    
+    // Get the current permissions for the org/person
+    sendRequest('GET', 'organization/permission?organization_id=' + orgId+'&person_id='+personId, "", function(text) {
+        var ownedPermissions = JSON.parse(text).data;
+        
+        var dict = buildPermissionDictionary();
+        for (var moduleName in ownedPermissions) {
+            var module = ownedPermissions[moduleName];
+            for (var ndx in module) {
+                dict[moduleName][module[ndx].name] = true;
+            }
+        };
+        
+        var orgTextBox = document.getElementById('orgPermissionText');
+        orgTextBox.innerHTML = "Org id: " + orgId + " and person id: " + personId;
+        orgTextBox.organizationId = orgId;
+        orgTextBox.personId = personId;
+        
+        for (var moduleName in permissions) {
+            buildPermissionRowHeader(form, moduleName);
+            for (var ndx in permissions[moduleName]) {
+                var permission = permissions[moduleName][ndx];
+                buildPermissionRow(form, dict[moduleName][permission.name], permission);
+            }
+        }
+        
+        var saveButton = document.createElement('button');
+        saveButton.onclick = savePermissions;
+        saveButton.innerHTML = 'Save';
+        form.append(saveButton);
+    });
+};
+
+function removePermissions() {
+    var form = document.getElementById('permissionForm');
+    while(form.firstChild) {
+        form.removeChild(form.firstChild);
+    }
+    
+    var orgTextBox = document.getElementById('orgPermissionText');
+    orgTextBox.innerHTML = "";
+};
+
+function buildPermissionDictionary() {
+    var dict = {};
+    // For each module...
+    for (var moduleName in permissions) {
+        // Set each permission to be false
+        var moduleDict = {};
+        for (var ndx in permissions[moduleName]) {
+            moduleDict[permissions[moduleName][ndx].name] = false;
+        }
+        
+        // And save the module to the dictionary
+        dict[moduleName] = moduleDict;
+    }
+    return dict;
+};
+
+function buildPermissionRowHeader(parent, moduleName) {
+    var h3 = document.createElement('h3');
+    h3.innerHTML = moduleName;
+    parent.append(h3);
+};
+
+function buildPermissionRow(parent, isOwned, permission) {
+    // Build the green/red box
+    var span = document.createElement('span');
+    span.className = "box " + (isOwned ? 'on' : 'off');
+    parent.append(span);
+
+    // Build the label
+    var label = document.createElement('label');
+    var permissionLabelText = permission.display_name;
+    if (permission.required.length > 0) {
+        permissionLabelText += " (requires " + permission.required + ")";
+    }
+    label.innerHTML = permissionLabelText;
+    
+    // Build the check box
+    var input = document.createElement('input');
+    input.type = 'checkbox';
+    input.checked = isOwned;
+    input.permission = permission;
+    label.append(input);
+
+    parent.append(label);
+    parent.append(document.createElement("p"));
 };
 </script>
 </body>
