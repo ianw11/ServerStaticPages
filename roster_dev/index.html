@@ -60,6 +60,11 @@
         <input id="personPassword"></input>
         <button id='addPerson'>Add Person</button>
         
+        <p />
+        Email Confirmation:
+        <h3 id='personEmailConfirmation'></h3>
+        <button id='confirmPerson'>Confirm</button>
+        
         <hr />
         
         Delete Person
@@ -97,7 +102,7 @@
         <button id='addOrganization'>Add Organization</button>
         
         <p />
-        <a href="/roster/organization">See all Organizations you're in</a>
+        <a href="/roster/organization/person">See all Organizations you're in</a>
         <hr />
         <p />
         Organization Id:
@@ -167,6 +172,7 @@ window.onload = function() {
     document.getElementById('logoutButton').onclick = logout;
 
     document.getElementById('addPerson').onclick = addPerson;
+    document.getElementById('confirmPerson').onclick = confirmPerson;
     document.getElementById('deletePerson').onclick = deletePerson;
     
     document.getElementById('refreshPermissions').onclick = refreshPermissions;
@@ -218,8 +224,21 @@ function addPerson() {
     obj.email = email;
     obj.password = password;
     
-    sendRequest("PUT", "person", JSON.stringify(obj));
+    sendRequest("PUT", "person/signup", JSON.stringify(obj), function(resTxt) {
+        var conf = document.getElementById('personEmailConfirmation');
+        var res = JSON.parse(resTxt);
+        conf.innerHTML = res.data.confirmationToken;
+    });
 };
+
+function confirmPerson() {
+    var val = document.getElementById('personEmailConfirmation').innerHTML;
+    if (val === null || val === '') {
+        console.log("Erroring out");
+        return;
+    }
+    sendRequest('GET', 'person/confirm?confirmationToken=' + val);
+}
 
 function deletePerson() {
     sendRequest("DELETE", "person", "", resetPage);
@@ -230,9 +249,10 @@ function refreshPermissions() {
     var personId = document.getElementById('personPermissionId').value;
     // First delete existing values
     removePermissions();
+    permissions = null; // TODO: Remove the following if check
     // Then load the new ones
     if (permissions === undefined || permissions === null) {
-        sendRequest('GET', 'organization/permission?organization_id='+orgId, "", function(text) {
+        sendRequest('GET', 'organization/permission?targetOrganizationId='+orgId, "", function(text) {
             permissions = JSON.parse(text).data;
             buildPermissions(orgId, personId);
         });
@@ -243,18 +263,30 @@ function refreshPermissions() {
 
 function savePermissions() {
     var form = document.getElementById('permissionForm');
+    var personId = document.getElementById('orgPermissionText').personId;
     
-    var obj = {};
+    
+    var enabled = [];
+    var disabled = [];
     for (var ndx = 0; ndx < (form.elements.length - 1); ++ndx) {
         var checkbox = form.elements[ndx];
-        obj[checkbox.permission.uri] = checkbox.checked;
+        if (checkbox.checked) {
+            enabled.push(checkbox.permission.uri);
+        } else {
+            disabled.push(checkbox.permission.uri);
+        }
     }
     removePermissions();
+    
+    var obj = {
+        targetPersonId: personId,
+        enable: enabled,
+        disable: disabled
+    };
     console.log(obj);
     
     var orgId = document.getElementById('orgPermissionText').organizationId;
-    var personId = document.getElementById('orgPermissionText').personId;
-    sendRequest("POST", "organization/permission?organization_id="+orgId+"&person_id="+personId, JSON.stringify(obj), refreshPermissions);
+    sendRequest("POST", "organization/permission?targetOrganizationId="+orgId, JSON.stringify(obj), refreshPermissions);
     return false; // This button exists in a form
 };
 
@@ -262,7 +294,9 @@ function addOrganization() {
     var name = document.getElementById('organizationName').value;
     
     var obj = {
-        name: name
+        organization: {
+            name: name
+        }
     };
     
     sendRequest("PUT", "organization", JSON.stringify(obj));
@@ -270,29 +304,29 @@ function addOrganization() {
 
 function getOrganizationInfo() {
     var orgId = document.getElementById('organizationId').value;
-    window.location.href = ENDPOINT + "organization?organization_id=" + orgId;
+    window.location.href = ENDPOINT + "organization?targetOrganizationId=" + orgId;
 };
 
 function viewOrgRoster() {
     var orgId = document.getElementById('organizationId').value;
-    window.location.href = ENDPOINT + "organization/roster?organization_id=" + orgId;
+    window.location.href = ENDPOINT + "organization/roster?targetOrganizationId=" + orgId;
 };
 
 function addPersonToOrganization() {
     var orgId = document.getElementById('organizationId').value;
     var personId = document.getElementById('organizationPersonId').value;
-    sendRequest('PUT', 'organization/roster?organization_id='+orgId+'&person_id='+personId);
+    sendRequest('PUT', 'organization/roster?targetOrganizationId='+orgId+'&targetPersonId='+personId);
 };
 
 function deletePersonFromOrganization() {
     var orgId = document.getElementById('organizationId').value;
     var personId = document.getElementById('organizationPersonId').value;
-    sendRequest('DELETE', 'organization/roster?organization_id='+orgId+'&person_id='+personId);
+    sendRequest('DELETE', 'organization/roster?targetOrganizationId='+orgId+'&targetPersonId='+personId);
 };
 
 function deleteOrganization() {
     var orgId = document.getElementById('organizationId').value;
-    sendRequest("DELETE", "organization?organization_id=" + orgId);
+    sendRequest("DELETE", "organization?targetOrganizationId=" + orgId);
 };
 
 function refreshModuleList() {
@@ -308,8 +342,8 @@ function refreshModuleList() {
         for (var ndx in data.modules) {
             var module = data.modules[ndx];
             var option = document.createElement('option');
-            option.innerHTML = module.uri;
-            option.value = module.uri;
+            option.innerHTML = module;
+            option.value = module;
             select.append(option);
         }
     });
@@ -319,7 +353,11 @@ function addModule() {
     var moduleUri = document.getElementById('moduleSelect').value;
     var orgId = document.getElementById('moduleOrganizationId').value;
     
-    sendRequest('PUT', 'organization/module?organization_id='+orgId+'&module_uri='+moduleUri);
+    var body = {
+        moduleUri: moduleUri
+    };
+    
+    sendRequest('PUT', 'organization/module?targetOrganizationId='+orgId, JSON.stringify(body));
 };
 
 function addRole() {
@@ -330,7 +368,7 @@ function addRole() {
         "name":roleName
     };
     
-    sendRequest('PUT', 'organization/role?organization_id='+orgId, JSON.stringify(body));
+    sendRequest('PUT', 'organization/role?targetOrganizationId='+orgId, JSON.stringify(body));
 };
 
 /*
@@ -367,6 +405,9 @@ function sendRequest(method, url, body, successCallback, failCallback) {
     }
     xmlhttp.open(method, ENDPOINT + url, true);
     xmlhttp.setRequestHeader("access_token", accessToken);
+    if (body !== undefined) {
+        console.log(body);
+    }
     xmlhttp.send(body !== undefined ? body : "");
 };
 
@@ -376,6 +417,7 @@ function updateStatus(message) {
 
 function resetPage() {
     document.getElementById('loginToken').innerHTML = "";
+    document.getElementById('personEmailConfirmation').innerHTML = "";
     removePermissions();
     permissions = null;
 };
@@ -384,7 +426,7 @@ function buildPermissions(orgId, personId) {
     var form = document.getElementById('permissionForm');
     
     // Get the current permissions for the org/person
-    sendRequest('GET', 'organization/permission?organization_id=' + orgId+'&person_id='+personId, "", function(text) {
+    sendRequest('GET', 'organization/permission/person?targetOrganizationId=' + orgId + '&targetPersonId=' + personId, '', function(text) {
         var ownedPermissions = JSON.parse(text).data;
         
         var dict = buildPermissionDictionary();

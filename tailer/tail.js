@@ -84,6 +84,13 @@ function displayLines() {
       if (line.includes(limiter)) {
          var p = document.createElement("p");
          p.innerHTML = line;
+         if (line.startsWith("E")) {
+            p.className = 'red';
+         } else if (line.startsWith("D")) {
+            p.className = 'blue';
+         } else if (line.startsWith("I")) {
+            p.className = 'green';
+         }
          content.append(p);
       }
    }
