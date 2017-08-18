@@ -1,0 +1,284 @@
+<!doctype html>
+<html>
+<head>
+    <title>Ian's Brokerage</title>
+    
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id='loadingDiv'>
+        <h1>LOADING</h1>
+    </div>
+    <div id='loginDiv' class='hidden'>
+        Email:
+        <input type='text' id='loginEmail'></input>
+        Password:
+        <input type='password' id='loginPassword'></input>
+        <button id='loginButton'>Login</button>
+    </div>
+    
+    <div id='contentDiv' class='hidden'>
+        <button id='logout'>Log Out</button>
+        <br />
+        <h2>Current Price:</h2>
+        <h1 id='currentPrice'></h1>
+        <button id='refreshCurrentPrice'>Refresh</button>
+        <h2>Total ETH:</h2>
+        <h3 id='totalEth'></h3>
+        <h2>Value in USD:</h2>
+        <h3 id='currentValue'></h3>
+        <h2>Percentage gain:</h2>
+        <h3 id='percentGain'></h3>
+        
+        <div id='adminConsole' class='hidden'>
+            Target Id:
+            <input type='number' id='targetPersonId'></input>
+            <p />
+            Type (Buy/Sell):
+            <input type='text' id='type'></input>
+            Pair:
+            <input type='text' value='ETH-USD' id='pair'></input>
+            Cost:
+            <input type='text' id='cost'></input>
+            Amount:
+            <input type='text' id='amount'></input>
+            Price:
+            <input type='text' id='price'></input>
+            <button id='addTransaction'>Add Transaction</button>
+            <p />
+            Permission Name:
+            <input type='text' id='permissionName'></input>
+            <button id='grantPermission'>Grant</button>
+            <button id='revokePermission'>Revoke</button>
+            
+            <br />
+            Email:
+            <input type='text' id='signupEmail'></input>
+            Password:
+            <input type='password' id='signupPassword'></input>
+            First Name:
+            <input type='text' id='signupFirst'></input>
+            Last Name:
+            <input type='text' id='signupLast'></input>
+            <button id='signupButton'>Register</button>
+        </div>
+    </div>
+<script>
+var ENDPOINT = "/broker/";
+
+var transactions = [];
+
+var marketUrl = null;
+
+window.onload = function() {
+    if (location.protocol != "https:") {
+        location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
+        return;
+    }
+    
+    document.getElementById('loginButton').onclick = login;
+    
+    document.getElementById('logout').onclick = logout;
+    document.getElementById('refreshCurrentPrice').onclick = refreshCurrentPrice;
+    
+    document.getElementById('addTransaction').onclick = addTransaction;
+    document.getElementById('grantPermission').onclick = grantPermission;
+    document.getElementById('revokePermission').onclick = revokePermission;
+    document.getElementById('signupButton').onclick = signup;
+    
+    loadTransactions();
+};
+
+function login() {
+    var email = document.getElementById('loginEmail').value;
+    var password = document.getElementById('loginPassword').value;
+    
+    if (email.length === 0 || password.length === 0) {
+        return;
+    }
+    
+    var obj = {
+        email: email,
+        password: password
+    };
+    
+    sendRequest('POST', 'login', JSON.stringify(obj), loadTransactions);
+};
+
+function logout() {
+    sendRequest('POST', 'logout', '', function() {
+        document.getElementById('contentDiv').style.display = 'none';
+        document.getElementById('loginDiv').style.display = 'block';
+    });
+};
+
+//
+
+function loadTransactions() {
+    document.getElementById('loadingDiv').style.display = 'block';
+    document.getElementById('contentDiv').style.display = 'none';
+    document.getElementById('loginDiv').style.display = 'none';
+    
+    sendRequest('GET', 'transaction', '', function(res) {
+        document.getElementById('loadingDiv').style.display = 'none';
+        document.getElementById('contentDiv').style.display = 'block';
+        
+        var json = JSON.parse(res);
+        transactions = json.data.transactions;
+        
+        refreshCurrentPrice();
+    }, function(err) {
+        document.getElementById('loadingDiv').style.display = 'none';
+        document.getElementById('loginDiv').style.display = 'block';
+    });
+};
+
+function refreshCurrentPrice() {
+    if (marketUrl !== null) {
+        getLivePrice();
+        return;
+    }
+    sendRequest('GET', 'market', '', function(res) {
+        marketUrl = JSON.parse(res).data.url;
+        getLivePrice();
+    });
+};
+
+function getLivePrice() {
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                var json = JSON.parse(this.responseText);
+                var bidPrice = parseFloat(json.bids[0][0]);
+                var askPrice = parseFloat(json.asks[0][0]);
+                var price = (bidPrice + askPrice) / 2.0;
+                
+                document.getElementById('currentPrice').innerHTML = price;
+                
+                buildTransactions(price);
+            } else {
+                console.log("Error making GDAX request");
+            }
+        }
+    };
+    xmlhttp.open('GET', marketUrl, true);
+    xmlhttp.send('');
+};
+
+function buildTransactions(price) {
+    var totalUsdIn = 0;
+    var totalEth = 0;
+    
+    for (var ndx in transactions) {
+        var txn = transactions[ndx];
+        
+        if (txn.type === 'BUY') {
+            totalEth += parseFloat(txn.amount);
+            totalUsdIn += parseFloat(txn.cost);
+        }
+    }
+    var currentValue = totalEth * price;
+    
+    document.getElementById('totalEth').innerHTML = totalEth;
+    document.getElementById('currentValue').innerHTML = currentValue;
+    document.getElementById('percentGain').innerHTML = (((currentValue - totalUsdIn) / totalUsdIn) * 100) + "%";
+};
+
+//
+
+function toggleAdminConsole() {
+    var adminConsole = document.getElementById('adminConsole');
+    adminConsole.className = adminConsole.className === 'hidden' ? '' : 'hidden';
+};
+
+function addTransaction() {
+    var targetId = document.getElementById('targetPersonId').value;
+    var type = document.getElementById('type').value;
+    var pair = document.getElementById('pair').value;
+    var cost = document.getElementById('cost').value;
+    var amount = document.getElementById('amount').value;
+    var price = document.getElementById('price').value;
+    
+    var obj = {
+        targetPersonId: targetId,
+        type: type,
+        pair: pair,
+        cost: cost,
+        amount: amount,
+        price: price
+    };
+    sendRequest('POST', 'transaction', JSON.stringify(obj), loadTransactions);
+};
+
+function grantPermission() {
+    var targetId = document.getElementById('targetPersonId').value;
+    var permission = document.getElementById('permissionName').value;
+    var obj = {
+        targetPersonId: targetId,
+        permission: permission
+    };
+    sendRequest('POST', 'permission', JSON.stringify(obj));
+};
+
+function revokePermission() {
+    var targetId = document.getElementById('targetPersonId').value;
+    var permission = document.getElementById('permissionName').value;
+    var obj = {
+        targetPersonId: targetId,
+        permission: permission
+    };
+    sendRequest('DELETE', 'permission', JSON.stringify(obj));
+};
+
+function signup() {
+    var email = document.getElementById('signupEmail').value;
+    var password = document.getElementById('signupPassword').value;
+    var firstName = document.getElementById('signupFirst').value;
+    var lastName = document.getElementById('signupLast').value;
+    
+    var obj = {
+        email: email,
+        password: password,
+        first_name: firstName,
+        last_name: lastName
+    };
+    
+    sendRequest('POST', 'person', JSON.stringify(obj));
+};
+
+function sendRequest(method, url, body, successCallback, failCallback) {
+    //updateStatus("Sending request...");
+    
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4) {
+                console.log("Response status: " + this.status);
+                console.log(this.responseText);
+            if (this.status == 200) {
+                //updateStatus("SUCCESS");
+                if (successCallback != undefined) {
+                    successCallback(this.responseText);
+                }
+            } else {
+                //updateStatus("ERROR: " + this.responseText);
+                if (failCallback != undefined) {
+                    failCallback(this.responseText);
+                }
+            }
+        }
+    }
+        console.log("Making request to: " + ENDPOINT + url);
+    xmlhttp.open(method, ENDPOINT + url, true);
+    if (body !== undefined) {
+        console.log(body);
+    }
+    xmlhttp.send(body !== undefined ? body : "");
+};
+</script>
+</body>
+</html>

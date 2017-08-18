@@ -26,6 +26,7 @@
 <body>
     <button id='truncateAllButton'>Truncate All</button>
     <a href='/roster/permission'>All Permissions</a>
+    <a href='/roster/mock'>Truncate and Generate Mock Data</a>
     <p>
     <h1 id='status'>:)</h1>
     
@@ -233,11 +234,12 @@ function addPerson() {
 
 function confirmPerson() {
     var val = document.getElementById('personEmailConfirmation').innerHTML;
-    if (val === null || val === '') {
+    var email = document.getElementById('personEmail').value;
+    if (val === null || val === '' || email === null || email === '') {
         console.log("Erroring out");
         return;
     }
-    sendRequest('GET', 'person/confirm?confirmationToken=' + val);
+    sendRequest('GET', 'person/confirm?confirmationToken=' + val + "&email=" + email);
 }
 
 function deletePerson() {
