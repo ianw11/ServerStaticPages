@@ -1,0 +1,17 @@
+html {
+	margin: 0;
+    height: 100%;
+}
+
+body {
+	
+	text-align:center;
+	font-family: Verdana;
+	color: White;
+	background: linear-gradient(-45deg, orange, pink, teal); 
+	background-repeat: no-repeat;
+	
+    
+}
+
+
