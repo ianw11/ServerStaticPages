@@ -219,12 +219,14 @@ function buildTransactions(tickerPrice) {
         if (txn.action === 'BUY') {
             totalEth += creditAmount;
 			totalUsd -= debtAmount;
-			liContent = "Bought " + creditAmount + " " + creditType + " for " + debtAmount + " " + debtType;
+			liContent = "Bought " + creditAmount + " " + creditType +
+				" for " + debtAmount + " " + debtType + " (price: $" + price + ")";
         }
 		if (txn.action === 'SELL') {
 			totalEth -= debtAmount;
 			totalUsd += creditAmount;
-			liContent = "Sold " + debtAmount + " " + debtType + " for " + creditAmount + " " + creditType;
+			liContent = "Sold " + debtAmount + " " + debtType +
+				" for " + creditAmount + " " + creditType + " (price: $" + price + ")";
 		}
 		if (txn.action === 'WITHDRAW') {
 			totalUsd -= debtAmount;
