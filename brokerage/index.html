@@ -35,21 +35,29 @@
         <h3 id='totalEth'></h3>
         <h2>Value in USD:</h2>
         <h3 id='currentValue'></h3>
-        <h2>Percentage gain:</h2>
+		<h2>Total Portfolio Value:</h2>
+		<h3 id='totalUsd'></h3>
+        <h2 id='percentageGainLabel'>Percentage gain:</h2>
         <h3 id='percentGain'></h3>
         
         <div id='adminConsole' class='hidden'>
             Target Id:
             <input type='number' id='targetPersonId'></input>
             <p />
-            Type (Buy/Sell):
-            <input type='text' id='type'></input>
-            Pair:
-            <input type='text' value='ETH-USD' id='pair'></input>
-            Cost:
-            <input type='text' id='cost'></input>
-            Amount:
-            <input type='text' id='amount'></input>
+			<select id='action'>
+				<option value='BUY'>BUY</option>
+				<option value='SELL'>SELL</option>
+				<option value='DEPOSIT'>DEPOSIT</option>
+				<option value='WITHDRAW'>WITHDRAW</option>
+			</select>
+			Debt type:
+			<input type='text' id='debtType'></input>
+			Credit type:
+			<input type='text' id='creditType'></input>
+			Debt amount:
+			<input type='text' id='debtAmount'></input>
+			Credit amount:
+			<input type='text' id='creditAmount'></input>
             Price:
             <input type='text' id='price'></input>
             <button id='addTransaction'>Add Transaction</button>
@@ -72,6 +80,7 @@
         </div>
     </div>
 <script>
+var DEBUG = true;
 var ENDPOINT = "/broker/";
 
 var transactions = [];
@@ -79,7 +88,7 @@ var transactions = [];
 var marketUrl = null;
 
 window.onload = function() {
-    if (location.protocol != "https:") {
+    if (!DEBUG && location.protocol != "https:") {
         location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
         return;
     }
@@ -176,21 +185,37 @@ function getLivePrice() {
 
 function buildTransactions(price) {
     var totalUsdIn = 0;
+	var totalUsd = 0;
     var totalEth = 0;
     
     for (var ndx in transactions) {
         var txn = transactions[ndx];
         
-        if (txn.type === 'BUY') {
-            totalEth += parseFloat(txn.amount);
-            totalUsdIn += parseFloat(txn.cost);
+		if (txn.action === 'DEPOSIT') {
+			totalUsdIn += parseFloat(txn.creditAmount);
+			totalUsd += parseFloat(txn.creditAmount);
+		}
+        if (txn.action === 'BUY') {
+            totalEth += parseFloat(txn.creditAmount);
+			totalUsd -= parseFloat(txn.debtAmount);
         }
+		if (txn.action === 'SELL') {
+			totalEth -= parseFloat(txn.debtAmount);
+			totalUsd += parseFloat(txn.creditAmount);
+		}
+		if (txn.action === 'WITHDRAW') {
+			totalUsd -= parseFloat(txn.debtAmount);
+			totalUsdIn -= parseFloat(txn.debtAmount);
+		}
     }
     var currentValue = totalEth * price;
+	var fullUsdValue = currentValue + totalUsd;
     
     document.getElementById('totalEth').innerHTML = totalEth;
-    document.getElementById('currentValue').innerHTML = currentValue;
-    document.getElementById('percentGain').innerHTML = (((currentValue - totalUsdIn) / totalUsdIn) * 100) + "%";
+    document.getElementById('currentValue').innerHTML = '$' + twoDecimalPlaces(currentValue);
+	document.getElementById('totalUsd').innerHTML = "$" + twoDecimalPlaces(fullUsdValue);
+	document.getElementById('percentageGainLabel').innerHTML = "Percentage gain (based on $" + totalUsdIn + " deposited):";
+    document.getElementById('percentGain').innerHTML = twoDecimalPlaces((((fullUsdValue - totalUsdIn) / totalUsdIn) * 100)) + "%";
 };
 
 //
@@ -202,18 +227,20 @@ function toggleAdminConsole() {
 
 function addTransaction() {
     var targetId = document.getElementById('targetPersonId').value;
-    var type = document.getElementById('type').value;
-    var pair = document.getElementById('pair').value;
-    var cost = document.getElementById('cost').value;
-    var amount = document.getElementById('amount').value;
+    var action = document.getElementById('action').value;
+	var debtType = document.getElementById('debtType').value;
+	var creditType = document.getElementById('creditType').value;
+	var debtAmount = document.getElementById('debtAmount').value;
+	var creditAmount = document.getElementById('creditAmount').value;
     var price = document.getElementById('price').value;
     
     var obj = {
         targetPersonId: targetId,
-        type: type,
-        pair: pair,
-        cost: cost,
-        amount: amount,
+        action: action,
+		debtType: debtType,
+		creditType: creditType,
+		debtAmount: debtAmount,
+		creditAmount: creditAmount,
         price: price
     };
     sendRequest('POST', 'transaction', JSON.stringify(obj), loadTransactions);
@@ -254,6 +281,12 @@ function signup() {
     
     sendRequest('POST', 'person', JSON.stringify(obj));
 };
+
+//
+
+function twoDecimalPlaces(flt) {
+	return parseFloat(flt).toFixed(2);
+}
 
 function sendRequest(method, url, body, successCallback, failCallback) {
     //updateStatus("Sending request...");
