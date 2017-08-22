@@ -191,7 +191,7 @@ function getLivePrice() {
     xmlhttp.send('');
 };
 
-function buildTransactions(price) {
+function buildTransactions(tickerPrice) {
     var totalUsdIn = 0;
 	var totalUsd = 0;
     var totalEth = 0;
@@ -236,7 +236,7 @@ function buildTransactions(price) {
 		li.innerHTML = liContent;
 		transactionList.append(li);
     }
-    var currentValue = totalEth * price;
+    var currentValue = totalEth * tickerPrice;
 	var fullUsdValue = currentValue + totalUsd;
     
     document.getElementById('totalEth').innerHTML = totalEth;
