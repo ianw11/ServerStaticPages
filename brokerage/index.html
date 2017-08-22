@@ -39,6 +39,12 @@
 		<h3 id='totalUsd'></h3>
         <h2 id='percentageGainLabel'>Percentage gain:</h2>
         <h3 id='percentGain'></h3>
+		
+		<button id='toggleHistory'></button>
+		<div id='historyDiv'>
+			<ul id='history'>
+			</ul>
+		</div>
         
         <div id='adminConsole' class='hidden'>
             Target Id:
@@ -80,7 +86,7 @@
         </div>
     </div>
 <script>
-var DEBUG = false;
+var DEBUG = true;
 var ENDPOINT = "/broker/";
 
 var transactions = [];
@@ -92,11 +98,13 @@ window.onload = function() {
         location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
         return;
     }
+	toggleHistory();
     
     document.getElementById('loginButton').onclick = login;
     
     document.getElementById('logout').onclick = logout;
     document.getElementById('refreshCurrentPrice').onclick = refreshCurrentPrice;
+	document.getElementById('toggleHistory').onclick = toggleHistory;
     
     document.getElementById('addTransaction').onclick = addTransaction;
     document.getElementById('grantPermission').onclick = grantPermission;
@@ -187,26 +195,46 @@ function buildTransactions(price) {
     var totalUsdIn = 0;
 	var totalUsd = 0;
     var totalEth = 0;
+	
+	var transactionList = document.getElementById('history');
+	dropChildren(transactionList);
     
     for (var ndx in transactions) {
         var txn = transactions[ndx];
+		var action = txn.action;
+		var debtType = txn.debtType;
+		var creditType = txn.creditType;
+		var debtAmount = parseFloat(txn.debtAmount);
+		var creditAmount = parseFloat(txn.creditAmount);
+		var price = parseFloat(txn.price);
+		var timestamp = txn.updated_timestamp;
+		
+		var liContent = "";
         
 		if (txn.action === 'DEPOSIT') {
-			totalUsdIn += parseFloat(txn.creditAmount);
-			totalUsd += parseFloat(txn.creditAmount);
+			totalUsdIn += creditAmount;
+			totalUsd += creditAmount;
+			liContent = "Deposited " + creditAmount + " " + creditType;
 		}
         if (txn.action === 'BUY') {
-            totalEth += parseFloat(txn.creditAmount);
-			totalUsd -= parseFloat(txn.debtAmount);
+            totalEth += creditAmount;
+			totalUsd -= debtAmount;
+			liContent = "Bought " + creditAmount + " " + creditType + " for " + debtAmount + " " + debtType;
         }
 		if (txn.action === 'SELL') {
-			totalEth -= parseFloat(txn.debtAmount);
-			totalUsd += parseFloat(txn.creditAmount);
+			totalEth -= debtAmount;
+			totalUsd += creditAmount;
+			liContent = "Sold " + debtAmount + " " + debtType + " for " + creditAmount + " " + creditType;
 		}
 		if (txn.action === 'WITHDRAW') {
-			totalUsd -= parseFloat(txn.debtAmount);
-			totalUsdIn -= parseFloat(txn.debtAmount);
+			totalUsd -= debtAmount;
+			totalUsdIn -= debtAmount;
+			liContent = "Withdrew " + debtAmount + " " + debtType;
 		}
+		
+		var li = document.createElement('li');
+		li.innerHTML = liContent;
+		transactionList.append(li);
     }
     var currentValue = totalEth * price;
 	var fullUsdValue = currentValue + totalUsd;
@@ -217,6 +245,13 @@ function buildTransactions(price) {
 	document.getElementById('percentageGainLabel').innerHTML = "Percentage gain (based on $" + totalUsdIn + " deposited):";
     document.getElementById('percentGain').innerHTML = twoDecimalPlaces((((fullUsdValue - totalUsdIn) / totalUsdIn) * 100)) + "%";
 };
+
+function toggleHistory() {
+	var historyDiv = document.getElementById("historyDiv");
+	var isHidden = historyDiv.className === 'hidden';
+	historyDiv.className = isHidden ? '' : 'hidden';
+	document.getElementById('toggleHistory').innerHTML = isHidden ? 'Hide History' : 'Show History';
+}
 
 //
 
@@ -286,7 +321,13 @@ function signup() {
 
 function twoDecimalPlaces(flt) {
 	return parseFloat(flt).toFixed(2);
-}
+};
+
+function dropChildren(elem) {
+	while (elem.firstChild) {
+		elem.removeChild(elem.firstChild);
+	}
+};
 
 function sendRequest(method, url, body, successCallback, failCallback) {
     //updateStatus("Sending request...");
