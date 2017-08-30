@@ -212,8 +212,12 @@ function buildTransactions(tickerPrice) {
 		var liContent = "";
         
 		if (txn.action === 'DEPOSIT') {
-			totalUsdIn += creditAmount;
-			totalUsd += creditAmount;
+			if (creditType === 'USD') {
+				totalUsdIn += creditAmount;
+				totalUsd += creditAmount;
+			} else if (creditType === 'ETH') {
+				totalEth += creditAmount;
+			}
 			liContent = "Deposited " + creditAmount + " " + creditType;
 		}
         if (txn.action === 'BUY') {
@@ -229,8 +233,12 @@ function buildTransactions(tickerPrice) {
 				" for " + creditAmount + " " + creditType + " (price: $" + price + ")";
 		}
 		if (txn.action === 'WITHDRAW') {
-			totalUsd -= debtAmount;
-			totalUsdIn -= debtAmount;
+			if (debtType === 'USD') {
+				totalUsd -= debtAmount;
+				totalUsdIn -= debtAmount;
+			} else if (debtType === 'ETH') {
+				totalEth -= debtAmount;
+			}			
 			liContent = "Withdrew " + debtAmount + " " + debtType;
 		}
 		
