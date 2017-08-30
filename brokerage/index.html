@@ -179,7 +179,7 @@ function getLivePrice() {
                 var askPrice = parseFloat(json.asks[0][0]);
                 var price = (bidPrice + askPrice) / 2.0;
                 
-                document.getElementById('currentPrice').innerHTML = price;
+                document.getElementById('currentPrice').innerHTML = "$" + twoDecimalPlaces(price);
                 
                 buildTransactions(price);
             } else {
