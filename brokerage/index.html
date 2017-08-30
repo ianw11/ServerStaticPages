@@ -193,8 +193,13 @@ function getLivePrice() {
 
 function buildTransactions(tickerPrice) {
     var totalUsdIn = 0;
-	var totalUsd = 0;
-    var totalEth = 0;
+	
+	var totals = {
+		'USD': 0,
+		'ETH': 0,
+		'BTC': 0,
+		'OMG': 0
+	};
 	
 	var transactionList = document.getElementById('history');
 	dropChildren(transactionList);
@@ -214,31 +219,27 @@ function buildTransactions(tickerPrice) {
 		if (txn.action === 'DEPOSIT') {
 			if (creditType === 'USD') {
 				totalUsdIn += creditAmount;
-				totalUsd += creditAmount;
-			} else if (creditType === 'ETH') {
-				totalEth += creditAmount;
 			}
+			totals[creditType] += creditAmount;
 			liContent = "Deposited " + creditAmount + " " + creditType;
 		}
         if (txn.action === 'BUY') {
-            totalEth += creditAmount;
-			totalUsd -= debtAmount;
+			totals[creditType] += creditAmount;
+			totals[debtType] -= debtAmount;
 			liContent = "Bought " + creditAmount + " " + creditType +
 				" for " + debtAmount + " " + debtType + " (price: $" + price + ")";
         }
 		if (txn.action === 'SELL') {
-			totalEth -= debtAmount;
-			totalUsd += creditAmount;
+			totals[creditType] += creditAmount;
+			totals[debtType] -= debtAmount;
 			liContent = "Sold " + debtAmount + " " + debtType +
 				" for " + creditAmount + " " + creditType + " (price: $" + price + ")";
 		}
 		if (txn.action === 'WITHDRAW') {
 			if (debtType === 'USD') {
-				totalUsd -= debtAmount;
 				totalUsdIn -= debtAmount;
-			} else if (debtType === 'ETH') {
-				totalEth -= debtAmount;
-			}			
+			}
+			totals[debtType] -= debtAmount;
 			liContent = "Withdrew " + debtAmount + " " + debtType;
 		}
 		
@@ -246,6 +247,8 @@ function buildTransactions(tickerPrice) {
 		li.innerHTML = liContent;
 		transactionList.append(li);
     }
+	var totalEth = totals['ETH'];
+	var totalUsd = totals['USD'];
     var currentValue = totalEth * tickerPrice;
 	var fullUsdValue = currentValue + totalUsd;
     
