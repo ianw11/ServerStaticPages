@@ -199,7 +199,6 @@ function buildAssetAccordion(assetTitle, assetAmount) {
         wrapper.append(refreshButton);
     }
     
-    dropChildren(document.getElementById('assetDiv'));
     document.getElementById('assetDiv').append(buildAccordion(assetTitle, wrapper));
 };
 
@@ -315,12 +314,13 @@ function buildTransactions() {
     
     for (var asset in totals) {
         if (totals[asset]) {
+            console.log('Building accordion for ' + asset);
             buildAssetAccordion(asset, totals[asset]);
         } else {
             console.log("Skipping accordion for " + asset + ": " + totals[asset]);
         }
     }
-    
+    dropChildren(document.getElementById('historyDiv'));
     document.getElementById('historyDiv').append(buildAccordion('History', historyContent));
 };
 
