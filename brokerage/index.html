@@ -276,9 +276,11 @@ function buildTransactions() {
 		var liContent = "";
         
         if (totals[creditType] === undefined) {
+            console.log("Initializing " + creditType);
             totals[creditType] = 0;
         }
         if (totals[debtType] === undefined) {
+            console.log("Initializing " + debtType);
             totals[debtType] = 0;
         }
         
