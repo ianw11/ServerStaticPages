@@ -121,11 +121,8 @@ function buildAccordion(titleElement, content) {
     var wrapper = document.createElement('div');
     wrapper.className = 'accordionWrapper';
     
-    var title = document.createElement('div');
-    title.classList.toggle('accordion');
-    title.append(titleElement);
-    //titleElement.classList.toggle('accordion');
-    title.onclick = function() {
+    titleElement.classList.toggle('accordion');
+    titleElement.onclick = function() {
         this.classList.toggle('active');
         var panel = this.nextElementSibling;
         if (panel.style.maxHeight) {
@@ -134,7 +131,7 @@ function buildAccordion(titleElement, content) {
             panel.style.maxHeight = panel.scrollHeight + "px";
         }
     };
-    wrapper.append(title);
+    wrapper.append(titleElement);
     
     var contentWrapper = document.createElement('div');
     contentWrapper.classList.toggle('panel');
