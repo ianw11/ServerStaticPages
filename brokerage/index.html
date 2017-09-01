@@ -195,6 +195,7 @@ function buildAssetAccordion(assetTitle, assetAmount) {
             refreshButton.disabled = true;
             sendRequest('GET', 'market?asset='+assetTitle, '', function(res) {
                 var price = parseFloat(JSON.parse(res).data.price);
+                console.log("Price: " + price);
                 currentPriceValue.innerHTML = "$" + twoDecimalPlaces(price);
                 var assetValue = twoDecimalPlaces(price * parseFloat(assetAmount));
                 value.innerHTML = "$" + assetValue;
