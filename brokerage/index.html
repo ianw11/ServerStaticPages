@@ -35,14 +35,6 @@
         
         <div id='historyDiv'>
         </div>
-		
-        <!--
-		<button id='toggleHistory'></button>
-		<div id='historyDiv'>
-			<ul id='history'>
-			</ul>
-		</div>
-        -->
         
         <div id='adminConsole' class='hidden'>
             Target Id:
@@ -84,7 +76,7 @@
         </div>
     </div>
 <script>
-var DEBUG = false;
+var DEBUG = true;
 var ENDPOINT = "/broker/";
 
 var transactions = [];
@@ -208,6 +200,7 @@ function buildAssetAccordion(assetTitle, assetAmount) {
         wrapper.append(refreshButton);
     }
     
+    dropChildren(document.getElementById('assetDiv'));
     document.getElementById('assetDiv').append(buildAccordion(assetTitle, wrapper));
 };
 
@@ -233,7 +226,16 @@ function logout() {
     sendRequest('POST', 'logout', '', function() {
         document.getElementById('contentDiv').style.display = 'none';
         document.getElementById('loginDiv').style.display = 'block';
+        reset();
     });
+};
+
+function reset() {
+    transactions = [];
+    usdValues = {};
+    totalUsdIn = 0;
+    
+    dropChildren(document.getElementById('assetDiv'));
 };
 
 //
