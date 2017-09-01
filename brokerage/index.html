@@ -36,6 +36,8 @@
         <div id='historyDiv'>
         </div>
         
+        <br />
+        
         <div id='adminConsole' class='hidden'>
             Target Id:
             <input type='number' id='targetPersonId'></input>
@@ -76,7 +78,7 @@
         </div>
     </div>
 <script>
-var DEBUG = true;
+var DEBUG = false;
 var ENDPOINT = "/broker/";
 
 var transactions = [];
@@ -87,6 +89,9 @@ window.onload = function() {
     if (!DEBUG && location.protocol != "https:") {
         location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
         return;
+    }
+    if (DEBUG) {
+        toggleAdminConsole();
     }
     
     document.getElementById('loginButton').onclick = login;
@@ -113,13 +118,15 @@ function updatePortfolio(assetType, usdValue) {
     document.getElementById('percentGain').innerHTML = twoDecimalPlaces((((sum - totalUsdIn) / totalUsdIn) * 100)) + "%";
 };
 
-function buildAccordion(title, content) {
+function buildAccordion(titleElement, content) {
     var wrapper = document.createElement('div');
     wrapper.className = 'accordionWrapper';
-    var titleButton = document.createElement('button');
-    titleButton.classList.toggle('accordion');
-    titleButton.innerHTML = title;
-    titleButton.onclick = function() {
+    
+    var title = document.createElement('div');
+    title.classList.toggle('accordion');
+    title.append(titleElement);
+    //titleElement.classList.toggle('accordion');
+    title.onclick = function() {
         this.classList.toggle('active');
         var panel = this.nextElementSibling;
         if (panel.style.maxHeight) {
@@ -128,7 +135,7 @@ function buildAccordion(title, content) {
             panel.style.maxHeight = panel.scrollHeight + "px";
         }
     };
-    wrapper.append(titleButton);
+    wrapper.append(title);
     
     var contentWrapper = document.createElement('div');
     contentWrapper.classList.toggle('panel');
@@ -142,16 +149,6 @@ function buildAssetAccordion(assetTitle, assetAmount) {
     var wrapper = document.createElement('div');
 
     var table = document.createElement('table');
-    
-    var firstRow = document.createElement('tr');
-    var currentPrice = document.createElement('td');
-    currentPrice.innerHTML = "Current Price";
-    firstRow.append(currentPrice);
-    var currentPriceValue = document.createElement('td');
-    currentPriceValue.id = 'currentPrice_'+assetTitle;
-    currentPriceValue.innerHTML = "N/A";
-    firstRow.append(currentPriceValue);
-    table.append(firstRow);
     
     var secondRow = document.createElement('tr');
     var amountLabel = document.createElement('td');
@@ -175,9 +172,10 @@ function buildAssetAccordion(assetTitle, assetAmount) {
     
     wrapper.append(table);
     
+    var titleElem = document.createElement('div');
+    titleElem.innerHTML = assetTitle;
     
     if (assetTitle === 'USD') {
-        firstRow.style.display = 'none';
         updatePortfolio('USD', assetAmount);
         value.innerHTML = "$" + assetAmount;
     } else {
@@ -187,7 +185,8 @@ function buildAssetAccordion(assetTitle, assetAmount) {
             refreshButton.disabled = true;
             sendRequest('GET', 'market?asset='+assetTitle, '', function(res) {
                 var price = parseFloat(JSON.parse(res).data.price);
-                currentPriceValue.innerHTML = "$" + twoDecimalPlaces(price);
+                titleElem.innerHTML = assetTitle + " - $" + twoDecimalPlaces(price);
+                
                 var assetValue = twoDecimalPlaces(price * parseFloat(assetAmount));
                 value.innerHTML = "$" + assetValue;
                 
@@ -199,7 +198,7 @@ function buildAssetAccordion(assetTitle, assetAmount) {
         wrapper.append(refreshButton);
     }
     
-    document.getElementById('assetDiv').append(buildAccordion(assetTitle, wrapper));
+    document.getElementById('assetDiv').append(buildAccordion(titleElem, wrapper));
 };
 
 //
@@ -316,7 +315,9 @@ function buildTransactions() {
         }
     }
     dropChildren(document.getElementById('historyDiv'));
-    document.getElementById('historyDiv').append(buildAccordion('History', historyContent));
+    var titleElem = document.createElement('div');
+    titleElem.innerHTML = "History";
+    document.getElementById('historyDiv').append(buildAccordion(titleElem, historyContent));
 };
 
 //
