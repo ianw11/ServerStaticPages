@@ -2,16 +2,8 @@
 <html>
 
 <head>
-
-    <link href="template.css" type="text/css" rel="stylesheet" />
-
     <title>Ian's Brokerage</title>
-    
-    <style>
-        .hidden {
-            display: none;
-        }
-    </style>
+    <link href="template.css" type="text/css" rel="stylesheet" />
 </head>
 <body>
     <div id='loadingDiv'>
@@ -28,23 +20,29 @@
     <div id='contentDiv' class='hidden'>
         <button id='logout'>Log Out</button>
         <br />
-        <h2>Current Price:</h2>
-        <h1 id='currentPrice'></h1>
-        <button id='refreshCurrentPrice'>Refresh</button>
-        <h2>Total ETH:</h2>
-        <h3 id='totalEth'></h3>
-        <h2>Value in USD:</h2>
-        <h3 id='currentValue'></h3>
-		<h2>Total Portfolio Value:</h2>
+        
+        <h2>Total Portfolio Value:</h2>
 		<h3 id='totalUsd'></h3>
         <h2 id='percentageGainLabel'>Percentage gain:</h2>
         <h3 id='percentGain'></h3>
+        
+        <br />
+        
+        <div id='assetDiv'>
+        </div>
+        
+        <br />
+        
+        <div id='historyDiv'>
+        </div>
 		
+        <!--
 		<button id='toggleHistory'></button>
 		<div id='historyDiv'>
 			<ul id='history'>
 			</ul>
 		</div>
+        -->
         
         <div id='adminConsole' class='hidden'>
             Target Id:
@@ -86,25 +84,21 @@
         </div>
     </div>
 <script>
-var DEBUG = false;
+var DEBUG = true;
 var ENDPOINT = "/broker/";
 
 var transactions = [];
-
-var marketUrl = null;
+var usdValues = {};
+var totalUsdIn = 0;
 
 window.onload = function() {
     if (!DEBUG && location.protocol != "https:") {
         location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
         return;
     }
-	toggleHistory();
     
     document.getElementById('loginButton').onclick = login;
-    
     document.getElementById('logout').onclick = logout;
-    document.getElementById('refreshCurrentPrice').onclick = refreshCurrentPrice;
-	document.getElementById('toggleHistory').onclick = toggleHistory;
     
     document.getElementById('addTransaction').onclick = addTransaction;
     document.getElementById('grantPermission').onclick = grantPermission;
@@ -113,6 +107,110 @@ window.onload = function() {
     
     loadTransactions();
 };
+
+function updatePortfolio(assetType, usdValue) {
+    usdValues[assetType] = parseFloat(usdValue);
+    
+    var sum = 0;
+    for (var ndx in usdValues) {
+        sum += usdValues[ndx];
+    }
+    
+    document.getElementById('totalUsd').innerHTML = "$" + twoDecimalPlaces(sum);
+	document.getElementById('percentageGainLabel').innerHTML = "Percentage gain (based on $" + totalUsdIn + " deposited):";
+    document.getElementById('percentGain').innerHTML = twoDecimalPlaces((((sum - totalUsdIn) / totalUsdIn) * 100)) + "%";
+};
+
+function buildAccordion(title, content) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'accordionWrapper';
+    var titleButton = document.createElement('button');
+    titleButton.classList.toggle('accordion');
+    titleButton.innerHTML = title;
+    titleButton.onclick = function() {
+        this.classList.toggle('active');
+        var panel = this.nextElementSibling;
+        if (panel.style.maxHeight) {
+            panel.style.maxHeight = null;
+        } else {
+            panel.style.maxHeight = panel.scrollHeight + "px";
+        }
+    };
+    wrapper.append(titleButton);
+    
+    var contentWrapper = document.createElement('div');
+    contentWrapper.classList.toggle('panel');
+    contentWrapper.append(content);
+    wrapper.append(contentWrapper);
+    
+    return wrapper;
+};
+
+function buildAssetAccordion(assetTitle, assetAmount) {
+    var wrapper = document.createElement('div');
+
+    var table = document.createElement('table');
+    
+    var firstRow = document.createElement('tr');
+    var currentPrice = document.createElement('td');
+    currentPrice.innerHTML = "Current Price";
+    firstRow.append(currentPrice);
+    var currentPriceValue = document.createElement('td');
+    currentPriceValue.id = 'currentPrice_'+assetTitle;
+    currentPriceValue.innerHTML = "N/A";
+    firstRow.append(currentPriceValue);
+    table.append(firstRow);
+    
+    var secondRow = document.createElement('tr');
+    var amountLabel = document.createElement('td');
+    amountLabel.innerHTML = "Amount of " + assetTitle;
+    secondRow.append(amountLabel);
+    var amount = document.createElement('td');
+    amount.id = 'amount_'+assetTitle;
+    amount.innerHTML = assetAmount;
+    secondRow.append(amount);
+    table.append(secondRow);
+    
+    var thirdRow = document.createElement('tr');
+    var valueLabel = document.createElement('td');
+    valueLabel.innerHTML = "Value in USD";
+    thirdRow.append(valueLabel);
+    var value = document.createElement('td');
+    value.id = 'value_'+assetTitle;
+    value.innerHTML = "N/A";
+    thirdRow.append(value);
+    table.append(thirdRow);
+    
+    wrapper.append(table);
+    
+    
+    if (assetTitle === 'USD') {
+        firstRow.style.display = 'none';
+        updatePortfolio('USD', assetAmount);
+        value.innerHTML = "$" + assetAmount;
+    } else {
+        var refreshButton = document.createElement('button');
+        refreshButton.innerHTML = 'Refresh';
+        refreshButton.onclick = function() {
+            refreshButton.disabled = true;
+            sendRequest('GET', 'market?asset='+assetTitle, '', function(res) {
+                var price = parseFloat(JSON.parse(res).data.price);
+                currentPriceValue.innerHTML = "$" + twoDecimalPlaces(price);
+                var assetValue = twoDecimalPlaces(price * parseFloat(assetAmount));
+                value.innerHTML = "$" + assetValue;
+                
+                updatePortfolio(assetTitle, assetValue);
+                refreshButton.disabled = false;
+            });
+        };
+        refreshButton.onclick();
+        wrapper.append(refreshButton);
+    }
+    
+    document.getElementById('assetDiv').append(buildAccordion(assetTitle, wrapper));
+};
+
+//
 
 function login() {
     var email = document.getElementById('loginEmail').value;
@@ -151,58 +249,17 @@ function loadTransactions() {
         var json = JSON.parse(res);
         transactions = json.data.transactions;
         
-        refreshCurrentPrice();
+        buildTransactions();
     }, function(err) {
         document.getElementById('loadingDiv').style.display = 'none';
         document.getElementById('loginDiv').style.display = 'block';
     });
 };
 
-function refreshCurrentPrice() {
-    if (marketUrl !== null) {
-        getLivePrice();
-        return;
-    }
-    sendRequest('GET', 'market', '', function(res) {
-        marketUrl = JSON.parse(res).data.url;
-        getLivePrice();
-    });
-};
-
-function getLivePrice() {
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState === 4) {
-            if (this.status === 200) {
-                var json = JSON.parse(this.responseText);
-                var bidPrice = parseFloat(json.bids[0][0]);
-                var askPrice = parseFloat(json.asks[0][0]);
-                var price = (bidPrice + askPrice) / 2.0;
-                
-                document.getElementById('currentPrice').innerHTML = "$" + twoDecimalPlaces(price);
-                
-                buildTransactions(price);
-            } else {
-                console.log("Error making GDAX request");
-            }
-        }
-    };
-    xmlhttp.open('GET', marketUrl, true);
-    xmlhttp.send('');
-};
-
-function buildTransactions(tickerPrice) {
-    var totalUsdIn = 0;
-	
-	var totals = {
-		'USD': 0,
-		'ETH': 0,
-		'BTC': 0,
-		'OMG': 0
-	};
-	
-	var transactionList = document.getElementById('history');
-	dropChildren(transactionList);
+function buildTransactions() {
+	var totals = {};
+    
+    var historyContent = document.createElement('ul');
     
     for (var ndx in transactions) {
         var txn = transactions[ndx];
@@ -216,26 +273,30 @@ function buildTransactions(tickerPrice) {
 		
 		var liContent = "";
         
+        if (totals[creditType] === undefined) {
+            totals[creditType] = 0;
+        }
+        if (totals[debtType] === undefined) {
+            totals[debtType] = 0;
+        }
+        
 		if (txn.action === 'DEPOSIT') {
 			if (creditType === 'USD') {
 				totalUsdIn += creditAmount;
 			}
 			totals[creditType] += creditAmount;
 			liContent = "Deposited " + creditAmount + " " + creditType;
-		}
-        if (txn.action === 'BUY') {
+		} else if (txn.action === 'BUY') {
 			totals[creditType] += creditAmount;
 			totals[debtType] -= debtAmount;
 			liContent = "Bought " + creditAmount + " " + creditType +
 				" for " + debtAmount + " " + debtType + " (price: $" + price + ")";
-        }
-		if (txn.action === 'SELL') {
+        } else if (txn.action === 'SELL') {
 			totals[creditType] += creditAmount;
 			totals[debtType] -= debtAmount;
 			liContent = "Sold " + debtAmount + " " + debtType +
 				" for " + creditAmount + " " + creditType + " (price: $" + price + ")";
-		}
-		if (txn.action === 'WITHDRAW') {
+		} else if (txn.action === 'WITHDRAW') {
 			if (debtType === 'USD') {
 				totalUsdIn -= debtAmount;
 			}
@@ -245,26 +306,17 @@ function buildTransactions(tickerPrice) {
 		
 		var li = document.createElement('li');
 		li.innerHTML = liContent;
-		transactionList.append(li);
+		historyContent.append(li);
     }
-	var totalEth = totals['ETH'];
-	var totalUsd = totals['USD'];
-    var currentValue = totalEth * tickerPrice;
-	var fullUsdValue = currentValue + totalUsd;
     
-    document.getElementById('totalEth').innerHTML = totalEth;
-    document.getElementById('currentValue').innerHTML = '$' + twoDecimalPlaces(currentValue);
-	document.getElementById('totalUsd').innerHTML = "$" + twoDecimalPlaces(fullUsdValue);
-	document.getElementById('percentageGainLabel').innerHTML = "Percentage gain (based on $" + totalUsdIn + " deposited):";
-    document.getElementById('percentGain').innerHTML = twoDecimalPlaces((((fullUsdValue - totalUsdIn) / totalUsdIn) * 100)) + "%";
+    for (var asset in totals) {
+        if (totals[asset]) {
+            buildAssetAccordion(asset, totals[asset]);
+        }
+    }
+    
+    document.getElementById('historyDiv').append(buildAccordion('History', historyContent));
 };
-
-function toggleHistory() {
-	var historyDiv = document.getElementById("historyDiv");
-	var isHidden = historyDiv.className === 'hidden';
-	historyDiv.className = isHidden ? '' : 'hidden';
-	document.getElementById('toggleHistory').innerHTML = isHidden ? 'Hide History' : 'Show History';
-}
 
 //
 
