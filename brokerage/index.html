@@ -187,7 +187,6 @@ function buildAssetAccordion(assetTitle, assetAmount) {
             refreshButton.disabled = true;
             sendRequest('GET', 'market?asset='+assetTitle, '', function(res) {
                 var price = parseFloat(JSON.parse(res).data.price);
-                console.log("Res: " + res);
                 currentPriceValue.innerHTML = "$" + twoDecimalPlaces(price);
                 var assetValue = twoDecimalPlaces(price * parseFloat(assetAmount));
                 value.innerHTML = "$" + assetValue;
@@ -315,6 +314,8 @@ function buildTransactions() {
     for (var asset in totals) {
         if (totals[asset]) {
             buildAssetAccordion(asset, totals[asset]);
+        } else {
+            console.log("Skipping accordion for " + asset + ": " + totals[asset]);
         }
     }
     
