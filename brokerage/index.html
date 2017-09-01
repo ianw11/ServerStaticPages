@@ -275,11 +275,9 @@ function buildTransactions() {
 		var liContent = "";
         
         if (totals[creditType] === undefined) {
-            console.log("Initializing " + creditType);
             totals[creditType] = 0;
         }
         if (totals[debtType] === undefined) {
-            console.log("Initializing " + debtType);
             totals[debtType] = 0;
         }
         
@@ -314,10 +312,7 @@ function buildTransactions() {
     
     for (var asset in totals) {
         if (totals[asset]) {
-            console.log('Building accordion for ' + asset);
             buildAssetAccordion(asset, totals[asset]);
-        } else {
-            console.log("Skipping accordion for " + asset + ": " + totals[asset]);
         }
     }
     dropChildren(document.getElementById('historyDiv'));
