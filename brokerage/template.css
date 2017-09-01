@@ -10,22 +10,20 @@ html {
 body {
     text-align:center;
     font-family: Verdana;
-    /*color: White;*/
     color: #555;
     background: linear-gradient(-45deg, orange, pink, teal); 
-    /*background-image: url("/brokerage/gradient_cup.png");
-    background-repeat: no-repeat;*/
+    /*background-image: url("/brokerage/gradient_cup.png");*/
+    background-repeat: no-repeat;
     
-    padding: 100px;
+    padding-top: 100px;
 }
 
 .accordionWrapper {
-    width: 500px;
+    width: 600px;
     margin-left: auto;
     margin-right: auto;
     background-color: #fff;
 }
-
 .accordion {
     background-color: #eee;
     color: #444;
@@ -38,13 +36,11 @@ body {
     transition: 0.4s;
 }
 .accordion.active, .accordion:hover {
-    background-color: #ddd;
+    background-color: aquamarine;
 }
 div.panel {
-    padding: 0 18px;
     background-color: white;
     max-height: 0;
-    /*display: none;*/
     overflow: hidden;
     transition: max-height 0.2s ease-out;
 }
@@ -59,73 +55,6 @@ div.panel {
     content: '\2796';
 }
 
-/*
-.togglebox {
-  margin: 0 auto;
-  background: #fff;
-  transform: translateZ(0);
-  box-shadow: 0 1px 1px rgba(0,0,0,.1);
-}
-
-input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-}
-
-label {
-  position: relative;
-  display: block;
-  height: 50px;
-  line-height: 50px;
-  padding: 0 20px;
-  font-size: 14px;
-  font-weight: 700;
-  border-top: 1px solid #ddd;
-  background: #fff;
-  cursor: pointer;
-}
-
-label[for*='1'] {
-  border: 0;
-}
-
-label:after {
-  content: '\f078';
-  position: absolute;
-  top: 0px;
-  right: 20px;
-  transform: rotate(90deg);
-  transition: .3s transform;
-}
-
-section {
-  height: 0;
-  transition: .3s all;
-  overflow: hidden;
-}
-*/
-
-/* OLD
-#tab-ETH:checked ~ label[for*='1']:after,
-#tab-OMG:checked ~ label[for*='2']:after {
-  transform: rotate(0deg);
-}
-*/
-
-/*
-#tab-ETH:checked ~ #ETH-content,
-#tab-OMG:checked ~ #OMG-content {
-  height: 100px;
-}
-*/
-
-p {
-  margin: 15px 0;
-  padding: 0 20px;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
 table {
     margin: 0px auto;
     text-align: left;
@@ -133,29 +62,3 @@ table {
 table td {
     padding-right: 10px;
 }
-
-
-/* SUPER OLD
-input[type=radio] {
-    display:none;
-        }
-        
-        label {
-            position: relative;
-            display: block;
-        }
-        
-        label:after {
-            content: "+";
-            position: absolute;
-            right: 1em;
-        }
-        
-        input:checked + label:after {
-            content: "-";
-        }
-        
-        input:checked ~ .tab-content {
-            height: 150px;
-        }
-*/
