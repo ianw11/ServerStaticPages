@@ -263,10 +263,12 @@ function buildTransactions() {
 		var action = txn.action;
 		var debtType = txn.debtType;
 		var creditType = txn.creditType;
-		var debtAmount = eightDecimalPlaces(txn.debtAmount);
-		var creditAmount = eightDecimalPlaces(txn.creditAmount);
+		var debtAmount = parseFloat(txn.debtAmount);
+		var creditAmount = parseFloat(txn.creditAmount);
 		var price = parseFloat(txn.price);
 		var timestamp = txn.updated_timestamp;
+        
+        console.log("creditAmount: " + creditAmount + " debtAmount: " + debtAmount);
 		
 		var liContent = "";
         
@@ -384,11 +386,15 @@ function signup() {
 //
 
 function twoDecimalPlaces(flt) {
-	return parseFloat(flt).toFixed(2);
+	return decimalPlaces(flt, 2);
 };
 
 function eightDecimalPlaces(flt) {
-    return parseFloat(flt).toFixed(8);
+    return decimalPlaces(flt, 8);
+};
+
+function decimalPlaces(flt, numPlaces) {
+    return parseFloat(flt).toFixed(numPlaces);
 };
 
 function dropChildren(elem) {
