@@ -77,7 +77,7 @@
         </div>
     </div>
 <script>
-var DEBUG = false;
+var DEBUG = true;
 var ENDPOINT = "/broker/";
 
 var transactions = [];
@@ -234,6 +234,7 @@ function reset() {
 //
 
 function loadTransactions() {
+    reset();
     document.getElementById('loadingDiv').style.display = 'block';
     document.getElementById('contentDiv').style.display = 'none';
     document.getElementById('loginDiv').style.display = 'none';
@@ -262,8 +263,8 @@ function buildTransactions() {
 		var action = txn.action;
 		var debtType = txn.debtType;
 		var creditType = txn.creditType;
-		var debtAmount = parseFloat(txn.debtAmount);
-		var creditAmount = parseFloat(txn.creditAmount);
+		var debtAmount = eightDecimalPlaces(txn.debtAmount);
+		var creditAmount = eightDecimalPlaces(txn.creditAmount);
 		var price = parseFloat(txn.price);
 		var timestamp = txn.updated_timestamp;
 		
@@ -384,6 +385,10 @@ function signup() {
 
 function twoDecimalPlaces(flt) {
 	return parseFloat(flt).toFixed(2);
+};
+
+function eightDecimalPlaces(flt) {
+    return parseFloat(flt).toFixed(8);
 };
 
 function dropChildren(elem) {
