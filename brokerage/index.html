@@ -152,7 +152,7 @@ function buildAssetAccordion(assetTitle, assetAmount) {
     secondRow.append(amountLabel);
     var amount = document.createElement('td');
     amount.id = 'amount_'+assetTitle;
-    amount.innerHTML = assetAmount;
+    amount.innerHTML = eightDecimalPlaces(assetAmount);
     secondRow.append(amount);
     table.append(secondRow);
     
@@ -263,12 +263,12 @@ function buildTransactions() {
 		var action = txn.action;
 		var debtType = txn.debtType;
 		var creditType = txn.creditType;
-		var debtAmount = eightDecimalPlaces(txn.debtAmount);
-		var creditAmount = eightDecimalPlaces(txn.creditAmount);
+		var debtAmount = parseFloat(txn.debtAmount);
+		var creditAmount = parseFloat(txn.creditAmount);
 		var price = parseFloat(txn.price);
 		var timestamp = txn.updated_timestamp;
         
-        console.log("creditAmount: " + creditAmount + " debtAmount: " + debtAmount);
+        console.log("credit " + creditType + ": " + creditAmount + " debtAmount " + debtType + ": " + debtAmount);
 		
 		var liContent = "";
         
