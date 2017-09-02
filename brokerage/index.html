@@ -263,8 +263,8 @@ function buildTransactions() {
 		var action = txn.action;
 		var debtType = txn.debtType;
 		var creditType = txn.creditType;
-		var debtAmount = parseFloat(txn.debtAmount);
-		var creditAmount = parseFloat(txn.creditAmount);
+		var debtAmount = eightDecimalPlaces(txn.debtAmount);
+		var creditAmount = eightDecimalPlaces(txn.creditAmount);
 		var price = parseFloat(txn.price);
 		var timestamp = txn.updated_timestamp;
         
