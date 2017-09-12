@@ -291,12 +291,12 @@ function buildTransactions() {
 			totals[creditType] += creditAmount;
 			totals[debtType] -= debtAmount;
 			liContent = "Bought " + creditAmount + " " + creditType +
-				" for " + debtAmount + " " + debtType + " (price: $" + price + ")";
+				" for " + debtAmount + " " + debtType + " (price: " + price + " " + debtType +")";
         } else if (txn.action === 'SELL') {
 			totals[creditType] += creditAmount;
 			totals[debtType] -= debtAmount;
 			liContent = "Sold " + debtAmount + " " + debtType +
-				" for " + creditAmount + " " + creditType + " (price: $" + price + ")";
+				" for " + creditAmount + " " + creditType + " (price: " + price + " " + debtType + ")";
 		} else if (txn.action === 'WITHDRAW') {
 			if (debtType === 'USD') {
 				totalUsdIn -= debtAmount;
