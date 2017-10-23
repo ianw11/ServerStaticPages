@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+    <title>Crypto Exchange Dev Portal</title>
+</head>
+<body>
+    apikey:
+    <input id='apikey' type='text'></input>
+    passphrase:
+    <input id='passphrase' type='text'></input>
+    secret:
+    <input id='secret' type='text'></input>
+    <button id='submit'>Submit</button>
+    
+    <div id='output'>
+    </div>
+
+<script>
+var DEBUG = true;
+var ENDPOINT = "/crypto/";
+
+window.onload = function() {
+    document.getElementById('submit').onclick = submit;
+};
+
+function submit() {
+    var apikey = document.getElementById('apikey').value;
+    var passphrase = document.getElementById('passphrase').value;
+    var secret = document.getElementById('secret').value;
+    
+    var param = {
+        apikey: apikey,
+        passphrase: passphrase,
+        secret: secret
+    };
+    
+    sendRequest('GET', 'sample', JSON.stringify(param), function(res) {
+        var result = JSON.parse(res);
+        for (var ndx in result.data.response) {
+            var wallet = result.data.response[ndx];
+            
+            var h2 = document.createElement('h2');
+            h2.innerHTML = wallet.currency + ": " + wallet.balance;
+            document.getElementById('output').append(h2);
+        }
+    }, function() {
+        var h2 = document.createElement(h2);
+        h2.innerHTML = "Error."
+        document.getElementById('output').append(h2);
+    });
+};
+
+function sendRequest(method, url, body, successCallback, failCallback) {
+    //updateStatus("Sending request...");
+    
+    //var accessToken = document.getElementById('loginToken').innerHTML;
+    
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            if (DEBUG) {
+                console.log("Response status: " + this.status);
+                console.log(this.responseText);
+            }
+            if (this.status == 200) {
+                //updateStatus("SUCCESS");
+                if (successCallback != undefined) {
+                    successCallback(this.responseText);
+                }
+            } else {
+                //updateStatus("ERROR: " + this.responseText);
+                if (failCallback != undefined) {
+                    failCallback(this.responseText);
+                }
+            }
+        }
+    }
+    if (DEBUG) {
+        console.log("Making " + method +" request to: " + ENDPOINT + url);
+        console.log(body);
+    }
+    xmlhttp.open(method, ENDPOINT + url, true);
+    //xmlhttp.setRequestHeader("access_token", accessToken);
+    if (body !== undefined) {
+        console.log(body);
+    }
+    xmlhttp.send(body !== undefined ? body : "");
+};
+</script>
+</body>
+</html>

@@ -161,7 +161,7 @@ var permissions;
 
 window.onload = function() {
 
-    if (location.protocol != "https:") {
+    if (!DEBUG && location.protocol != "https:") {
         updateStatus("THIS PAGE MUST BE OPENED ON AN HTTPS CONNECTION. Redirecting...");
         location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
         return;
@@ -288,7 +288,7 @@ function savePermissions() {
     console.log(obj);
     
     var orgId = document.getElementById('orgPermissionText').organizationId;
-    sendRequest("POST", "organization/permission?targetOrganizationId="+orgId, JSON.stringify(obj), refreshPermissions);
+    sendRequest("PUT", "organization/permission?targetOrganizationId="+orgId, JSON.stringify(obj), refreshPermissions);
     return false; // This button exists in a form
 };
 
@@ -403,7 +403,8 @@ function sendRequest(method, url, body, successCallback, failCallback) {
         }
     }
     if (DEBUG) {
-        console.log("Making request to: " + ENDPOINT + url);
+        console.log("Making " + method +" request to: " + ENDPOINT + url);
+        console.log(body);
     }
     xmlhttp.open(method, ENDPOINT + url, true);
     xmlhttp.setRequestHeader("access_token", accessToken);
@@ -430,6 +431,29 @@ function buildPermissions(orgId, personId) {
     // Get the current permissions for the org/person
     sendRequest('GET', 'organization/permission/person?targetOrganizationId=' + orgId + '&targetPersonId=' + personId, '', function(text) {
         var ownedPermissions = JSON.parse(text).data;
+        
+        // TODO: the new architecture is
+        /*
+            {
+                person: [
+                    {...}
+                ],
+                roles: [
+                    {
+                        role: {...},
+                        permissions: [
+                            {...}
+                        ]
+                    },
+                    {
+                        role: {...},
+                        permissions: [
+                            {...}
+                        ]
+                    }
+                ]
+            }
+        */
         
         var dict = buildPermissionDictionary();
         for (var moduleName in ownedPermissions) {
