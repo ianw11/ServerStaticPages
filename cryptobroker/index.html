@@ -2,58 +2,156 @@
 <html>
 <head>
     <title>Crypto Exchange Dev Portal</title>
+    
+    <style>
+        .green {
+            color: green;
+        }
+        
+        .red {
+            color: red;
+        }
+    </style>
 </head>
 <body>
+    <h1>Crypto Broker</h1>
+    <h2 id='status'></h2>
+    <p id='sessionStatus'>Not logged in</p>
+    
+    <h3>Sign up or login</h3>
+    Email:
+    <input id='email' type='text'></input>
+    Password:
+    <input id='password' type='text'></input>
+    <button id='loginButton'>Login</button>
+    <p />
+    First name:
+    <input id="firstname" type='text'></input>
+    Last name:
+    <input id='lastname' type='text'></input>
+    <button id='registerButton'>Register</button>
+    To register we need first name, last name, email, password.  Also you need to login after creating an account
+    
+
+    <h3>Add new account</h3>
+    
+    Exchange:
+    <select id='exchangeSelect'></select>
+    <br />
     apikey:
     <input id='apikey' type='text'></input>
+    <br />
     passphrase:
     <input id='passphrase' type='text'></input>
+    <br />
     secret:
     <input id='secret' type='text'></input>
-    <button id='submit'>Submit</button>
+    <br />
+    <button id='addAccount'>Add Account</button>
     
-    <div id='output'>
+    <h3>Wallets</h3>
+    <button id='updateWalletsButton'>Update Wallets</button>
+    <div id='wallets'>
     </div>
 
 <script>
 var DEBUG = true;
 var ENDPOINT = "/crypto/";
 
+var accessToken = '';
+
 window.onload = function() {
-    document.getElementById('submit').onclick = submit;
+    document.getElementById('loginButton').onclick = login;
+    document.getElementById('registerButton').onclick = register;
+    document.getElementById('addAccount').onclick = addAccount;
+    document.getElementById('updateWalletsButton').onclick = updateWallets;
+    
+    sendRequest('GET', 'exchanges', null, function(result) {
+        var select = document.getElementById('exchangeSelect');
+        
+        var data = result.data;
+        for (var key in data) {
+            var option = document.createElement('option');
+            option.innerHTML = data[key];
+            option.value = key;
+            select.append(option);
+        }
+    });
 };
 
-function submit() {
+function register() {
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+    var firstname = document.getElementById('firstname').value;
+    var lastname = document.getElementById('lastname').value;
+    
+    var param = {
+        email: email,
+        password: password,
+        first_name: firstname,
+        last_name: lastname
+    };
+    
+    sendRequest('POST', 'register', JSON.stringify(param));
+};
+
+function login() {
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+    
+    var param = {
+        email: email,
+        password: password
+    };
+    
+    sendRequest('POST', 'login', JSON.stringify(param));
+};
+
+function addAccount() {
+    var exchange = document.getElementById('exchangeSelect').value;
     var apikey = document.getElementById('apikey').value;
     var passphrase = document.getElementById('passphrase').value;
     var secret = document.getElementById('secret').value;
     
+    if (apikey === '') {
+        updateStatus('Enter an api key');
+        return;
+    }
+    
     var param = {
+        exchange: exchange,
         apikey: apikey,
         passphrase: passphrase,
         secret: secret
     };
     
-    sendRequest('GET', 'sample', JSON.stringify(param), function(res) {
-        var result = JSON.parse(res);
-        for (var ndx in result.data.response) {
-            var wallet = result.data.response[ndx];
+    sendRequest('POST', 'addExchange', JSON.stringify(param));
+};
+
+function updateWallets() {
+    var output = document.getElementById('wallets');
+    dropChildren(output);
+        
+    sendRequest('GET', 'wallets', null, function(result) {
+        for (var tag in result.data) {
+            var wallets = result.data[tag];
+            var exchangeTitle = document.createElement('h3');
+            exchangeTitle.innerHTML = tag;
+            output.append(exchangeTitle);
             
-            var h2 = document.createElement('h2');
-            h2.innerHTML = wallet.currency + ": " + wallet.balance;
-            document.getElementById('output').append(h2);
+            for (var ndx in wallets) {
+                var wallet = wallets[ndx];
+                
+                var p = document.createElement('p');
+                p.innerHTML = wallet.currency + " -- " + wallet.balance;
+                output.append(p);
+            }
         }
-    }, function() {
-        var h2 = document.createElement(h2);
-        h2.innerHTML = "Error."
-        document.getElementById('output').append(h2);
     });
 };
 
 function sendRequest(method, url, body, successCallback, failCallback) {
-    //updateStatus("Sending request...");
-    
-    //var accessToken = document.getElementById('loginToken').innerHTML;
+    updateStatus("Sending request...");
     
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
@@ -63,14 +161,17 @@ function sendRequest(method, url, body, successCallback, failCallback) {
                 console.log(this.responseText);
             }
             if (this.status == 200) {
-                //updateStatus("SUCCESS");
+                var obj = JSON.parse(this.responseText);
+                accessToken = obj.access_token;
                 if (successCallback != undefined) {
-                    successCallback(this.responseText);
+                    successCallback(obj);
                 }
+                updateStatus("SUCCESS");
             } else {
-                //updateStatus("ERROR: " + this.responseText);
+                accessToken = '';
+                updateStatus("ERROR: " + this.responseText);
                 if (failCallback != undefined) {
-                    failCallback(this.responseText);
+                    failCallback(JSON.parse(this.responseText));
                 }
             }
         }
@@ -78,13 +179,30 @@ function sendRequest(method, url, body, successCallback, failCallback) {
     if (DEBUG) {
         console.log("Making " + method +" request to: " + ENDPOINT + url);
         console.log(body);
+        console.log('access token: ' + accessToken);
     }
     xmlhttp.open(method, ENDPOINT + url, true);
-    //xmlhttp.setRequestHeader("access_token", accessToken);
-    if (body !== undefined) {
-        console.log(body);
-    }
+    xmlhttp.setRequestHeader("access_token", accessToken);
     xmlhttp.send(body !== undefined ? body : "");
+};
+
+function updateStatus(message) {
+    document.getElementById('status').innerHTML = message;
+    
+    var sessionStatus = document.getElementById('sessionStatus');
+    if (accessToken === '') {
+        sessionStatus.innerHTML = "Not logged in";
+        sessionStatus.className = "red";
+    } else {
+        sessionStatus.innerHTML = "Logged in";
+        sessionStatus.className = "green";
+    }
+};
+
+function dropChildren(elem) {
+	while (elem.firstChild) {
+		elem.removeChild(elem.firstChild);
+	}
 };
 </script>
 </body>

@@ -408,9 +408,6 @@ function sendRequest(method, url, body, successCallback, failCallback) {
     }
     xmlhttp.open(method, ENDPOINT + url, true);
     xmlhttp.setRequestHeader("access_token", accessToken);
-    if (body !== undefined) {
-        console.log(body);
-    }
     xmlhttp.send(body !== undefined ? body : "");
 };
 
