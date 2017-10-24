@@ -135,7 +135,8 @@ function updateWallets() {
     sendRequest('GET', 'wallets', null, function(result) {
         for (var tag in result.data) {
             var wallets = result.data[tag];
-            var exchangeTitle = document.createElement('h3');
+            var exchangeTitle = document.createElement('p');
+            exchangeTitle.className = 'red';
             exchangeTitle.innerHTML = tag;
             output.append(exchangeTitle);
             
