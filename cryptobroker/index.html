@@ -106,7 +106,9 @@ function login() {
         password: password
     };
     
-    sendRequest('POST', 'login', JSON.stringify(param));
+    sendRequest('POST', 'login', JSON.stringify(param), function(result) {
+        updateWallets();
+    });
 };
 
 function addAccount() {
