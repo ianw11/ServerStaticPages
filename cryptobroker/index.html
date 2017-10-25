@@ -5,68 +5,140 @@
     
     <style>
         .green {
-            color: green;
-            font-weight: normal;
+            background-color: green;
+            font-weight: bold;
         }
         
         .red {
-            color: red;
+            background-color: red;
             font-weight: bold;
+        }
+        
+        .yellow {
+            background-color: yellow;
+            font-weight: bold;
+        }
+        
+        .orange {
+            background-color: orange;
+            font-weight: bold;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .modalClose {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .modalClose:hover,
+        .modalClose:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <h1>Crypto Broker</h1>
     <h2 id='status'></h2>
-    <p id='sessionStatus'>Not logged in</p>
+    <p id='sessionStatus'>-</p>
     
-    <h3>Sign up or login</h3>
-    Email:
-    <input id='email' type='text'></input>
-    Password:
-    <input id='password' type='text'></input>
-    <button id='loginButton'>Login</button>
-    <p />
-    First name:
-    <input id="firstname" type='text'></input>
-    Last name:
-    <input id='lastname' type='text'></input>
-    <button id='registerButton'>Register</button>
-    To register we need first name, last name, email, password.  Also you need to login after creating an account
+    <div id='loginDiv'>
+        <h3>Sign up or login</h3>
+        Email:
+        <input id='email_login' type='text'></input>
+        Password:
+        <input id='password_login' type='text'></input>
+        <button id='loginButton' class='orange'>Login</button>
+        <button id='showRegisterModalButton' class='orange'>Register</button>
+        <div class='modal' id='registerModal'>
+            <div class='modal-content'>
+                <span class='modalClose'>&times;</span>
+                Email:
+                <input id='email' type='text'></input>
+                Password:
+                <input id='password' type='text'></input>
+                First name:
+                <input id="firstname" type='text'></input>
+                Last name:
+                <input id='lastname' type='text'></input>
+                <button id='registerButton' class='orange'>Register</button>
+            </div>
+        </div>
+    </div>
     
-
-    <h3>Add new account</h3>
-    
-    Exchange:
-    <select id='exchangeSelect'></select>
-    <br />
-    apikey:
-    <input id='apikey' type='text'></input>
-    <br />
-    passphrase:
-    <input id='passphrase' type='text'></input>
-    <br />
-    secret:
-    <input id='secret' type='text'></input>
-    <br />
-    <button id='addAccount'>Add Account</button>
-    
-    <h3>Wallets</h3>
-    <button id='updateWalletsButton'>Update Wallets</button>
-    <div id='wallets'>
+    <div id="content" class='hidden'>
+        <button id='addAccountPopup' class='red'>Add Account</button>
+        
+        <h3>Wallets</h3>
+        <button id='updateWalletsButton' class='yellow'>Update Wallets</button>
+        <div id='wallets'>
+        </div>
+        
+        <div class='modal' id='modal'>
+            <div class='modal-content'>
+                <span class='modalClose'>&times;</span>
+                
+                <h3>Add new account</h3>
+        
+                Exchange:
+                <select id='exchangeSelect'></select>
+                <br />
+                apikey:
+                <input id='apikey' type='text'></input>
+                <br />
+                passphrase:
+                <input id='passphrase' type='text'></input>
+                <br />
+                secret:
+                <input id='secret' type='text'></input>
+                <br />
+                <button id='addAccount' class='green'>Add</button>
+            </div>
+        </div>
     </div>
 
 <script>
 var DEBUG = true;
 var ENDPOINT = "/crypto/";
 
-var accessToken = '';
+//var accessToken = '';
 
 window.onload = function() {
     document.getElementById('loginButton').onclick = login;
+    document.getElementById('showRegisterModalButton').onclick = showRegisterModal;
     document.getElementById('registerButton').onclick = register;
     document.getElementById('addAccount').onclick = addAccount;
+    document.getElementById('addAccountPopup').onclick = addAccountPopup;
     document.getElementById('updateWalletsButton').onclick = updateWallets;
+    
+    var modalCloses = document.getElementsByClassName('modalClose');
+    for (var ndx in modalCloses) {
+        modalCloses[ndx].onclick = closeModal;
+    }
     
     sendRequest('GET', 'exchanges', null, function(result) {
         var select = document.getElementById('exchangeSelect');
@@ -82,6 +154,8 @@ window.onload = function() {
 };
 
 function register() {
+    closeModal();
+    
     var email = document.getElementById('email').value;
     var password = document.getElementById('password').value;
     var firstname = document.getElementById('firstname').value;
@@ -97,9 +171,19 @@ function register() {
     sendRequest('POST', 'register', JSON.stringify(param));
 };
 
+function showRegisterModal() {
+    var modal = document.getElementById('registerModal');
+    modal.style.display = 'block';
+    
+    document.getElementById('email').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('firstname').value = '';
+    document.getElementById('lastname').value = '';
+};
+
 function login() {
-    var email = document.getElementById('email').value;
-    var password = document.getElementById('password').value;
+    var email = document.getElementById('email_login').value;
+    var password = document.getElementById('password_login').value;
     
     var param = {
         email: email,
@@ -107,11 +191,15 @@ function login() {
     };
     
     sendRequest('POST', 'login', JSON.stringify(param), function(result) {
+        document.getElementById('loginDiv').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
         updateWallets();
     });
 };
 
 function addAccount() {
+    closeModal();
+    
     var exchange = document.getElementById('exchangeSelect').value;
     var apikey = document.getElementById('apikey').value;
     var passphrase = document.getElementById('passphrase').value;
@@ -130,6 +218,15 @@ function addAccount() {
     };
     
     sendRequest('POST', 'addExchange', JSON.stringify(param));
+};
+
+function addAccountPopup() {
+    var popup = document.getElementById('modal');
+    popup.style.display = 'block';
+    
+    document.getElementById('apikey').value = '';
+    document.getElementById('passphrase').value = '';
+    document.getElementById('secret').value = '';
 };
 
 function updateWallets() {
@@ -153,6 +250,11 @@ function updateWallets() {
             }
         }
     });
+};
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+    document.getElementById('registerModal').style.display = 'none';
 };
 
 function sendRequest(method, url, body, successCallback, failCallback) {
@@ -184,16 +286,16 @@ function sendRequest(method, url, body, successCallback, failCallback) {
     if (DEBUG) {
         console.log("Making " + method +" request to: " + ENDPOINT + url);
         console.log(body);
-        console.log('access token: ' + accessToken);
+        //console.log('access token: ' + accessToken);
     }
     xmlhttp.open(method, ENDPOINT + url, true);
-    xmlhttp.setRequestHeader("access_token", accessToken);
+    //xmlhttp.setRequestHeader("access_token", accessToken);
     xmlhttp.send(body !== undefined ? body : "");
 };
 
 function updateStatus(message) {
     document.getElementById('status').innerHTML = message;
-    
+    /*
     var sessionStatus = document.getElementById('sessionStatus');
     if (accessToken === '') {
         sessionStatus.innerHTML = "Not logged in";
@@ -202,6 +304,7 @@ function updateStatus(message) {
         sessionStatus.innerHTML = "Logged in";
         sessionStatus.className = "green";
     }
+    */
 };
 
 function dropChildren(elem) {
