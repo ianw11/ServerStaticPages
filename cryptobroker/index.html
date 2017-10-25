@@ -77,27 +77,21 @@
         <div class='modal' id='registerModal'>
             <div class='modal-content'>
                 <span class='modalClose'>&times;</span>
-                Email:
-                <input id='email' type='text'></input>
-                Password:
-                <input id='password' type='text'></input>
                 First name:
                 <input id="firstname" type='text'></input>
                 Last name:
                 <input id='lastname' type='text'></input>
+                Email:
+                <input id='email' type='text'></input>
+                Password:
+                <input id='password' type='text'></input>
                 <button id='registerButton' class='orange'>Register</button>
             </div>
         </div>
     </div>
     
     <div id="content" class='hidden'>
-        <button id='addAccountPopup' class='red'>Add Account</button>
-        
-        <h3>Wallets</h3>
-        <button id='updateWalletsButton' class='yellow'>Update Wallets</button>
-        <div id='wallets'>
-        </div>
-        
+        <button id='addAccountPopup' class='orange'>Add Account</button>
         <div class='modal' id='modal'>
             <div class='modal-content'>
                 <span class='modalClose'>&times;</span>
@@ -119,6 +113,21 @@
                 <button id='addAccount' class='green'>Add</button>
             </div>
         </div>
+        
+        <h3>Wallets</h3>
+        <!--<button id='updateWalletsButton' class='yellow'>Update Wallets</button>-->
+        <div id='totals'>
+        </div>
+        <div id='wallets'>
+        </div>
+        <div class='modal' id='nicknameModal'>
+            <div class='modal-content'>
+                <span class='modalClose'>&times;</span>
+                Nickname:
+                <input type='text' id='nickname'></input>
+                <button id='setNickname'>Set</button>
+            </div>
+        </div>
     </div>
 
 <script>
@@ -127,13 +136,16 @@ var ENDPOINT = "/crypto/";
 
 //var accessToken = '';
 
+var id;
+
 window.onload = function() {
     document.getElementById('loginButton').onclick = login;
     document.getElementById('showRegisterModalButton').onclick = showRegisterModal;
     document.getElementById('registerButton').onclick = register;
     document.getElementById('addAccount').onclick = addAccount;
     document.getElementById('addAccountPopup').onclick = addAccountPopup;
-    document.getElementById('updateWalletsButton').onclick = updateWallets;
+    //document.getElementById('updateWalletsButton').onclick = updateWallets;
+    document.getElementById('setNickname').onclick = setNickname;
     
     var modalCloses = document.getElementsByClassName('modalClose');
     for (var ndx in modalCloses) {
@@ -232,29 +244,94 @@ function addAccountPopup() {
 function updateWallets() {
     var output = document.getElementById('wallets');
     dropChildren(output);
+    
+    var walletTotals = document.getElementById('totals');
+    dropChildren(walletTotals);
         
     sendRequest('GET', 'wallets', null, function(result) {
+        var totals = {};
+    
         for (var tag in result.data) {
             var account = result.data[tag];
-            var exchangeTitle = document.createElement('p');
-            exchangeTitle.className = 'red';
-            exchangeTitle.innerHTML = account.displayName;
+            var exchangeTitle = document.createElement('h3');
+            exchangeTitle.style.color = 'blue';
+            exchangeTitle.innerHTML = account.nickname + " (" + account.displayName + " " + account.apiTrunc + "...)";
             output.append(exchangeTitle);
             
             for (var ndx in account.wallets) {
                 var wallet = account.wallets[ndx];
+                var currency = wallet.currency;
+                var balance = wallet.balance;
                 
                 var p = document.createElement('p');
-                p.innerHTML = wallet.currency + " -- " + wallet.balance;
+                p.innerHTML = currency + " -- " + balance;
                 output.append(p);
+                
+                if (totals[currency] === undefined) {
+                    totals[currency] = 0;
+                }
+                totals[currency] += parseFloat(balance);
             }
+            
+            // Nickname button
+            var button = document.createElement('button');
+            button.innerHTML = "Set Nickname";
+            button.className = 'orange';
+            button.id = account.id;
+            button.onclick = function() {
+                id = this.id;
+                document.getElementById('nicknameModal').style.display = 'block';
+                document.getElementById('nickname').value = '';
+            };
+            output.append(button);
         }
+        
+        var table = document.createElement('table');
+        var titleRow = document.createElement('tr');
+        var title = document.createElement('td');
+        title.innerHTML = "<b>TOTALS</b>";
+        title.className = 'green';
+        titleRow.append(title);
+        table.append(titleRow);
+        
+        for (var key in totals) {
+            var row = document.createElement('tr');
+            var name = document.createElement('td');
+            name.innerHTML = key;
+            var value = document.createElement('td');
+            value.innerHTML = totals[key];
+
+            row.append(name);
+            row.append(value);
+            table.append(row);
+        }
+        walletTotals.append(table);
     });
+};
+
+function setNickname() {
+    var button = document.getElementById('setNickname');
+    button.enabled = false;
+    
+    var nickname = document.getElementById('nickname').value;
+    var param = {
+        nickname: nickname,
+        id: id
+    };
+    sendRequest('POST', 'account/nickname', JSON.stringify(param), function() {
+        updateWallets();
+        closeModal();
+        button.enabled = true;
+    }, function() {
+        button.enabled = true;
+    });
+    id = null;
 };
 
 function closeModal() {
     document.getElementById('modal').style.display = 'none';
     document.getElementById('registerModal').style.display = 'none';
+    document.getElementById('nicknameModal').style.display = 'none';
 };
 
 function sendRequest(method, url, body, successCallback, failCallback) {
