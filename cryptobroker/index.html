@@ -138,14 +138,14 @@ function updateWallets() {
         
     sendRequest('GET', 'wallets', null, function(result) {
         for (var tag in result.data) {
-            var wallets = result.data[tag];
+            var account = result.data[tag];
             var exchangeTitle = document.createElement('p');
             exchangeTitle.className = 'red';
-            exchangeTitle.innerHTML = tag;
+            exchangeTitle.innerHTML = account.displayName;
             output.append(exchangeTitle);
             
-            for (var ndx in wallets) {
-                var wallet = wallets[ndx];
+            for (var ndx in account.wallets) {
+                var wallet = account.wallets[ndx];
                 
                 var p = document.createElement('p');
                 p.innerHTML = wallet.currency + " -- " + wallet.balance;
