@@ -193,6 +193,9 @@ function showRegisterModal() {
 };
 
 function login() {
+    var loginButton = document.getElementById('loginButton');
+    loginButton.disabled = true;
+    
     var email = document.getElementById('email_login').value;
     var password = document.getElementById('password_login').value;
     
@@ -205,6 +208,10 @@ function login() {
         document.getElementById('loginDiv').style.display = 'none';
         document.getElementById('content').style.display = 'block';
         updateWallets();
+        
+        loginButton.disabled = false;
+    }, function() {
+        loginButton.disabled = false;
     });
 };
 
@@ -244,7 +251,7 @@ function addAccountPopup() {
 
 function updateWallets() {
     var updateButton = document.getElementById('updateWalletsButton');
-    updateButton.enabled = false;
+    updateButton.disabled = true;
 
     var output = document.getElementById('wallets');
     dropChildren(output);
@@ -311,9 +318,9 @@ function updateWallets() {
         }
         walletTotals.append(table);
         
-        updateButton.enabled = true;
+        updateButton.disabled = false;
     }, function() {
-        updateButton.enabled = true;
+        updateButton.enabled = false;
     });
 };
 
