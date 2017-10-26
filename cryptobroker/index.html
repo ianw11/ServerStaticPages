@@ -114,7 +114,7 @@
             </div>
         </div>
         
-        <!--<button id='updateWalletsButton' class='yellow'>Update Wallets</button>-->
+        <button id='updateWalletsButton' class='yellow'>Update Wallets</button>
         <div id='totals'>
         </div>
         <div id='wallets'>
@@ -143,7 +143,7 @@ window.onload = function() {
     document.getElementById('registerButton').onclick = register;
     document.getElementById('addAccount').onclick = addAccount;
     document.getElementById('addAccountPopup').onclick = addAccountPopup;
-    //document.getElementById('updateWalletsButton').onclick = updateWallets;
+    document.getElementById('updateWalletsButton').onclick = updateWallets;
     document.getElementById('setNickname').onclick = setNickname;
     
     var modalCloses = document.getElementsByClassName('modalClose');
@@ -228,7 +228,9 @@ function addAccount() {
         secret: secret
     };
     
-    sendRequest('POST', 'addExchange', JSON.stringify(param));
+    sendRequest('POST', 'addExchange', JSON.stringify(param), function() {
+        updateWallets();
+    });
 };
 
 function addAccountPopup() {
