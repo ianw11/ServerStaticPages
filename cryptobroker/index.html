@@ -243,6 +243,9 @@ function addAccountPopup() {
 };
 
 function updateWallets() {
+    var updateButton = document.getElementById('updateWalletsButton');
+    updateButton.enabled = false;
+
     var output = document.getElementById('wallets');
     dropChildren(output);
     
@@ -307,6 +310,10 @@ function updateWallets() {
             table.append(row);
         }
         walletTotals.append(table);
+        
+        updateButton.enabled = true;
+    }, function() {
+        updateButton.enabled = true;
     });
 };
 
