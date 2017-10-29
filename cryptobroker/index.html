@@ -4,6 +4,18 @@
     <title>Crypto Exchange Dev Portal</title>
     
     <style>
+        .totals {
+            background-color: #00B159;
+        }
+        
+        .accountUp {
+            background-color: #FFC425;
+        }
+        
+        .accountDown {
+            background-color: #F37735;
+        }
+    
         .green {
             background-color: green;
             font-weight: bold;
@@ -26,6 +38,10 @@
         
         .hidden {
             display: none;
+        }
+        
+        table {
+            border-spacing: 10px;
         }
         
         .modal {
@@ -115,6 +131,7 @@
         </div>
         
         <button id='updateWalletsButton' class='yellow'>Update Wallets</button>
+        <button id='updateConversionsButton' class='yellow'>Update Conversions</button>
         <div id='totals'>
         </div>
         <div id='wallets'>
@@ -144,6 +161,7 @@ window.onload = function() {
     document.getElementById('addAccount').onclick = addAccount;
     document.getElementById('addAccountPopup').onclick = addAccountPopup;
     document.getElementById('updateWalletsButton').onclick = updateWallets;
+    document.getElementById('updateConversionsButton').onclick = updateConversions;
     document.getElementById('setNickname').onclick = setNickname;
     
     var modalCloses = document.getElementsByClassName('modalClose');
@@ -255,34 +273,83 @@ function updateWallets() {
 
     var output = document.getElementById('wallets');
     dropChildren(output);
-    
-    var walletTotals = document.getElementById('totals');
-    dropChildren(walletTotals);
         
     sendRequest('GET', 'wallets', null, function(result) {
-        var totals = {};
-    
+        var isUp = false;
         for (var tag in result.data) {
             var account = result.data[tag];
-            var exchangeTitle = document.createElement('h3');
-            exchangeTitle.style.color = 'blue';
-            exchangeTitle.innerHTML = account.nickname + " (" + account.displayName + " " + account.apiTrunc + "...)";
-            output.append(exchangeTitle);
             
-            for (var ndx in account.wallets) {
-                var wallet = account.wallets[ndx];
-                var currency = wallet.currency;
-                var balance = wallet.balance;
+            var accountDiv = document.createElement('div');
+            accountDiv.className = isUp ? 'accountUp' : 'accountDown';
+            isUp = !isUp;
+            
+            var exchangeTitle = document.createElement('h2');
+            exchangeTitle.innerHTML = account.nickname + " (" + account.displayName + " " + account.apiTrunc + "...)";
+            accountDiv.append(exchangeTitle);
+            
+            if (account.wallets.length > 0) {
+            
+                // Build a table holding currency type, balance, and conversion (to USD)
+                var table = document.createElement('table');
                 
-                var p = document.createElement('p');
-                p.innerHTML = currency + " -- " + balance;
-                output.append(p);
+                // And kick off with a header row
+                var headerRow = document.createElement('tr');
+                var headerCurrency = document.createElement('th');
+                headerCurrency.innerHTML = 'CURRENCY';
+                headerRow.append(headerCurrency);
+                var headerBalance = document.createElement('th');
+                headerBalance.innerHTML = 'BALANCE';
+                headerRow.append(headerBalance);
+                var headerConversion = document.createElement('th');
+                headerConversion.innerHTML = 'USD CONVERSION (Last trade price)';
+                headerRow.append(headerConversion);
+                var headerUsdTotal = document.createElement('th');
+                headerUsdTotal.innerHTML = 'USD TOTAL';
+                headerRow.append(headerUsdTotal);
+                table.append(headerRow);
                 
-                if (totals[currency] === undefined) {
-                    totals[currency] = 0;
+                
+                for (var ndx in account.wallets) {
+                    var wallet = account.wallets[ndx];
+                    var walletRow = document.createElement('tr');
+                    
+                    var currencyCell = document.createElement('td');
+                    currencyCell.innerHTML = wallet.currency;
+                    walletRow.append(currencyCell);
+                    
+                    var balanceCell = document.createElement('td');
+                    // THE ID IS <ACCOUNT_ID>+<CURRENCY>+balance
+                    balanceCell.id = account.id + wallet.currency + 'balance';
+                    balanceCell.innerHTML = wallet.balance;
+                    balanceCell.currency = wallet.currency;
+                    balanceCell.className = 'walletBalance';
+                    walletRow.append(balanceCell);
+                    
+                    var conversionCell = document.createElement('td');
+                    // THE ID IS <ACCOUNT_ID>+<CURRENCY>
+                    conversionCell.id = account.id + wallet.currency;
+                    walletRow.append(conversionCell);
+                    
+                    var usdTotalCell = document.createElement('td');
+                    // THE ID IS <ACCOUNT_ID>+<CURRENCY>+total
+                    usdTotalCell.id = account.id + wallet.currency + 'total';
+                    walletRow.append(usdTotalCell);
+                    
+                    table.append(walletRow);
                 }
-                totals[currency] += parseFloat(balance);
+                accountDiv.append(table);
+            
             }
+            
+            // Account total
+            var totalTitle = document.createElement('h3');
+            totalTitle.innerHTML = "Account total in USD";
+            accountDiv.append(totalTitle);
+            var totalAmount = document.createElement('p');
+            totalAmount.className = 'accountTotal';
+            totalAmount.id = account.id + 'total';
+            totalAmount.innerHTML = "0.00";
+            accountDiv.append(totalAmount);
             
             // Nickname button
             var button = document.createElement('button');
@@ -294,34 +361,107 @@ function updateWallets() {
                 document.getElementById('nicknameModal').style.display = 'block';
                 document.getElementById('nickname').value = '';
             };
-            output.append(button);
+            accountDiv.append(button);
+            
+            output.append(accountDiv);
         }
         
-        var table = document.createElement('table');
-        var titleRow = document.createElement('tr');
-        var title = document.createElement('td');
-        title.innerHTML = "<b>TOTALS</b>";
-        title.className = 'green';
-        titleRow.append(title);
-        table.append(titleRow);
-        
-        for (var key in totals) {
-            var row = document.createElement('tr');
-            var name = document.createElement('td');
-            name.innerHTML = key;
-            var value = document.createElement('td');
-            value.innerHTML = totals[key];
-
-            row.append(name);
-            row.append(value);
-            table.append(row);
-        }
-        walletTotals.append(table);
-        
+        updateConversions();
         updateButton.disabled = false;
     }, function() {
         updateButton.enabled = false;
     });
+};
+
+function updateConversions() {
+    sendRequest('GET', 'usdConversions', null, function(res) {
+        for (var tag in res.data) {
+            var account = res.data[tag];
+            
+            var accountSum = 0;
+            
+            for (var ndx in account.conversions) {
+                var conversion = account.conversions[ndx];
+                
+                var lastTradePrice = conversion.lastTradePrice;
+                
+                var tag = account.id + conversion.from;
+                
+                var conversionElem = document.getElementById(tag);
+                if (conversionElem === null) {
+                    continue;
+                }
+                conversionElem.innerHTML = lastTradePrice;
+                
+                var totalElem = document.getElementById(tag + 'total');
+                var balanceElem = document.getElementById(tag + 'balance');
+                var total = parseFloat(lastTradePrice) * parseFloat(balanceElem.innerHTML);
+                totalElem.innerHTML = total;
+                accountSum += total;
+            }
+            
+            var accountTotalElem = document.getElementById(account.id + 'total');
+            accountTotalElem.innerHTML = accountSum;
+        }
+        
+        updateTotals();
+    });
+};
+
+function updateTotals() {
+    var walletTotals = document.getElementById('totals');
+    dropChildren(walletTotals);
+    
+    var totalDiv = document.createElement('div');
+    totalDiv.className = 'totals';
+    
+    // First compute the total USD value based on the account total of each account
+    var items = document.getElementsByClassName('accountTotal');
+    var usdTotal = 0;
+    for (var i = 0; i < items.length; ++i) {
+        var elem = items[i];
+        var value = parseFloat(elem.innerHTML);
+        usdTotal += value;
+    }
+    var usdTotalElem = document.createElement('h2');
+    usdTotalElem.innerHTML = "TOTAL USD VALUE: " + usdTotal;
+    totalDiv.append(usdTotalElem);
+    
+    // Then display the sum of each coin across all accounts
+    var totals = {};
+    var balances = document.getElementsByClassName('walletBalance');
+    for (var i = 0; i < balances.length; ++i) {
+        var elem = balances[i];
+        var currency = elem.currency;
+        if (totals[currency] === undefined) {
+            totals[currency] = 0;
+        }
+        totals[currency] += parseFloat(elem.innerHTML);
+    }
+    var table = document.createElement('table');
+    var titleRow = document.createElement('tr');
+    var title = document.createElement('th');
+    title.innerHTML = "Coin";
+    titleRow.append(title);
+    var titleBalance = document.createElement('th');
+    titleBalance.innerHTML = "Total Balance (across all accounts)";
+    titleRow.append(titleBalance);
+    table.append(titleRow);
+    
+    for (var key in totals) {
+        var row = document.createElement('tr');
+        var name = document.createElement('td');
+        name.innerHTML = key;
+        var value = document.createElement('td');
+        value.innerHTML = totals[key];
+
+        row.append(name);
+        row.append(value);
+        table.append(row);
+    }
+    totalDiv.append(table);
+    
+    walletTotals.append(totalDiv);
 };
 
 function setNickname() {
@@ -348,6 +488,10 @@ function closeModal() {
     document.getElementById('registerModal').style.display = 'none';
     document.getElementById('nicknameModal').style.display = 'none';
 };
+
+/*
+ * Helper methods
+ */
 
 function sendRequest(method, url, body, successCallback, failCallback) {
     updateStatus("Sending request...");
