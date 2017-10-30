@@ -44,6 +44,24 @@
             border-spacing: 10px;
         }
         
+        .loader {
+            border: 16px solid #f3f3f3; /* Light grey */
+            border-top: 16px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         .modal {
             display: none;
             position: fixed;
@@ -374,6 +392,15 @@ function updateWallets() {
 };
 
 function updateConversions() {
+    var conversionsButton = document.getElementById('updateConversionsButton');
+    conversionsButton.disabled = true;
+
+    var walletTotals = document.getElementById('totals');
+    dropChildren(walletTotals);
+    var loaderDiv = document.createElement('div');
+    loaderDiv.className = 'loader';
+    walletTotals.append(loaderDiv);
+    
     sendRequest('GET', 'usdConversions', null, function(res) {
         for (var tag in res.data) {
             var account = res.data[tag];
@@ -405,12 +432,14 @@ function updateConversions() {
         }
         
         updateTotals();
+        conversionsButton.disabled = false;
+    }, function() {
+        conversionsButton.disabled = false;
     });
 };
 
 function updateTotals() {
     var walletTotals = document.getElementById('totals');
-    dropChildren(walletTotals);
     
     var totalDiv = document.createElement('div');
     totalDiv.className = 'totals';
@@ -461,6 +490,7 @@ function updateTotals() {
     }
     totalDiv.append(table);
     
+    dropChildren(walletTotals);
     walletTotals.append(totalDiv);
 };
 
