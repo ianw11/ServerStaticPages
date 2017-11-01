@@ -56,6 +56,8 @@
             border-spacing: 10px;
         }
         
+        /* Spinning loader styles */
+        
         .loader {
             border: 16px solid #f3f3f3; /* Light grey */
             border-top: 16px solid #3498db; /* Blue */
@@ -73,6 +75,8 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        /* Modal Styles */
         
         .modal {
             display: none;
@@ -104,6 +108,45 @@
             color: black;
             text-decoration: none;
             cursor: pointer;
+        }
+        
+        /* Accordion styles */
+        
+        .accordionWrapper {
+            width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #fff;
+        }
+        .accordion {
+            background-color: #eee;
+            color: #444;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            text-align: left;
+            outline: none;
+            border: none;
+            transition: 0.4s;
+        }
+        .accordion.active, .accordion:hover {
+            background-color: aquamarine;
+        }
+        div.panel {
+            background-color: white;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+        }
+        .accordion:after {
+            content: "\02795";
+            font-size: 13px;
+            color: #777;
+            float: right;
+            margin-left: 5px;
+        }
+        .accordion.active:after {
+            content: '\2796';
         }
     </style>
 </head>
@@ -162,6 +205,7 @@
         
         <button id='updateWalletsButton' class='yellow'>Update Wallets</button>
         <button id='updateConversionsButton' class='yellow'>Update Conversions</button>
+        <button id='updateTransactions' class='yellow'>Update Transactions</button>
         <div id='totals'>
         </div>
         <div id='wallets'>
@@ -180,8 +224,6 @@
 var DEBUG = true;
 var ENDPOINT = "/crypto/";
 
-//var accessToken = '';
-
 var id;
 
 window.onload = function() {
@@ -192,6 +234,7 @@ window.onload = function() {
     document.getElementById('addAccountPopup').onclick = addAccountPopup;
     document.getElementById('updateWalletsButton').onclick = updateWallets;
     document.getElementById('updateConversionsButton').onclick = updateConversions;
+    document.getElementById('updateTransactions').onclick = updateTransactions;
     document.getElementById('setNickname').onclick = setNickname;
     
     var modalCloses = document.getElementsByClassName('modalClose');
@@ -315,7 +358,7 @@ function updateWallets() {
             
             var exchangeTitle = document.createElement('h2');
             exchangeTitle.innerHTML = account.nickname + " (" + account.displayName + " " + account.apiTrunc + "...)";
-            accountDiv.append(exchangeTitle);
+            accountDiv.append(exchangeTitle); // COMMENT IF ACCORDION
             
             if (account.wallets.length > 0) {
             
@@ -393,6 +436,27 @@ function updateWallets() {
             };
             accountDiv.append(button);
             
+            // Delete button
+            var deleteButton = document.createElement('button');
+            deleteButton.innerHTML = 'DELETE EXCHANGE';
+            deleteButton.className = 'red';
+            deleteButton.id = account.id;
+            deleteButton.onclick = function() {
+                var param = { id : this.id };
+                sendRequest('DELETE', 'exchange', JSON.stringify(param), function() {
+                    updateWallets();
+                });
+            };
+            accountDiv.append(deleteButton);
+            
+            // Space then the transactions accordion
+            accountDiv.append(document.createElement('p'));
+            
+            var accordionHolder = document.createElement('div');
+            accordionHolder.id = account.id + 'transactions';
+            accountDiv.append(accordionHolder);
+            
+            //output.append(buildAccordion(exchangeTitle, accountDiv));
             output.append(accountDiv);
         }
         
@@ -506,6 +570,91 @@ function updateTotals() {
     walletTotals.append(totalDiv);
 };
 
+function updateTransactions() {
+    sendRequest('GET', 'transactions', null, function(res) {
+        for (var id in res.data) {
+            var transactions = res.data[id];
+            if (transactions.length == 0) {
+                continue;
+            }
+            
+            var deposits = {'USD' : 0};
+            var withdrawals = {'USD' : 0};
+            
+            var content = document.createElement('ul');
+            for (var ndx in transactions) {
+                var transaction = transactions[ndx];
+                var type = transaction.type;
+                
+                var transactionElem = document.createElement('div');
+                if (type === 'BUY') {
+                    transactionElem.className = 'green';
+                } else if (type === 'SELL') {
+                    transactionElem.className = 'red';
+                } else if (type === 'DEPOSIT') {
+                    transactionElem.className = 'yellow';
+                    
+                    if (deposits[transaction.creditType] == undefined) {
+                        deposits[transaction.creditType] = 0;
+                    }
+                    deposits[transaction.creditType] += parseFloat(transaction.creditAmount);
+                } else if (type === 'WITHDRAWAL') {
+                    transactionElem.className = 'yellow';
+                    
+                    if (withdrawals[transaction.debtType] == undefined) {
+                        withdrawals[transaction.debtType] = 0;
+                    }
+                    withdrawals[transaction.debtType] += parseFloat(transaction.debtAmount);
+                }
+                
+                // Build the transaction details
+                var h3 = document.createElement('h3');
+                var str = type + " ";
+                if (type === 'BUY') {
+                    str += " ";
+                }
+                if (type !== 'WITHDRAWAL') {
+                    str += eightDecimalPlaces(transaction.creditAmount) + " " + transaction.creditType;
+                }
+                if (type === "BUY" || type === "SELL") {
+                    str += " for ";
+                }
+                if (type !== 'DEPOSIT') {
+                    str += eightDecimalPlaces(transaction.debtAmount) + " " + transaction.debtType;
+                }
+                if (type === "BUY" || type === "SELL") {
+                    str += " at " + eightDecimalPlaces(transaction.price);
+                }
+                h3.innerHTML = str;
+                transactionElem.append(h3);
+                
+                // Build the date
+                var date = new Date(transaction.timestamp);
+                var p = document.createElement('p');
+                p.innerHTML = date;
+                transactionElem.append(p);
+                
+                content.append(transactionElem);
+            }
+            
+            var sumDepositsElem = document.createElement('h3');
+            sumDepositsElem.innerHTML = 'Total USD deposits: ' + deposits['USD'];
+            content.append(sumDepositsElem);
+            
+            var sumWithdrawalsElem = document.createElement('h3');
+            sumWithdrawalsElem.innerHTML = 'Total USD withdrawals: ' + withdrawals['USD'];
+            content.append(sumWithdrawalsElem);
+            
+            var titleElem = document.createElement('h2');
+            titleElem.innerHTML = "Transactions";
+            
+            var holderElem = document.getElementById(id + 'transactions');
+            dropChildren(holderElem);
+            holderElem.append(buildAccordion(titleElem, content));
+        }
+    });
+};
+
 function setNickname() {
     var button = document.getElementById('setNickname');
     button.enabled = false;
@@ -534,6 +683,38 @@ function closeModal() {
 /*
  * Helper methods
  */
+
+function eightDecimalPlaces(flt) {
+    return decimalPlaces(flt, 8);
+};
+
+function decimalPlaces(flt, numPlaces) {
+    return parseFloat(flt).toFixed(numPlaces);
+};
+ 
+function buildAccordion(titleElem, contentElem) {
+    var accordion = document.createElement('div');
+    accordion.className = 'accordionWrapper';
+    
+    titleElem.classList.toggle('accordion');
+    titleElem.onclick = function() {
+        this.classList.toggle('active');
+        var panel = this.nextElementSibling;
+        if (panel.style.maxHeight) {
+            panel.style.maxHeight = null;
+        } else {
+            panel.style.maxHeight = panel.scrollHeight + "px";
+        }
+    };
+    accordion.append(titleElem);
+    
+    var contentWrapper = document.createElement('div');
+    contentWrapper.append(contentElem);
+    contentWrapper.classList.toggle('panel');
+    accordion.append(contentWrapper);
+    
+    return accordion;
+};
 
 function sendRequest(method, url, body, successCallback, failCallback) {
     updateStatus("Sending request...");
