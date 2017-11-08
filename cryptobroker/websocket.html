@@ -1,0 +1,44 @@
+<html>
+<head>
+    <title>Crypto Exchange Websocket</title>
+</head>
+<body>
+    <h1>Crypto Websocket</h1>
+    <h2 id='status'></h2>
+    <button id='closeButton'>Disconnect</button>
+    
+    <div id='content'></div>
+    
+    <script type='text/javascript' src='/library.js'></script>
+    <script>
+        var socket;
+        window.onload = function() {
+            socket = new WebSocket('ws://localhost:8100/cryptosocket');
+            
+            var closeButton = document.getElementById('closeButton');
+            closeButton.onclick = function() {
+                socket.close();
+                closeButton.disabled = true;
+            };
+            
+            socket.onopen = function(event) {
+                updateStatus("Connected");
+            };
+            
+            socket.onclose = function(event) {
+                updateStatus("Disconnected");
+            };
+            
+            socket.onmessage = function(event) {
+                console.log(event.data);
+                var data = JSON.parse(event.data);
+                if (data.type === 'newConversion') {
+                    var p = document.createElement('p');
+                    p.innerHTML = "(" + data.data.exchangeName + ") " + data.data.from + "/" + data.data.to + ": " + data.data.lastTradePrice;
+                    document.getElementById('content').append(p);
+                }
+            };
+        };
+    </script>
+</body>
+</html>

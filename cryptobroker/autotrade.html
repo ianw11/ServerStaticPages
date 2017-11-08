@@ -1,0 +1,38 @@
+<html>
+<head>
+    <title>Crypto Exchange Autotrade</title>
+    <link href="index.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+    <h1>Autotrader</h1>
+    <h2 id='status'></h2>
+    <a href='index.html'>Home</a>
+    
+    <div id='errorDiv' class='hidden'>
+        <h2 class='red'>Error! Are you logged in?</h2>
+    </div>
+    
+    <div id='content' class='hidden'>
+        <select id='accountSelect'></select>
+        <select id='currencyPairSelect' disabled></select>
+        <p />
+        Selected account id: <span id='selectedAccountId'></span>
+        <p />
+        Selected currency pair: <span id='selectedCurrencyPair'></span>
+        
+        <div id='chart'>
+        </div>
+        
+        <div id='addNodeDiv'>
+            Previous Node Id: <span id='previousNodeId'>-1</span>
+            Price: <input type=number id='createNodePrice' min=0></input>
+            Percent: <input type=number id='createNodePercent' min=0></input>
+            Currency: <select id='createNodeCurrencySelect'></select>
+            <button id='addNodeButton'>Add</button>
+        </div>
+    </div>
+
+    <script type='text/javascript' src='/library.js'></script>
+    <script type='text/javascript' src='autotrade.js'></script>
+</body>
+</html>
