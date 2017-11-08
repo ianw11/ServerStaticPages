@@ -6,14 +6,27 @@
     <h1>Crypto Websocket</h1>
     <h2 id='status'></h2>
     <button id='closeButton'>Disconnect</button>
+    <h3>Newest data will be added to the top (older data will get pushed down)</h3>
     
     <div id='content'></div>
     
     <script type='text/javascript' src='/library.js'></script>
     <script>
+        var DEBUG = false;
+
         var socket;
+
+        var conversions = [];
+        var conversionCapacity = 15;
+
         window.onload = function() {
-            socket = new WebSocket('ws://localhost:8100/cryptosocket');
+            var url;
+            if (DEBUG) {
+                url = 'ws://localhost:8100/cryptosocket';
+            } else {
+                url = 'wss://nectarsac.com/cryptosocket';
+            }
+            socket = new WebSocket(url);
             
             var closeButton = document.getElementById('closeButton');
             closeButton.onclick = function() {
@@ -30,15 +43,33 @@
             };
             
             socket.onmessage = function(event) {
-                console.log(event.data);
                 var data = JSON.parse(event.data);
                 if (data.type === 'newConversion') {
-                    var p = document.createElement('p');
-                    p.innerHTML = "(" + data.data.exchangeName + ") " + data.data.from + "/" + data.data.to + ": " + data.data.lastTradePrice;
-                    document.getElementById('content').append(p);
+                    newConversion(data);
+                } else {
+                    console.log(event.data);
                 }
             };
         };
+
+        function newConversion(data) {
+            while (conversions.length >= conversionCapacity) {
+                conversions = conversions.slice(1, conversionCapacity);
+            }
+
+            conversions.push(data);
+            var content = document.getElementById('content');
+            dropChildren(content);
+
+            for (var ndx in conversions) {
+                var conversion = conversions[ndx];
+                
+                var p = document.createElement('p');
+                p.innerHTML = "(" + conversion.data.exchangeName + ") " + conversion.data.from + "/" + conversion.data.to + ": " + conversion.data.lastTradePrice;
+                content.insertBefore(p, content.firstChild);
+            }
+
+        }
     </script>
 </body>
 </html>
