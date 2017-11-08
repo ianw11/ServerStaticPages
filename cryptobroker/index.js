@@ -414,18 +414,28 @@ function updateTransactions() {
                 
                 // Build the transaction details
                 var h3 = document.createElement('h3');
-                var str = type + " ";
+                var str = type + " "; // BUY/SELL
                 if (type === 'BUY') {
                     str += " ";
                 }
                 if (type !== 'WITHDRAWAL') {
-                    str += eightDecimalPlaces(transaction.creditAmount) + " " + transaction.creditType;
+                    if (type === 'SELL') {
+                        str += eightDecimalPlaces(transaction.debtAmount);
+                    } else {
+                        str += eightDecimalPlaces(transaction.creditAmount);
+                    }
+                    str += " " + transaction.creditType;
                 }
                 if (type === "BUY" || type === "SELL") {
                     str += " for ";
                 }
                 if (type !== 'DEPOSIT') {
-                    str += eightDecimalPlaces(transaction.debtAmount) + " " + transaction.debtType;
+                    if (type === 'SELL') {
+                        str += eightDecimalPlaces(transaction.creditAmount);
+                    } else {
+                        str += eightDecimalPlaces(transaction.debtAmount);
+                    }
+                    str += " " + transaction.debtType;
                 }
                 if (type === "BUY" || type === "SELL") {
                     str += " at " + eightDecimalPlaces(transaction.price);
