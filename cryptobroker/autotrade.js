@@ -91,6 +91,7 @@ function resetAddForm() {
     price.value = 0;
     percent.value = 0;
     dropChildren(currencySelect);
+    currencySelect.append(buildEmptyOption());
     
     var currencyPair = document.getElementById('selectedCurrencyPair').innerHTML;
     var currencies = currencyPair.split('/');
@@ -106,11 +107,23 @@ function resetAddForm() {
 
 function addNewNode() {
     var accountId = document.getElementById('selectedAccountId').innerHTML;
+    if (accountId === '') {
+        updateStatus('Account/wallet required');
+        return;
+    }
     var currencyPair = document.getElementById('selectedCurrencyPair').innerHTML;
+    if (currencyPair === '') {
+        updateStatus('Currency pair required');
+        return;
+    }
     var previousNodeId = document.getElementById('previousNodeId').innerHTML;
     var price = document.getElementById('createNodePrice').value;
     var percent = "" + document.getElementById('createNodePercent').value / 100;
     var fromCurrency = document.getElementById('createNodeCurrencySelect').value;
+    if (fromCurrency === '') {
+        updateStatus('No currency selected');
+        return;
+    }
     
     var param = {
         accountId: accountId,
