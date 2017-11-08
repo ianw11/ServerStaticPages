@@ -59,7 +59,7 @@ function applyOnClick() {
       $('#_debug_close_socket_button')[0].style.display = 'none';
    }
    $('#submit_name_button')[0].onclick = sendName;
-   $('#_submit_name_form').submit(sendName);
+   $('#_submit_name_form').on('submit', sendName);
    $('#createGameButton')[0].onclick = createGame;
    $('#createGameRoomButton')[0].onclick = submitCreateGame;
    $('#gameTitleInputForm').submit(submitCreateGame);
@@ -76,7 +76,10 @@ function applyOnClick() {
    };
 };
 
-function sendName(button) {
+function sendName(e) {
+   if (e !== undefined) {
+       e.preventDefault();
+   }
    var input = $('#name_input')[0].value;
    if (input === undefined || input === '') {
       return;
