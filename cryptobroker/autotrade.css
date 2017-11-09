@@ -1,6 +1,18 @@
+.modalClose {
+    color: #aaa;
+    float: right;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.selected {
+    border: 3px solid #ffff00 !important;
+}
+
+
+
 .tree {
     width: 100%;
-    min-width: 1200;
 }
 
 .tree ul {

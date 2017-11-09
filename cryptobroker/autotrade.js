@@ -3,13 +3,18 @@ var ENDPOINT = "/crypto/";
 window.onload = function() {
     var selectedAccountId = document.getElementById('selectedAccountId');
     var selectedCurrencyPair = document.getElementById('selectedCurrencyPair');
+    var chart = document.getElementById('chart');
     
     document.getElementById('accountSelect').onchange = function() {
+        dropChildren(chart);
+        
         loadCurrencyPairs(this.value);
         selectedAccountId.innerHTML = this.value;
         selectedCurrencyPair.innerHTML = '';
     };
     document.getElementById('currencyPairSelect').onchange = function() {
+        dropChildren(chart);
+        
         var option = this.options[this.selectedIndex];
         loadTradePlan(option.accountId, option.value);
         selectedCurrencyPair.innerHTML = option.value;
@@ -77,12 +82,9 @@ function loadTradePlan(accountId, currencyPair) {
             console.log("Aborting trade plan");
             return;
         }
-        console.log("Building trade plan");
-        var root = res.data[res.data.root + ""];
         
         var rootUl = document.createElement('ul');
-        rootUl.append(buildNodeElement(root, res.data));
-        
+        rootUl.append(buildNodeElement(res.data.root, false, res.data));
         chart.append(rootUl);
     });
 };
@@ -152,21 +154,23 @@ function addNewNode() {
     });
 };
 
-function buildNodeElement(content, children) {
-    var li = document.createElement('li');
-    li.append(buildNodeContent(content));
+function buildNodeElement(ndx, isGreater, nodes) {
+    var content = nodes[ndx + ""];
     
-    var nodes = [];
-    for (var key in children) {
-        var child = children[key];
-        if (child.prev === content.id) {
-            nodes.push(buildNodeElement(child, children));
-        }
+    var li = document.createElement('li');
+    li.append(buildNodeContent(content, isGreater));
+    
+    var nodeElems = [];
+    if (content.nextLT !== -1) {
+        nodeElems.push(buildNodeElement(content.nextLT, false, nodes));
     }
-    if (nodes.length > 0) {
+    if (content.nextGT !== -1) {
+        nodeElems.push(buildNodeElement(content.nextGT, true, nodes));
+    }
+    if (nodeElems.length > 0) {
         var childUl = document.createElement('ul');
-        for (var ndx in nodes) {
-            childUl.append(nodes[ndx]);
+        for (var ndx in nodeElems) {
+            childUl.append(nodeElems[ndx]);
         }
         li.append(childUl);
     }
@@ -174,14 +178,26 @@ function buildNodeElement(content, children) {
     return li;
 };
 
-function buildNodeContent(content) {
+function buildNodeContent(content, isGreater) {
     var div = document.createElement('div');
     
-    //var h2 = document.createElement('h2');
-    //h2.innerHTML = content.price;
-    //div.append(h2);
+    var closeButton = document.createElement('span');
+    closeButton.className = 'modalClose';
+    closeButton.innerHTML = '&times;';
+    div.append(closeButton);
+    closeButton.onclick = function() {
+        if (confirm("Delete entire branch? (TODO: Implement delete)")) {
+            console.log("Clicked");
+        } else {
+            console.log("Cancelled");
+        }
+    };
     
-    var transactionText = content.price + ": "  + (parseFloat(content.percent) * 100) + "% ";
+    var h2 = document.createElement('h2');
+    h2.innerHTML = (isGreater ? ">" : "<") + " " + content.price;
+    div.append(h2);
+    
+    var transactionText = (parseFloat(content.percent) * 100) + "% ";
     if (content.tradeDirection === 'TO_QUOTE') {
         transactionText += content.baseCurrency + " -> " + content.quoteCurrency;
     } else {
@@ -191,9 +207,20 @@ function buildNodeContent(content) {
     transaction.innerHTML = transactionText;
     div.append(transaction);
     
-    //div.innerHTML = transactionText;
+    var baseAmount = document.createElement('p');
+    baseAmount.innerHTML = content.baseCurrency + ": " + eightDecimalPlaces(content.baseAmountAfter);
+    div.append(baseAmount);
+    
+    var quoteAmount = document.createElement('p');
+    quoteAmount.innerHTML = content.quoteCurrency + ": " + eightDecimalPlaces(content.quoteAmountAfter);
+    div.append(quoteAmount);
     
     div.onclick = function() {
+        var oldSelections = document.getElementsByClassName('selected');
+        for (var i = 0; i < oldSelections.length; ++i) {
+            oldSelections[i].classList.remove('selected');
+        }
+        div.classList.add('selected');
         document.getElementById('previousNodeId').innerHTML = content.id;
     };
     
