@@ -5,14 +5,14 @@
 <body>
     <h1>Crypto Websocket</h1>
     <h2 id='status'></h2>
-    <button id='closeButton'>Disconnect</button>
+    <button id='closeButton' disabled>Disconnect</button>
     <h3>Newest data will be added to the top (older data will get pushed down)</h3>
     
     <div id='content'></div>
     
     <script type='text/javascript' src='/library.js'></script>
     <script>
-        var DEBUG = false;
+        var DEBUG = true;
 
         var socket;
 
@@ -31,15 +31,16 @@
             var closeButton = document.getElementById('closeButton');
             closeButton.onclick = function() {
                 socket.close();
-                closeButton.disabled = true;
             };
             
             socket.onopen = function(event) {
                 updateStatus("Connected");
+                closeButton.disabled = false;
             };
             
             socket.onclose = function(event) {
                 updateStatus("Disconnected");
+                closeButton.disabled = true;
             };
             
             socket.onmessage = function(event) {

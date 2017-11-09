@@ -2,6 +2,8 @@
 <head>
     <title>Crypto Exchange Autotrade</title>
     <link href="/cryptobroker/index.css" type="text/css" rel="stylesheet" />
+    
+    <link href='/cryptobroker/autotrade.css' type='text/css' rel='stylesheet' />
 </head>
 <body>
     <h1>Autotrader</h1>
@@ -15,13 +17,10 @@
     <div id='content' class='hidden'>
         <select id='accountSelect'></select>
         <select id='currencyPairSelect' disabled></select>
-        <p />
+        <p></p>
         Selected account id: <span id='selectedAccountId'></span>
-        <p />
+        <p></p>
         Selected currency pair: <span id='selectedCurrencyPair'></span>
-        
-        <div id='chart'>
-        </div>
         
         <div id='addNodeDiv'>
             Previous Node Id: <span id='previousNodeId'>-1</span>
@@ -29,6 +28,9 @@
             Percent: <input type=number id='createNodePercent' min=0></input>
             Currency: <select id='createNodeCurrencySelect'></select>
             <button id='addNodeButton'>Add</button>
+        </div>
+        
+        <div id='chart' class='tree'>
         </div>
     </div>
 

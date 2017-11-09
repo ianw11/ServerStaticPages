@@ -70,7 +70,20 @@ function loadCurrencyPairs(accountId) {
 function loadTradePlan(accountId, currencyPair) {
     console.log("Loading " + currencyPair + " for account id " + accountId);
     sendRequest('GET', 'trades?accountId=' + accountId + '&currencyPair=' + currencyPair, null, function(res) {
-        console.log(res);
+        var chart = document.getElementById('chart');
+        dropChildren(chart);
+        
+        if (res.data.root === undefined) {
+            console.log("Aborting trade plan");
+            return;
+        }
+        console.log("Building trade plan");
+        var root = res.data[res.data.root + ""];
+        
+        var rootUl = document.createElement('ul');
+        rootUl.append(buildNodeElement(root, res.data));
+        
+        chart.append(rootUl);
     });
 };
 
@@ -138,3 +151,52 @@ function addNewNode() {
         loadTradePlan(accountId, currencyPair);
     });
 };
+
+function buildNodeElement(content, children) {
+    var li = document.createElement('li');
+    li.append(buildNodeContent(content));
+    
+    var nodes = [];
+    for (var key in children) {
+        var child = children[key];
+        if (child.prev === content.id) {
+            nodes.push(buildNodeElement(child, children));
+        }
+    }
+    if (nodes.length > 0) {
+        var childUl = document.createElement('ul');
+        for (var ndx in nodes) {
+            childUl.append(nodes[ndx]);
+        }
+        li.append(childUl);
+    }
+    
+    return li;
+};
+
+function buildNodeContent(content) {
+    var div = document.createElement('div');
+    
+    //var h2 = document.createElement('h2');
+    //h2.innerHTML = content.price;
+    //div.append(h2);
+    
+    var transactionText = content.price + ": "  + (parseFloat(content.percent) * 100) + "% ";
+    if (content.tradeDirection === 'TO_QUOTE') {
+        transactionText += content.baseCurrency + " -> " + content.quoteCurrency;
+    } else {
+        transactionText += content.quoteCurrency + " -> " + content.baseCurrency;
+    }
+    var transaction = document.createElement('p');
+    transaction.innerHTML = transactionText;
+    div.append(transaction);
+    
+    //div.innerHTML = transactionText;
+    
+    div.onclick = function() {
+        document.getElementById('previousNodeId').innerHTML = content.id;
+    };
+    
+    return div;
+};
+
