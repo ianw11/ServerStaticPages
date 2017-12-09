@@ -178,6 +178,9 @@ function updateWallets(isCodeInitiated) {
                 var headerUsdTotal = document.createElement('th');
                 headerUsdTotal.innerHTML = 'USD TOTAL';
                 headerRow.append(headerUsdTotal);
+                var accountPercent = document.createElement('th');
+                accountPercent.innerHTML = 'Percent of Account';
+                headerRow.append(accountPercent);
                 table.append(headerRow);
                 
                 // With the header done, build the rows
@@ -206,8 +209,13 @@ function updateWallets(isCodeInitiated) {
                     // THE ID IS <ACCOUNT_ID>+<CURRENCY>+total
                     usdTotalCell.id = account.id + wallet.currency + 'total';
                     // This also has a className of the currency
-                    usdTotalCell.classList.toggle(wallet.currency);
+                    usdTotalCell.classList.toggle(wallet.currency + 'usd');
                     walletRow.append(usdTotalCell);
+                    
+                    var accountPercentCell = document.createElement('td');
+                    // THE ID IS <ACCOUNT_ID>+<CURRENCY>+percent
+                    accountPercentCell.id = account.id + wallet.currency + 'percent';
+                    walletRow.append(accountPercentCell);
                     
                     table.append(walletRow);
                 }
@@ -312,6 +320,16 @@ function updateConversions() {
             
             var accountTotalElem = document.getElementById(account.id + 'total');
             accountTotalElem.innerHTML = accountSum;
+            
+            for (var ndx in account.conversions) {
+                var currency = account.conversions[ndx].from;
+                var currencyTotalElem = document.getElementById(account.id + currency + 'total');
+                var elem = document.getElementById(account.id + currency + 'percent');
+                if (elem === null) {
+                    continue;
+                }
+                elem.innerHTML = ((parseFloat(currencyTotalElem.innerHTML) / accountSum) * 100).toFixed(8) + "%";
+            }
         }
         
         updateTotals();
@@ -361,6 +379,9 @@ function updateTotals() {
     var titleUsd = document.createElement('th');
     titleUsd.innerHTML = "Total in USD";
     titleRow.append(titleUsd);
+    var titlePercent = document.createElement('th');
+    titlePercent.innerHTML = "Percent of total";
+    titleRow.append(titlePercent);
     table.append(titleRow);
     
     for (var key in totals) {
@@ -371,14 +392,19 @@ function updateTotals() {
         value.innerHTML = totals[key];
         var usdElem = document.createElement('td');
         var usd = 0;
-        for (var elem in document.getElementsByClassName(key)) {
+        var elems = document.getElementsByClassName(key + 'usd');
+        for (var ndx = 0; ndx < elems.length; ++ndx) {
+            var elem = elems[ndx];
             usd += parseFloat(elem.innerHTML);
         }
         usdElem.innerHTML = "$" + usd;
+        var percentElem = document.createElement('td');
+        percentElem.innerHTML = ((usd / usdTotal) * 100).toFixed(8) + "%";
 
         row.append(name);
         row.append(value);
         row.append(usdElem);
+        row.append(percentElem);
         table.append(row);
     }
     totalDiv.append(table);
