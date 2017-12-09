@@ -31,7 +31,10 @@
     <b>Enter target percent:</b>
     <input id='percentInput' type='text'></input>
     <br />
-    <b>Price to percent:</b>
+    <b>Target Result:</b>
+    <span id='targetResult'></span>
+    <br />
+    <b>Price to target:</b>
     <span id='targetPrice'></span>
     
     <br />
@@ -91,8 +94,6 @@ function update() {
         return;
     }
     
-    console.log("Amount: " + amount + " fee: " + fee + " price: " + price);
-    
     var result = calculate(amount, fee, price, isBuy);
     document.getElementById('result').innerHTML = result;
     var breakEven = getPrice(result, fee, amount, !isBuy);
@@ -100,6 +101,7 @@ function update() {
     
     if (percent !== 0) {
         var gainAmount = amount + (amount * percent);
+        document.getElementById('targetResult').innerHTML = gainAmount;
         var targetPrice = getPrice(result, fee, gainAmount, !isBuy);
         document.getElementById('targetPrice').innerHTML = targetPrice;
     }
