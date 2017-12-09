@@ -1,0 +1,128 @@
+<html>
+<head>
+    <title>Crypto Exchange Autotrade</title>
+</head>
+<body>
+    <b>Amount:</b>
+    <input id='amountInput' type='text'></input>
+    <b>Price:</b>
+    <input id='priceInput' type='text'></input>
+    <b>Fee (Percent):</b>
+    <input id='feeInput' type='text' value='.25'></input>
+    <b>Type:</b>
+    <select id='orderTypeSelect'>
+        <option value='buy'>Buy</option>
+        <option value='sell'>Sell</option>
+    </select>
+    
+    <br />
+    <hr />
+    <br />
+    
+    <b>Result:</b>
+    <span id='result'></span>
+    <br />
+    <b>Price to break even:</b>
+    <span id='breakEven'></span>
+    
+    <br />
+    <br />
+    
+    <b>Enter target percent:</b>
+    <input id='percentInput' type='text'></input>
+    <br />
+    <b>Price to percent:</b>
+    <span id='targetPrice'></span>
+    
+    <br />
+    <br />
+    
+    <b>Enter current price:</b>
+    <input id='currentPriceInput' type='text'></input>
+    <br />
+    <b>Expected result:</b>
+    <span id='currentResult'></span>
+    <br />
+    <b>Percent gain:</b>
+    <span id='currentPercent'></span>
+    
+<script>
+var amount = 0;
+var fee = 0;
+var price = 0;
+var isBuy;
+var percent = 0;
+var currentPrice = 0;
+
+window.onload = function() {
+    console.log("Here");
+    document.getElementById('amountInput').onchange = function() {
+        amount = parseFloat(this.value);
+        update();
+    };
+    document.getElementById('feeInput').onchange = function() {
+        fee = 1.0 - parseFloat(this.value) / 100;
+        update();
+    };
+    document.getElementById('priceInput').onchange = function() {
+        price = parseFloat(this.value);
+        update();
+    };
+    document.getElementById('orderTypeSelect').onchange = function() {
+        isBuy = this.value === 'buy';
+        update();
+    };
+    document.getElementById('percentInput').onchange = function() {
+        percent = parseFloat(this.value) / 100;
+        update();
+    };
+    document.getElementById('currentPriceInput').onchange = function() {
+        currentPrice = parseFloat(this.value);
+        update();
+    };
+    fee = 1.0 - parseFloat(document.getElementById('feeInput').value) / 100.0;
+    isBuy = document.getElementById('orderTypeSelect').value === 'buy';
+};
+
+function update() {
+    if (amount === 0 ||
+        fee === 0 ||
+        price === 0) {
+        return;
+    }
+    
+    console.log("Amount: " + amount + " fee: " + fee + " price: " + price);
+    
+    var result = calculate(amount, fee, price, isBuy);
+    document.getElementById('result').innerHTML = result;
+    var breakEven = getPrice(result, fee, amount, !isBuy);
+    document.getElementById('breakEven').innerHTML = breakEven;
+    
+    if (percent !== 0) {
+        var gainAmount = amount + (amount * percent);
+        var targetPrice = getPrice(result, fee, gainAmount, !isBuy);
+        document.getElementById('targetPrice').innerHTML = targetPrice;
+    }
+    
+    if (currentPrice !== 0) {
+        var currentResult = calculate(result, fee, currentPrice, !isBuy);
+        document.getElementById('currentResult').innerHTML = currentResult;
+        var percentGain = ((currentResult - amount) / amount) * 100;
+        document.getElementById('currentPercent').innerHTML = percentGain + "%";
+    }
+};
+
+function calculate(amount, fee, price, isBuy) {
+    return (amount * fee * (isBuy ? (1/price) : price)).toFixed(8);
+};
+
+function getPrice(amount, fee, target, isBuy) {
+    if (isBuy) {
+        return (amount * fee / target).toFixed(8);
+    } else {
+        return (target / (amount * fee)).toFixed(8);
+    }
+};
+</script>
+</body>
+</html>
