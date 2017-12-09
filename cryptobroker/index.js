@@ -205,6 +205,8 @@ function updateWallets(isCodeInitiated) {
                     var usdTotalCell = document.createElement('td');
                     // THE ID IS <ACCOUNT_ID>+<CURRENCY>+total
                     usdTotalCell.id = account.id + wallet.currency + 'total';
+                    // This also has a className of the currency
+                    usdTotalCell.classList.toggle(wallet.currency);
                     walletRow.append(usdTotalCell);
                     
                     table.append(walletRow);
@@ -356,6 +358,9 @@ function updateTotals() {
     var titleBalance = document.createElement('th');
     titleBalance.innerHTML = "Total Balance (across all accounts)";
     titleRow.append(titleBalance);
+    var titleUsd = document.createElement('th');
+    titleUsd.innerHTML = "Total in USD";
+    titleRow.append(titleUsd);
     table.append(titleRow);
     
     for (var key in totals) {
@@ -364,9 +369,16 @@ function updateTotals() {
         name.innerHTML = key;
         var value = document.createElement('td');
         value.innerHTML = totals[key];
+        var usdElem = document.createElement('td');
+        var usd = 0;
+        for (var elem in document.getElementsByClassName(key)) {
+            usd += parseFloat(elem.innerHTML);
+        }
+        usdElem.innerHTML = "$" + usd;
 
         row.append(name);
         row.append(value);
+        row.append(usdElem);
         table.append(row);
     }
     totalDiv.append(table);
