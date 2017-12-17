@@ -354,8 +354,16 @@ function updateTotals() {
         usdTotal += value;
     }
     var usdTotalElem = document.createElement('h2');
-    usdTotalElem.innerHTML = "TOTAL USD VALUE: " + usdTotal;
+    usdTotalElem.innerHTML = "TOTAL USD VALUE: $" + usdTotal;
+    usdTotalElem.total = usdTotal;
     totalDiv.append(usdTotalElem);
+    
+    // Then save some space for the total deposits information
+    var percentGainDiv = document.createElement('div');
+    var totalUsdDeposited = document.createElement('h3');
+    totalUsdDeposited.id = 'totalUsdDeposited';
+    percentGainDiv.append(totalUsdDeposited);
+    totalDiv.append(percentGainDiv);
     
     // Then display the sum of each coin across all accounts
     var totals = {};
@@ -415,6 +423,7 @@ function updateTotals() {
 
 function updateTransactions() {
     sendRequest('GET', 'transactions', null, function(res) {
+        var totalUsdDeposited = 0;
         for (var id in res.data) {
             var transactions = res.data[id];
             if (transactions.length == 0) {
@@ -425,6 +434,11 @@ function updateTransactions() {
             var withdrawals = {'USD' : 0};
             
             var content = document.createElement('ul');
+            var sumDepositsElem = document.createElement('h3');
+            content.append(sumDepositsElem);
+            var sumWithdrawalsElem = document.createElement('h3');
+            content.append(sumWithdrawalsElem);
+            
             for (var ndx in transactions) {
                 var transaction = transactions[ndx];
                 var type = transaction.type;
@@ -458,22 +472,20 @@ function updateTransactions() {
                 }
                 if (type !== 'WITHDRAWAL') {
                     if (type === 'SELL') {
-                        str += eightDecimalPlaces(transaction.debtAmount);
+                        str += eightDecimalPlaces(transaction.debtAmount) + " " + transaction.debtType;
                     } else {
-                        str += eightDecimalPlaces(transaction.creditAmount);
+                        str += eightDecimalPlaces(transaction.creditAmount) + " " + transaction.creditType;
                     }
-                    str += " " + transaction.creditType;
                 }
                 if (type === "BUY" || type === "SELL") {
                     str += " for ";
                 }
                 if (type !== 'DEPOSIT') {
                     if (type === 'SELL') {
-                        str += eightDecimalPlaces(transaction.creditAmount);
+                        str += eightDecimalPlaces(transaction.creditAmount) + " " + transaction.creditType;
                     } else {
-                        str += eightDecimalPlaces(transaction.debtAmount);
+                        str += eightDecimalPlaces(transaction.debtAmount) + " " + transaction.debtType;
                     }
-                    str += " " + transaction.debtType;
                 }
                 if (type === "BUY" || type === "SELL") {
                     str += " at " + eightDecimalPlaces(transaction.price);
@@ -490,13 +502,10 @@ function updateTransactions() {
                 content.append(transactionElem);
             }
             
-            var sumDepositsElem = document.createElement('h3');
             sumDepositsElem.innerHTML = 'Total USD deposits: ' + deposits['USD'];
-            content.append(sumDepositsElem);
-            
-            var sumWithdrawalsElem = document.createElement('h3');
+            totalUsdDeposited += deposits['USD'];
             sumWithdrawalsElem.innerHTML = 'Total USD withdrawals: ' + withdrawals['USD'];
-            content.append(sumWithdrawalsElem);
+            totalUsdDeposited -= withdrawals['USD'];
             
             var titleElem = document.createElement('h2');
             titleElem.innerHTML = "Transactions";
@@ -505,6 +514,8 @@ function updateTransactions() {
             dropChildren(holderElem);
             holderElem.append(buildAccordion(titleElem, content));
         }
+        
+        document.getElementById('totalUsdDeposited').innerHTML = totalUsdDeposited;
     });
 };
 
