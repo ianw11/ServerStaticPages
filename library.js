@@ -1,4 +1,4 @@
-var DEBUG = false;
+var DEBUG = true;
 
 function eightDecimalPlaces(flt) {
     return decimalPlaces(flt, 8);

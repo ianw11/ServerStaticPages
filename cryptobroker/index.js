@@ -355,14 +355,25 @@ function updateTotals() {
     }
     var usdTotalElem = document.createElement('h2');
     usdTotalElem.innerHTML = "TOTAL USD VALUE: $" + usdTotal;
+    usdTotalElem.id = 'usdValue';
     usdTotalElem.total = usdTotal;
     totalDiv.append(usdTotalElem);
     
     // Then save some space for the total deposits information
     var percentGainDiv = document.createElement('div');
+    var totalUsdDepositedLabel = document.createElement('label');
+    totalUsdDepositedLabel.innerHTML = "Total Deposited:"
+    percentGainDiv.append(totalUsdDepositedLabel);
     var totalUsdDeposited = document.createElement('h3');
+    totalUsdDeposited.innerHTML = "?";
     totalUsdDeposited.id = 'totalUsdDeposited';
     percentGainDiv.append(totalUsdDeposited);
+    var percentGainLabel = document.createElement('label');
+    percentGainLabel.innerHTML = "Percent gain:";
+    percentGainDiv.append(percentGainLabel);
+    var percentGain = document.createElement('h3');
+    percentGain.id = 'percentGain';
+    percentGainDiv.append(percentGain);
     totalDiv.append(percentGainDiv);
     
     // Then display the sum of each coin across all accounts
@@ -515,7 +526,10 @@ function updateTransactions() {
             holderElem.append(buildAccordion(titleElem, content));
         }
         
-        document.getElementById('totalUsdDeposited').innerHTML = totalUsdDeposited;
+        document.getElementById('totalUsdDeposited').innerHTML = '$' + totalUsdDeposited;
+        var accountTotal = document.getElementById('usdValue').total;
+        var percentGain = ((accountTotal - totalUsdDeposited) / totalUsdDeposited) * 100;
+        document.getElementById('percentGain').innerHTML = percentGain + '%';
     });
 };
 
