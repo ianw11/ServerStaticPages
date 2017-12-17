@@ -26,19 +26,19 @@ function sendRequest(method, url, body, successCallback, failCallback) {
             }
             if (this.status == 200) {
                 var obj = JSON.parse(this.responseText);
-                accessToken = obj.access_token;
+                //accessToken = obj.access_token;
                 if (successCallback != undefined) {
                     successCallback(obj);
                 }
                 updateStatus("SUCCESS");
             } else {
-                accessToken = '';
+                //accessToken = '';
                 updateStatus("ERROR: " + this.responseText);
                 if (failCallback != undefined) {
                     try {
                         failCallback(JSON.parse(this.responseText));
                     } catch (e) {
-                        failCallback();
+                        failCallback(this.responseText);
                     }
                 }
             }
@@ -69,6 +69,10 @@ function updateStatus(message) {
         sessionStatus.className = "green";
     }
     */
+};
+
+function toggle(elem) {
+    elem.classList.toggle('hidden');
 };
 
 function show(elem) {

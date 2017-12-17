@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+    <title>Crypto Exchange Dev Portal</title>
+    <link href="index.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="favicon.png" />
+</head>
+<body>
+    <h1>Crypto Broker</h1>
+    <h2 id='status'></h2>
+    <p id='sessionStatus'>-</p>
+    
+    <div id='loginDiv' class='hidden'>
+        <h3>Sign up or login</h3>
+        Email:
+        <input id='email_login' type='text'></input>
+        Password:
+        <input id='password_login' type='password'></input>
+        <button id='loginButton' class='orange'>Login</button>
+        <button id='showRegisterModalButton' class='orange'>Register</button>
+        <div class='modal' id='registerModal'>
+            <div class='modal-content'>
+                <span class='modalClose'>&times;</span>
+                First name:
+                <input id="firstname" type='text'></input>
+                Last name:
+                <input id='lastname' type='text'></input>
+                Email:
+                <input id='email' type='text'></input>
+                Password:
+                <input id='password' type='text'></input>
+                <button id='registerButton' class='orange'>Register</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="content" class='hidden'>
+        <button id='addAccountPopup' class='orange'>Add Account</button>
+        <div class='modal' id='modal'>
+            <div class='modal-content'>
+                <span class='modalClose'>&times;</span>
+                
+                <h3>Add new account</h3>
+        
+                Exchange:
+                <select id='exchangeSelect'></select>
+                <br />
+                apikey:
+                <input id='apikey' type='text'></input>
+                <br />
+                passphrase:
+                <input id='passphrase' type='text'></input>
+                <br />
+                secret:
+                <input id='secret' type='text'></input>
+                <br />
+                <button id='addAccount' class='green'>Add</button>
+            </div>
+        </div>
+        
+        <button id='updateWalletsButton' class='yellow'>Update Wallets</button>
+        <button id='updateConversionsButton' class='yellow'>Update Conversions</button>
+        <button id='updateTransactions' class='yellow'>Update Transactions</button>
+        <button id='logoutButton' class='red'>Log Out</button>
+        <br />
+        <a href='./autotrade.html'>Autotrader</a>
+        <a href='./websocket.html'>Websocket</a>
+        <a href='./calculator.html'>Calculator</a>
+        
+        <div id='totals'></div>
+        <div id='wallets'></div>
+        
+        <div class='modal' id='nicknameModal'>
+            <div class='modal-content'>
+                <span class='modalClose'>&times;</span>
+                Nickname:
+                <input type='text' id='nickname'></input>
+                <button id='setNickname'>Set</button>
+            </div>
+        </div>
+    </div>
+
+    <script type='text/javascript' src='/library.js'></script>
+    <script type='text/javascript' src='index.js'></script>
+</body>
+</html>
