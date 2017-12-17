@@ -365,7 +365,7 @@ function updateTotals() {
     totalUsdDepositedLabel.innerHTML = "Total Deposited:"
     percentGainDiv.append(totalUsdDepositedLabel);
     var totalUsdDeposited = document.createElement('h3');
-    totalUsdDeposited.innerHTML = "?";
+    totalUsdDeposited.innerHTML = "(Press 'Update Transactions' to update)";
     totalUsdDeposited.id = 'totalUsdDeposited';
     percentGainDiv.append(totalUsdDeposited);
     var percentGainLabel = document.createElement('label');
@@ -373,6 +373,7 @@ function updateTotals() {
     percentGainDiv.append(percentGainLabel);
     var percentGain = document.createElement('h3');
     percentGain.id = 'percentGain';
+    percentGain.innerHTML = "0%";
     percentGainDiv.append(percentGain);
     totalDiv.append(percentGainDiv);
     
