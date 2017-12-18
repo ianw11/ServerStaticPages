@@ -17,6 +17,7 @@
     background-color: #f9f9f9;
     min-width: 80px;
     z-index: 1;
+    padding: 5px 10px 5px 10px;
 }
 .dropdownContent button {
     margin-bottom: 5px;
