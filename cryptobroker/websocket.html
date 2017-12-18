@@ -64,10 +64,9 @@
 
             for (var ndx in conversions) {
                 var conversion = conversions[ndx];
+                var body = "(" + conversion.data.exchangeName + ") " + conversion.data.from + "/" + conversion.data.to + ": " + conversion.data.lastTradePrice;
                 
-                var p = document.createElement('p');
-                p.innerHTML = "(" + conversion.data.exchangeName + ") " + conversion.data.from + "/" + conversion.data.to + ": " + conversion.data.lastTradePrice;
-                content.insertBefore(p, content.firstChild);
+                elem('p').innerHTML(body).insertBefore(content);
             }
 
         }

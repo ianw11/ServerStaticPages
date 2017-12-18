@@ -1,5 +1,50 @@
 var DEBUG = true;
 
+function elem(type) {
+    return {
+        elem: document.createElement(type),
+        id : function(id) {
+            this.elem.id = id;
+            return this;
+        },
+        className: function(name) {
+            this.elem.classList.toggle(name);
+            return this;
+        },
+        appendTo: function(parent) {
+            if (parent !== null) {
+                parent.appendChild(this.elem);
+            }
+            return this;
+        },
+        insertBefore: function(parent) {
+            if (parent !== null) {
+                parent.insertBefore(this.elem, parent.firstChild);
+            }
+            return this;
+        },
+        value: function(val) {
+            this.elem.value = val;
+            return this;
+        },
+        innerHTML: function(content) {
+            this.elem.innerHTML = content;
+            return this;
+        },
+        content: function(content) {
+            return this.innerHTML(content);
+        },
+        label: function(labelElem) {
+            labelElem.htmlFor = this.elem;
+            return this;
+        },
+        child: function(child) {
+            this.elem.append(child);
+            return this;
+        }
+    };
+};
+
 function eightDecimalPlaces(flt) {
     return decimalPlaces(flt, 8);
 };

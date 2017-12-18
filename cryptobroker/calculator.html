@@ -15,9 +15,7 @@
         <option value='sell'>Sell</option>
     </select>
     
-    <br />
     <hr />
-    <br />
     
     <b>Result:</b>
     <span id='result'></span>
@@ -58,7 +56,6 @@ var percent = 0;
 var currentPrice = 0;
 
 window.onload = function() {
-    console.log("Here");
     document.getElementById('amountInput').onchange = function() {
         amount = parseFloat(this.value);
         update();

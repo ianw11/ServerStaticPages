@@ -1,15 +1,17 @@
 var ENDPOINT = '/crypto/';
 
 window.onload = function() {
-    document.getElementById('addAccount').onclick = addAccount;
+    // The buttons that open or submit a new account
     document.getElementById('addAccountPopup').onclick = addAccountPopup;
+    document.getElementById('addAccount').onclick = addAccount;
+    // The yellow update buttons
     document.getElementById('updateWalletsButton').onclick = updateWallets;
     document.getElementById('updateConversionsButton').onclick = updateConversions;
     document.getElementById('updateTransactions').onclick = updateTransactions;
     document.getElementById('logoutButton').onclick = logout;
     document.getElementById('setNickname').onclick = setNickname;
     
-    // Give ability to close modal
+    // Give ability to close modal to each 'X' button
     var modalCloses = document.getElementsByClassName('modalClose');
     for (var ndx in modalCloses) {
         modalCloses[ndx].onclick = closeModal;
@@ -88,13 +90,12 @@ function updateWallets() {
         for (var tag in result.data) {
             var account = result.data[tag];
             
-            var accountDiv = document.createElement('div');
-            accountDiv.className = isUp ? 'accountUp' : 'accountDown';
+            var accountDiv = elem('div').className(isUp ? 'accountUp' : 'accountDown').elem;
             isUp = !isUp;
             
-            var exchangeTitle = document.createElement('h2');
-            exchangeTitle.innerHTML = account.nickname + " (" + account.displayName + " " + account.apiTrunc + "...)";
-            accountDiv.append(exchangeTitle);
+            elem('h2')
+                .content(account.nickname + " (" + account.displayName + " " + account.apiTrunc + "...)")
+                .appendTo(accountDiv);
             
             if (account.wallets.length > 0) {
             
@@ -256,11 +257,11 @@ function updateConversions() {
             for (var ndx in account.conversions) {
                 var currency = account.conversions[ndx].from;
                 var currencyTotalElem = document.getElementById(account.id + currency + 'total');
-                var elem = document.getElementById(account.id + currency + 'percent');
-                if (elem === null) {
+                var element = document.getElementById(account.id + currency + 'percent');
+                if (element === null) {
                     continue;
                 }
-                elem.innerHTML = ((parseFloat(currencyTotalElem.innerHTML) / accountSum) * 100).toFixed(8) + "%";
+                element.innerHTML = ((parseFloat(currencyTotalElem.innerHTML) / accountSum) * 100).toFixed(8) + "%";
             }
         }
         
@@ -274,40 +275,27 @@ function updateConversions() {
 function updateTotals() {
     var walletTotals = document.getElementById('totals');
     
-    var totalDiv = document.createElement('div');
-    totalDiv.className = 'totals';
+    var totalDiv = this.elem('div').className('totals').elem;
     
     // First compute the total USD value based on the account total of each account
     var items = document.getElementsByClassName('accountTotal');
     var usdTotal = 0;
     for (var i = 0; i < items.length; ++i) {
-        var elem = items[i];
-        var value = parseFloat(elem.innerHTML);
+        var element = items[i];
+        var value = parseFloat(element.innerHTML);
         usdTotal += value;
     }
-    var usdTotalElem = document.createElement('h2');
-    usdTotalElem.innerHTML = "TOTAL USD VALUE: $" + usdTotal;
-    usdTotalElem.id = 'usdValue';
-    usdTotalElem.total = usdTotal;
-    totalDiv.append(usdTotalElem);
+    this.elem('h2').content("TOTAL USD VALUE: $" + usdTotal).id('usdValue').appendTo(totalDiv).elem.total = usdTotal;
     
     // Then save some space for the total deposits information
-    var percentGainDiv = document.createElement('div');
-    var totalUsdDepositedLabel = document.createElement('label');
-    totalUsdDepositedLabel.innerHTML = "Total Deposited:"
-    percentGainDiv.append(totalUsdDepositedLabel);
-    var totalUsdDeposited = document.createElement('h3');
-    totalUsdDeposited.innerHTML = "(Press 'Update Transactions' to update)";
-    totalUsdDeposited.id = 'totalUsdDeposited';
-    percentGainDiv.append(totalUsdDeposited);
-    var percentGainLabel = document.createElement('label');
-    percentGainLabel.innerHTML = "Percent gain:";
-    percentGainDiv.append(percentGainLabel);
-    var percentGain = document.createElement('h3');
-    percentGain.id = 'percentGain';
-    percentGain.innerHTML = "0%";
-    percentGainDiv.append(percentGain);
-    totalDiv.append(percentGainDiv);
+    this.elem('div').appendTo(totalDiv)
+        .child(this.elem('label').innerHTML('Total Deposited:  ').elem)
+        .child(this.elem('span')
+            .innerHTML('<b>(Update Transactions to view)</b>')
+            .id('totalUsdDeposited').elem)
+        .child(this.elem('br').elem)
+        .child(this.elem('label').innerHTML('Percent gain:  ').elem)
+        .child(this.elem('span').id('percentGain').innerHTML('<b>0%</b>').elem);
     
     // Then display the sum of each coin across all accounts
     var totals = {};
@@ -320,44 +308,30 @@ function updateTotals() {
         }
         totals[currency] += parseFloat(elem.innerHTML);
     }
-    var table = document.createElement('table');
-    var titleRow = document.createElement('tr');
-    var title = document.createElement('th');
-    title.innerHTML = "Coin";
-    titleRow.append(title);
-    var titleBalance = document.createElement('th');
-    titleBalance.innerHTML = "Total Balance (across all accounts)";
-    titleRow.append(titleBalance);
-    var titleUsd = document.createElement('th');
-    titleUsd.innerHTML = "Total in USD";
-    titleRow.append(titleUsd);
-    var titlePercent = document.createElement('th');
-    titlePercent.innerHTML = "Percent of total";
-    titleRow.append(titlePercent);
-    table.append(titleRow);
+    
+    var table = this.elem('table')
+        .child(this.elem('tr')
+            .child(this.elem('th').content("Coin").elem)
+            .child(this.elem('th').content('Total Balance (accross all accounts)').elem)
+            .child(this.elem('th').content('Total in USD').elem)
+            .child(this.elem('th').content('Percent of total').elem)
+            .elem)
+        .elem;
     
     for (var key in totals) {
-        var row = document.createElement('tr');
-        var name = document.createElement('td');
-        name.innerHTML = key;
-        var value = document.createElement('td');
-        value.innerHTML = totals[key];
-        var usdElem = document.createElement('td');
         var usd = 0;
         var elems = document.getElementsByClassName(key + 'usd');
         for (var ndx = 0; ndx < elems.length; ++ndx) {
-            var elem = elems[ndx];
-            usd += parseFloat(elem.innerHTML);
+            var element = elems[ndx];
+            usd += parseFloat(element.innerHTML);
         }
-        usdElem.innerHTML = "$" + usd;
-        var percentElem = document.createElement('td');
-        percentElem.innerHTML = ((usd / usdTotal) * 100).toFixed(8) + "%";
-
-        row.append(name);
-        row.append(value);
-        row.append(usdElem);
-        row.append(percentElem);
-        table.append(row);
+        
+        this.elem('tr')
+            .child(this.elem('td').content(key).elem)
+            .child(this.elem('td').content(totals[key]).elem)
+            .child(this.elem('td').content('$' + usd).elem)
+            .child(this.elem('td').content(((usd / usdTotal) * 100).toFixed(8) + "%").elem)
+            .appendTo(table);
     }
     totalDiv.append(table);
     
@@ -377,30 +351,30 @@ function updateTransactions() {
             var deposits = {'USD' : 0};
             var withdrawals = {'USD' : 0};
             
-            var content = document.createElement('ul');
-            var sumDepositsElem = document.createElement('h3');
-            content.append(sumDepositsElem);
-            var sumWithdrawalsElem = document.createElement('h3');
-            content.append(sumWithdrawalsElem);
+            var content = elem('ul').elem;
+            
+            var sumDepositsElem = elem('h3').appendTo(content).elem;
+            var sumWithdrawalsElem = elem('h3').appendTo(content).elem;
             
             for (var ndx in transactions) {
                 var transaction = transactions[ndx];
                 var type = transaction.type;
                 
-                var transactionElem = document.createElement('div');
+                // Perform some processing based on the transaction type
+                var className;
                 if (type === 'BUY') {
-                    transactionElem.className = 'green';
+                    className = 'red';
                 } else if (type === 'SELL') {
-                    transactionElem.className = 'red';
+                    className = 'green';
                 } else if (type === 'DEPOSIT') {
-                    transactionElem.className = 'yellow';
+                    className = 'yellow';
                     
                     if (deposits[transaction.creditType] == undefined) {
                         deposits[transaction.creditType] = 0;
                     }
                     deposits[transaction.creditType] += parseFloat(transaction.creditAmount);
                 } else if (type === 'WITHDRAWAL') {
-                    transactionElem.className = 'yellow';
+                    className = 'orange';
                     
                     if (withdrawals[transaction.debtType] == undefined) {
                         withdrawals[transaction.debtType] = 0;
@@ -408,12 +382,11 @@ function updateTransactions() {
                     withdrawals[transaction.debtType] += parseFloat(transaction.debtAmount);
                 }
                 
+                // Build the actual transaction element here
+                var transactionElem = elem('div').className(className).appendTo(content).elem;
+                
                 // Build the transaction details
-                var h3 = document.createElement('h3');
-                var str = type + " "; // BUY/SELL
-                if (type === 'BUY') {
-                    str += " ";
-                }
+                var str = "";
                 if (type !== 'WITHDRAWAL') {
                     if (type === 'SELL') {
                         str += eightDecimalPlaces(transaction.debtAmount) + " " + transaction.debtType;
@@ -434,16 +407,13 @@ function updateTransactions() {
                 if (type === "BUY" || type === "SELL") {
                     str += " at " + eightDecimalPlaces(transaction.price);
                 }
-                h3.innerHTML = str;
-                transactionElem.append(h3);
+                
+                elem('h3').content(type).appendTo(transactionElem);
+                elem('p').content(str).appendTo(transactionElem);
                 
                 // Build the date
                 var date = new Date(transaction.timestamp);
-                var p = document.createElement('p');
-                p.innerHTML = date;
-                transactionElem.append(p);
-                
-                content.append(transactionElem);
+                elem('p').content(date).appendTo(transactionElem);
             }
             
             sumDepositsElem.innerHTML = 'Total USD deposits: ' + deposits['USD'];
@@ -451,18 +421,17 @@ function updateTransactions() {
             sumWithdrawalsElem.innerHTML = 'Total USD withdrawals: ' + withdrawals['USD'];
             totalUsdDeposited -= withdrawals['USD'];
             
-            var titleElem = document.createElement('h2');
-            titleElem.innerHTML = "Transactions";
-            
+            var titleElem = elem('h2').content("Transactions").elem;
             var holderElem = document.getElementById(id + 'transactions');
             dropChildren(holderElem);
             holderElem.append(buildAccordion(titleElem, content));
         }
         
+        // Finish out by updating the account's gain percentage (as a result of USD deposited)
         document.getElementById('totalUsdDeposited').innerHTML = '$' + totalUsdDeposited;
         var accountTotal = document.getElementById('usdValue').total;
         var percentGain = ((accountTotal - totalUsdDeposited) / totalUsdDeposited) * 100;
-        document.getElementById('percentGain').innerHTML = percentGain + '%';
+        document.getElementById('percentGain').innerHTML = '<b>' + percentGain + '%</b>';
     });
 };
 
@@ -489,9 +458,7 @@ function closeModal() {
 };
 
 function buildAccordion(titleElem, contentElem) {
-    var accordion = document.createElement('div');
-    accordion.className = 'accordionWrapper';
-    
+    // Format the title element
     titleElem.classList.toggle('accordion');
     titleElem.onclick = function() {
         this.classList.toggle('active');
@@ -502,12 +469,10 @@ function buildAccordion(titleElem, contentElem) {
             panel.style.maxHeight = panel.scrollHeight + "px";
         }
     };
-    accordion.append(titleElem);
     
-    var contentWrapper = document.createElement('div');
-    contentWrapper.append(contentElem);
-    contentWrapper.classList.toggle('panel');
-    accordion.append(contentWrapper);
-    
-    return accordion;
+    // Build the accordion, attach the title then the content, and finally return
+    return elem('div').className('accordionWrapper')
+        .child(titleElem)
+        .child(elem('div').className('panel').child(contentElem).elem)
+        .elem;
 };

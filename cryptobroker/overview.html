@@ -9,13 +9,32 @@
 <body>
     <h2 id='status'></h2>
     <div id="content">
-        <button id='addAccountPopup' class='orange'>Add Account</button>
+        <div class='dropdown'>
+            <button class='dropbutton'>Actions</button>
+            <div class='dropdownContent'>
+                <button id='addAccountPopup' class='orange'>Add Account</button>
+                <button id='updateWalletsButton' class='yellow'>Update Wallets</button>
+                <button id='updateConversionsButton' class='yellow'>Update Conversions</button>
+                <button id='updateTransactions' class='yellow'>Update Transactions</button>
+                <button id='logoutButton' class='red'>Log Out</button>
+            </div>
+        </div>
+        
+        <div class='dropdown'>
+            <button class='dropbutton'>Related Links</button>
+            <div class='dropdownContent'>
+                <a href='./autotrade.html'>Autotrader</a>
+                <a href='./websocket.html'>Websocket</a>
+                <a href='./calculator.html'>Calculator</a>
+            </div>
+        </div>
+    
+        
         <div class='modal' id='modal'>
             <div class='modal-content'>
                 <span class='modalClose'>&times;</span>
                 
                 <h3>Add new account</h3>
-        
                 Exchange:
                 <select id='exchangeSelect'></select>
                 <br />
@@ -32,18 +51,6 @@
             </div>
         </div>
         
-        <button id='updateWalletsButton' class='yellow'>Update Wallets</button>
-        <button id='updateConversionsButton' class='yellow'>Update Conversions</button>
-        <button id='updateTransactions' class='yellow'>Update Transactions</button>
-        <button id='logoutButton' class='red'>Log Out</button>
-        <br />
-        <a href='./autotrade.html'>Autotrader</a>
-        <a href='./websocket.html'>Websocket</a>
-        <a href='./calculator.html'>Calculator</a>
-        
-        <div id='totals'></div>
-        <div id='wallets'></div>
-        
         <div class='modal' id='nicknameModal'>
             <div class='modal-content'>
                 <span class='modalClose'>&times;</span>
@@ -52,6 +59,9 @@
                 <button id='setNickname'>Set</button>
             </div>
         </div>
+        
+        <div id='totals'></div>
+        <div id='wallets'></div>
     </div>
 
 <script type='text/javascript' src='/library.js'></script>
