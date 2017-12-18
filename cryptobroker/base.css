@@ -1,3 +1,7 @@
+html {
+    background-color: DarkGrey;
+}
+
 .hidden {
     display: none;
 }
