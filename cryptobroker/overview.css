@@ -6,7 +6,6 @@
     background-color: orange;
     padding: 16px;
     font-size: 20px;
-    cursor: pointer;
     border: none;
 }
 .dropdown {
@@ -23,10 +22,13 @@
     margin-bottom: 5px;
     font-size: 20px;
     display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 .dropdownContent button:hover {
     color: white;
     background-color: black;
+    text-align: center;
 }
 .dropdownContent a {
     margin-bottom: 5px;
