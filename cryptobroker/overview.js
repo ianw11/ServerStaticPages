@@ -312,7 +312,7 @@ function updateTotals() {
     var table = this.elem('table')
         .child(this.elem('tr')
             .child(this.elem('th').content("Coin").elem)
-            .child(this.elem('th').content('Total Balance (accross all accounts)').elem)
+            .child(this.elem('th').content('Total Balance (across all accounts)').elem)
             .child(this.elem('th').content('Total in USD').elem)
             .child(this.elem('th').content('Percent of total').elem)
             .elem)
