@@ -294,6 +294,11 @@ function updateTotals() {
             .innerHTML('<b>(Update Transactions to view)</b>')
             .id('totalUsdDeposited').elem)
         .child(this.elem('br').elem)
+        .child(this.elem('label').innerHTML('Difference:  ').elem)
+        .child(this.elem('span')
+            .innerHTML('<b>(Update Transactions to view)</b>')
+            .id('totalUsdEarned').elem)
+        .child(this.elem('br').elem)
         .child(this.elem('label').innerHTML('Percent gain:  ').elem)
         .child(this.elem('span').id('percentGain').innerHTML('<b>0%</b>').elem);
     
@@ -430,7 +435,9 @@ function updateTransactions() {
         // Finish out by updating the account's gain percentage (as a result of USD deposited)
         document.getElementById('totalUsdDeposited').innerHTML = '$' + totalUsdDeposited;
         var accountTotal = document.getElementById('usdValue').total;
-        var percentGain = ((accountTotal - totalUsdDeposited) / totalUsdDeposited) * 100;
+        var delta = accountTotal - totalUsdDeposited;
+        document.getElementById('totalUsdEarned').innerHTML = '$' + delta;
+        var percentGain = (delta / totalUsdDeposited) * 100;
         document.getElementById('percentGain').innerHTML = '<b>' + percentGain + '%</b>';
     });
 };
