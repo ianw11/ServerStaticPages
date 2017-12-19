@@ -41,6 +41,10 @@ function elem(type) {
         child: function(child) {
             this.elem.append(child);
             return this;
+        },
+        onclick: function(callback) {
+            this.elem.onclick = callback;
+            return this;
         }
     };
 };

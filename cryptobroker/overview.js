@@ -100,110 +100,75 @@ function updateWallets() {
             if (account.wallets.length > 0) {
             
                 // Build a table holding currency type, balance, and conversion (to USD)
-                var table = document.createElement('table');
+                var table = elem('table').appendTo(accountDiv).elem;
                 
                 // And kick off with a header row
-                var headerRow = document.createElement('tr');
-                var headerCurrency = document.createElement('th');
-                headerCurrency.innerHTML = 'CURRENCY';
-                headerRow.append(headerCurrency);
-                var headerBalance = document.createElement('th');
-                headerBalance.innerHTML = 'BALANCE';
-                headerRow.append(headerBalance);
-                var headerConversion = document.createElement('th');
-                headerConversion.innerHTML = 'USD CONVERSION (Last trade price)';
-                headerRow.append(headerConversion);
-                var headerUsdTotal = document.createElement('th');
-                headerUsdTotal.innerHTML = 'USD TOTAL';
-                headerRow.append(headerUsdTotal);
-                var accountPercent = document.createElement('th');
-                accountPercent.innerHTML = 'Percent of Account';
-                headerRow.append(accountPercent);
-                table.append(headerRow);
+                elem('tr')
+                    .child(elem('th').innerHTML('CURRENCY').elem)
+                    .child(elem('th').innerHTML('BALANCE').elem)
+                    .child(elem('th').innerHTML('USD CONVERSION (Last trade price)').elem)
+                    .child(elem('th').innerHTML('USD TOTAL').elem)
+                    .child(elem('th').innerHTML('Percent of Account').elem)
+                    .appendTo(table);
                 
                 // With the header done, build the rows
                 for (var ndx in account.wallets) {
                     var wallet = account.wallets[ndx];
-                    var walletRow = document.createElement('tr');
                     
-                    var currencyCell = document.createElement('td');
-                    currencyCell.innerHTML = wallet.currency;
-                    walletRow.append(currencyCell);
-                    
-                    var balanceCell = document.createElement('td');
+                    // Balance Cell
                     // THE ID IS <ACCOUNT_ID>+<CURRENCY>+balance
-                    balanceCell.id = account.id + wallet.currency + 'balance';
-                    balanceCell.innerHTML = wallet.balance;
+                    var balanceCell = elem('td').id(account.id + wallet.currency + 'balance')
+                        .className('walletBalance')
+                        .innerHTML(wallet.balance)
+                        .elem;
                     balanceCell.currency = wallet.currency;
-                    balanceCell.className = 'walletBalance';
-                    walletRow.append(balanceCell);
                     
-                    var conversionCell = document.createElement('td');
-                    // THE ID IS <ACCOUNT_ID>+<CURRENCY>
-                    conversionCell.id = account.id + wallet.currency;
-                    walletRow.append(conversionCell);
-                    
-                    var usdTotalCell = document.createElement('td');
-                    // THE ID IS <ACCOUNT_ID>+<CURRENCY>+total
-                    usdTotalCell.id = account.id + wallet.currency + 'total';
-                    // This also has a className of the currency
-                    usdTotalCell.classList.toggle(wallet.currency + 'usd');
-                    walletRow.append(usdTotalCell);
-                    
-                    var accountPercentCell = document.createElement('td');
-                    // THE ID IS <ACCOUNT_ID>+<CURRENCY>+percent
-                    accountPercentCell.id = account.id + wallet.currency + 'percent';
-                    walletRow.append(accountPercentCell);
-                    
-                    table.append(walletRow);
+                    // Build the full row
+                    elem('tr')
+                        .child(elem('td').innerHTML(wallet.currency).elem)
+                        .child(balanceCell)
+                        // THE ID IS <ACCOUNT_ID>+<CURRENCY>
+                        .child(elem('td').id(account.id + wallet.currency).elem)
+                        // THE ID IS <ACCOUNT_ID>+<CURRENCY>+total
+                        // This also has a className of the currency
+                        .child(elem('td').id(account.id + wallet.currency + 'total').className(wallet.currency+'usd').elem)
+                        // THE ID IS <ACCOUNT_ID>+<CURRENCY>+percent
+                        .child(elem('td').id(account.id + wallet.currency + 'percent').elem)
+                        .appendTo(table);
                 }
-                accountDiv.append(table);
             
             }
             
             // Account total
-            var totalTitle = document.createElement('h3');
-            totalTitle.innerHTML = "Account total in USD";
-            accountDiv.append(totalTitle);
-            var totalAmount = document.createElement('p');
-            totalAmount.className = 'accountTotal';
-            totalAmount.id = account.id + 'total';
-            totalAmount.innerHTML = "0.00";
-            accountDiv.append(totalAmount);
+            elem('h3').innerHTML('Account total in USD').appendTo(accountDiv);
+            elem('p').className('accountTotal')
+                .id(account.id + 'total')
+                .innerHTML('0.00')
+                .appendTo(accountDiv);
             
             // Nickname button
-            var button = document.createElement('button');
-            button.innerHTML = "Set Nickname";
-            button.className = 'orange';
-            button.id = account.id;
-            button.onclick = function() {
-                id = this.id;
-                document.getElementById('nicknameModal').style.display = 'block';
-                document.getElementById('nickname').value = '';
-            };
-            accountDiv.append(button);
+            elem('button').innerHTML('Set Nickname').className('orange').id(account.id).appendTo(accountDiv)
+                .onclick(function() {
+                    var id = this.id;
+                    document.getElementById('nicknameModal').style.display = 'block';
+                    document.getElementById('nickname').value = '';
+                });
             
             // Delete button
-            var deleteButton = document.createElement('button');
-            deleteButton.innerHTML = 'DELETE EXCHANGE';
-            deleteButton.className = 'red';
-            deleteButton.id = account.id;
-            deleteButton.onclick = function() {
-                var param = { id : this.id };
-                sendRequest('DELETE', 'exchange', JSON.stringify(param), function() {
-                    updateWallets();
+            elem('button').innerHTML('DELETE EXCHANGE').className('red').id(account.id).appendTo(accountDiv)
+                .onclick(function() {
+                    var param = { id : this.id };
+                    sendRequest('DELETE', 'exchange', JSON.stringify(param), function() {
+                        updateWallets();
+                    });
                 });
-            };
-            accountDiv.append(deleteButton);
             
             // Space then the transactions accordion
-            accountDiv.append(document.createElement('p'));
+            elem('p').appendTo(accountDiv);
             
-            var accordionHolder = document.createElement('div');
-            accordionHolder.id = account.id + 'transactions';
-            accountDiv.append(accordionHolder);
+            // Accordion div
+            elem('div').id(account.id + 'transactions').appendTo(accountDiv);
             
-            //output.append(buildAccordion(exchangeTitle, accountDiv));
             output.append(accountDiv);
         }
         
@@ -285,7 +250,11 @@ function updateTotals() {
         var value = parseFloat(element.innerHTML);
         usdTotal += value;
     }
-    this.elem('h2').content("TOTAL USD VALUE: $" + usdTotal).id('usdValue').appendTo(totalDiv).elem.total = usdTotal;
+    usdTotal = decimalPlaces(usdTotal, 4);
+    this.elem('h2').content("TOTAL USD VALUE: $" + usdTotal)
+        .id('usdValue')
+        .appendTo(totalDiv)
+        .elem.total = usdTotal;
     
     // Then save some space for the total deposits information
     this.elem('div').appendTo(totalDiv)
@@ -303,43 +272,46 @@ function updateTotals() {
         .child(this.elem('span').id('percentGain').innerHTML('<b>0%</b>').elem);
     
     // Then display the sum of each coin across all accounts
-    var totals = {};
     var balances = document.getElementsByClassName('walletBalance');
-    for (var i = 0; i < balances.length; ++i) {
-        var elem = balances[i];
-        var currency = elem.currency;
-        if (totals[currency] === undefined) {
-            totals[currency] = 0;
-        }
-        totals[currency] += parseFloat(elem.innerHTML);
-    }
-
     if (balances.length > 0) {
-    var table = this.elem('table')
-        .child(this.elem('tr')
-            .child(this.elem('th').content("Coin").elem)
-            .child(this.elem('th').content('Total Balance (across all accounts)').elem)
-            .child(this.elem('th').content('Total in USD').elem)
-            .child(this.elem('th').content('Percent of total').elem)
-            .elem)
-        .elem;
-    
-    for (var key in totals) {
-        var usd = 0;
-        var elems = document.getElementsByClassName(key + 'usd');
-        for (var ndx = 0; ndx < elems.length; ++ndx) {
-            var element = elems[ndx];
-            usd += parseFloat(element.innerHTML);
+        var totals = {};
+        // For each balance, increment an overall counter
+        for (var i = 0; i < balances.length; ++i) {
+            var elem = balances[i];
+            var currency = elem.currency;
+            if (totals[currency] === undefined) {
+                totals[currency] = 0;
+            }
+            totals[currency] += parseFloat(elem.innerHTML);
         }
         
-        this.elem('tr')
-            .child(this.elem('td').content(key).elem)
-            .child(this.elem('td').content(totals[key]).elem)
-            .child(this.elem('td').content('$' + usd).elem)
-            .child(this.elem('td').content(((usd / usdTotal) * 100).toFixed(8) + "%").elem)
-            .appendTo(table);
-    }
-    totalDiv.append(table);
+        // Then create the title row
+        var table = this.elem('table')
+            .child(this.elem('tr')
+                .child(this.elem('th').content("Coin").elem)
+                .child(this.elem('th').content('Total Balance (across all accounts)').elem)
+                .child(this.elem('th').content('Total in USD').elem)
+                .child(this.elem('th').content('Percent of total').elem)
+                .elem)
+            .elem;
+        
+        // Finally for each currency, build the info row
+        for (var key in totals) {
+            var usd = 0;
+            var elems = document.getElementsByClassName(key + 'usd');
+            for (var ndx = 0; ndx < elems.length; ++ndx) {
+                var element = elems[ndx];
+                usd += parseFloat(element.innerHTML);
+            }
+            
+            this.elem('tr')
+                .child(this.elem('td').content(key).elem)
+                .child(this.elem('td').content(totals[key]).elem)
+                .child(this.elem('td').content('$' + usd).elem)
+                .child(this.elem('td').content(((usd / usdTotal) * 100).toFixed(8) + "%").elem)
+                .appendTo(table);
+        }
+        totalDiv.append(table);
     }
     
     dropChildren(walletTotals);
@@ -428,23 +400,27 @@ function updateTransactions() {
                 elem('p').content(date).appendTo(transactionElem);
             }
             
+            // Update the accordion with necessary information
+            // First the USD information
             sumDepositsElem.innerHTML = 'Total USD deposits: ' + deposits['USD'];
             totalUsdDeposited += deposits['USD'];
             sumWithdrawalsElem.innerHTML = 'Total USD withdrawals: ' + withdrawals['USD'];
             totalUsdDeposited -= withdrawals['USD'];
-            
+            // Then the complete history
             var titleElem = elem('h2').content("Transactions").elem;
             var holderElem = document.getElementById(id + 'transactions');
             dropChildren(holderElem);
             holderElem.append(buildAccordion(titleElem, content));
         }
         
+        totalUsdDeposited = decimalPlaces(totalUsdDeposited, 4);
+        
         // Finish out by updating the account's gain percentage (as a result of USD deposited)
         document.getElementById('totalUsdDeposited').innerHTML = '$' + totalUsdDeposited;
         var accountTotal = document.getElementById('usdValue').total;
         var delta = accountTotal - totalUsdDeposited;
         document.getElementById('totalUsdEarned').innerHTML = '$' + delta;
-        var percentGain = (delta / totalUsdDeposited) * 100;
+        var percentGain = decimalPlaces((delta / totalUsdDeposited) * 100, 4);
         document.getElementById('percentGain').innerHTML = '<b>' + percentGain + '%</b>';
     });
 };
