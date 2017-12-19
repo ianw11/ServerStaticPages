@@ -65,21 +65,27 @@ html {
     margin-top: 15px;
     margin-bottom: 40px;
     
-    width: 45%;
+    width: 70%;
     margin-left: auto;
     margin-right: auto;
     
     text-align: center;
 }
 
+.mousePointer {
+    cursor: pointer;
+}
+
 .account {
     border-radius: 50px;
     border: 3px solid #fff;
     padding: 10px;
-    width: 50%;
+    width: 65%;
     margin-bottom: 20px;
     margin-left: auto;
     margin-right: auto;
+    
+    text-align: center;
 }
 .up {
     background-color: #B9C1C0;
@@ -101,6 +107,13 @@ html {
 .orange {
     background-color: orange;
     font-weight: bold;
+}
+
+.blueText {
+    color: blue;
+}
+.greenText {
+    color: green;
 }
 
 table {

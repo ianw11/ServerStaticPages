@@ -1,5 +1,7 @@
 var ENDPOINT = '/crypto/';
 
+var id;
+
 window.onload = function() {
     // The buttons that open or submit a new account
     document.getElementById('addAccountPopup').onclick = addAccountPopup;
@@ -94,8 +96,24 @@ function updateWallets() {
             isUp = !isUp;
             
             elem('h2')
+                .className('blueText').className('mousePointer')
+                .id(account.id)
                 .content(account.nickname + " (" + account.displayName + " " + account.apiTrunc + "...)")
-                .appendTo(accountDiv);
+                .appendTo(accountDiv)
+                .onclick(function() {
+                    id = this.id;
+                    document.getElementById('nicknameModal').style.display = 'block';
+                    document.getElementById('nickname').value = '';
+                });
+            
+            // Delete button
+            elem('button').innerHTML('DELETE EXCHANGE').className('red').className('mousePointer').id(account.id).appendTo(accountDiv)
+                .onclick(function() {
+                    var param = { id : this.id };
+                    sendRequest('DELETE', 'exchange', JSON.stringify(param), function() {
+                        updateWallets();
+                    });
+                });
             
             if (account.wallets.length > 0) {
             
@@ -140,28 +158,11 @@ function updateWallets() {
             }
             
             // Account total
-            elem('h3').innerHTML('Account total in USD').appendTo(accountDiv);
-            elem('p').className('accountTotal')
+            elem('p').innerHTML('<b>Account total in USD</b>').appendTo(accountDiv);
+            elem('h2').className('accountTotal').className('greenText')
                 .id(account.id + 'total')
                 .innerHTML('0.00')
                 .appendTo(accountDiv);
-            
-            // Nickname button
-            elem('button').innerHTML('Set Nickname').className('orange').id(account.id).appendTo(accountDiv)
-                .onclick(function() {
-                    var id = this.id;
-                    document.getElementById('nicknameModal').style.display = 'block';
-                    document.getElementById('nickname').value = '';
-                });
-            
-            // Delete button
-            elem('button').innerHTML('DELETE EXCHANGE').className('red').id(account.id).appendTo(accountDiv)
-                .onclick(function() {
-                    var param = { id : this.id };
-                    sendRequest('DELETE', 'exchange', JSON.stringify(param), function() {
-                        updateWallets();
-                    });
-                });
             
             // Space then the transactions accordion
             elem('p').appendTo(accountDiv);
@@ -217,7 +218,8 @@ function updateConversions() {
             }
             
             var accountTotalElem = document.getElementById(account.id + 'total');
-            accountTotalElem.innerHTML = accountSum;
+            accountTotalElem.innerHTML = '$' + accountSum;
+            accountTotalElem.accountSum = accountSum;
             
             for (var ndx in account.conversions) {
                 var currency = account.conversions[ndx].from;
@@ -247,7 +249,7 @@ function updateTotals() {
     var usdTotal = 0;
     for (var i = 0; i < items.length; ++i) {
         var element = items[i];
-        var value = parseFloat(element.innerHTML);
+        var value = parseFloat(element.accountSum);
         usdTotal += value;
     }
     usdTotal = decimalPlaces(usdTotal, 4);
