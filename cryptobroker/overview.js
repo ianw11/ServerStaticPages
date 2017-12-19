@@ -90,7 +90,7 @@ function updateWallets() {
         for (var tag in result.data) {
             var account = result.data[tag];
             
-            var accountDiv = elem('div').className(isUp ? 'accountUp' : 'accountDown').elem;
+            var accountDiv = elem('div').className('account').className(isUp ? 'up' : 'down').elem;
             isUp = !isUp;
             
             elem('h2')
@@ -294,7 +294,7 @@ function updateTotals() {
             .innerHTML('<b>(Update Transactions to view)</b>')
             .id('totalUsdDeposited').elem)
         .child(this.elem('br').elem)
-        .child(this.elem('label').innerHTML('Difference:  ').elem)
+        .child(this.elem('label').innerHTML('Gain:  ').elem)
         .child(this.elem('span')
             .innerHTML('<b>(Update Transactions to view)</b>')
             .id('totalUsdEarned').elem)
@@ -313,7 +313,8 @@ function updateTotals() {
         }
         totals[currency] += parseFloat(elem.innerHTML);
     }
-    
+
+    if (balances.length > 0) {
     var table = this.elem('table')
         .child(this.elem('tr')
             .child(this.elem('th').content("Coin").elem)
@@ -339,12 +340,18 @@ function updateTotals() {
             .appendTo(table);
     }
     totalDiv.append(table);
+    }
     
     dropChildren(walletTotals);
     walletTotals.append(totalDiv);
+    updateTransactions();
 };
 
 function updateTransactions() {
+    document.getElementById('totalUsdDeposited').innerHTML = 'Updating';
+    document.getElementById('totalUsdEarned').innerHTML = '';
+    document.getElementById('percentGain').innerHTML = '';
+
     sendRequest('GET', 'transactions', null, function(res) {
         var totalUsdDeposited = 0;
         for (var id in res.data) {

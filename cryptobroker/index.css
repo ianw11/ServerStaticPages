@@ -1,7 +1,9 @@
 html {
     background-image: url("/cryptobroker/background.jpg");
-    background-size: auto;
+    background-size: cover;
     background-repeat: no-repeat;
+    background-position: right top;
+    background-attachment: fixed;
     /* Default all fonts to Arial */
     font-family: "Arial", Arial, serif;
 }
@@ -44,6 +46,9 @@ button {
     /* Font information */
     font-size: 28px;
     text-align: center;
+}
+button:disabled {
+    background-color: rgb(211, 211, 211);
 }
 
 input {

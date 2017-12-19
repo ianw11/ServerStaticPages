@@ -94,7 +94,13 @@ function register() {
         registerErrorElem.innerHTML = '';
         
         if (success) {
-            registerSuccessElem.innerHTML = 'Success! Please log in now';
+            self.disabled = true;
+            registerSuccessElem.innerHTML = 'Success! Logging you in';
+            performLogin(email, password, function(message) {
+                if (message !== undefined) {
+                    regiserErrorElem.innerHTML = message;
+                }
+            });
         } else {
             registerErrorElem.innerHTML = message;
         }
