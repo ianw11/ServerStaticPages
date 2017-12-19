@@ -87,8 +87,8 @@ function updateWallets() {
         
     sendRequest('GET', 'wallets', null, function(result) {
         var isUp = false;
-        for (var tag in result.data) {
-            var account = result.data[tag];
+        for (var ndx in result.data.accounts) {
+            var account = result.data.accounts[ndx];
             
             var accountDiv = elem('div').className('account').className(isUp ? 'up' : 'down').elem;
             isUp = !isUp;
