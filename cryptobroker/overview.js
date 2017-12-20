@@ -115,16 +115,11 @@ function updateWallets() {
                     document.getElementById('nickname').value = '';
                 });
             
-            // Delete button
-            /*
-            elem('button').innerHTML('DELETE EXCHANGE').className('red').className('mousePointer').id(account.id).appendTo(accountDiv)
-                .onclick(function() {
-                    var param = { id : this.id };
-                    sendRequest('DELETE', 'exchange', JSON.stringify(param), function() {
-                        updateWallets();
-                    });
-                });
-            */
+            // Account total
+            elem('h1').className('accountTotal').className('greenText')
+                .id(account.id + 'total')
+                .innerHTML('0.00')
+                .appendTo(accountDiv);
             
             if (account.wallets.length > 0) {
             
@@ -167,13 +162,6 @@ function updateWallets() {
                 }
             
             }
-            
-            // Account total
-            elem('p').innerHTML('<b>Account total in USD</b>').appendTo(accountDiv);
-            elem('h2').className('accountTotal').className('greenText')
-                .id(account.id + 'total')
-                .innerHTML('0.00')
-                .appendTo(accountDiv);
             
             // Space then the transactions accordion
             elem('p').appendTo(accountDiv);
