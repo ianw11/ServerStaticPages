@@ -6,6 +6,11 @@ html {
     background-size: cover;
 }
 
+button {
+    border: 1px solid black;
+    border-radius: 10px;
+}
+
 /*
  * DROPDOWN MENU STYLES
  */
@@ -97,6 +102,7 @@ html {
 .green {
     background-color: green;
     font-weight: bold;
+    color: white;
 }
 .yellow {
     background-color: yellow;
@@ -164,7 +170,7 @@ table {
     background-color: rgba(0, 0, 0, 0.4);
 }
 .modal-content {
-    background-color: #fefefe;
+    background-color: #eeeeee;
     margin: 15% auto;
     padding: 20px;
     border: 1px solid #888;

@@ -19,6 +19,15 @@ window.onload = function() {
         modalCloses[ndx].onclick = closeModal;
     }
     
+    // Also set up the modal delete button
+    document.getElementById('deleteAccountModalButton').onclick = function() {
+        var param = { id : id };
+        sendRequest('DELETE', 'exchange', JSON.stringify(param), function() {
+            closeModal();
+            updateWallets();
+        });
+    };
+    
     // Request exchanges from server
     sendRequest('GET', 'exchanges', null, function(result) {
         var select = document.getElementById('exchangeSelect');
@@ -107,6 +116,7 @@ function updateWallets() {
                 });
             
             // Delete button
+            /*
             elem('button').innerHTML('DELETE EXCHANGE').className('red').className('mousePointer').id(account.id).appendTo(accountDiv)
                 .onclick(function() {
                     var param = { id : this.id };
@@ -114,6 +124,7 @@ function updateWallets() {
                         updateWallets();
                     });
                 });
+            */
             
             if (account.wallets.length > 0) {
             
