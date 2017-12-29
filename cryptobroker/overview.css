@@ -67,17 +67,23 @@ button:hover {
 .totals {
     background-color: #00B159;
 
-    border-radius: 75px;
+    border-radius: 20px;
     border: 1px solid #c6c6c6;
     padding: 10px;
     margin-top: 15px;
     margin-bottom: 40px;
     
-    width: 70%;
+    width: 45%;
     margin-left: auto;
     margin-right: auto;
     
     text-align: center;
+}
+/* Landscape phone to portrait tablet */
+@media (max-width: 767px) {
+    .totals {
+        width: 70%;
+    }
 }
 
 .mousePointer {
@@ -85,15 +91,21 @@ button:hover {
 }
 
 .account {
-    border-radius: 75px;
+    border-radius: 20px;
     border: 1px solid #c6c6c6;
     padding: 10px;
-    width: 65%;
+    width: 40%;
     margin-bottom: 20px;
     margin-left: auto;
     margin-right: auto;
     
     text-align: center;
+}
+/* Landscape phone to portrait tablet */
+@media (max-width: 767px) {
+    .account {
+        width: 65%;
+    }
 }
 .up {
     background-color: #B9C1C0;
