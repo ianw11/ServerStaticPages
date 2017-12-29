@@ -8,7 +8,7 @@ html {
 
 button {
     border: 1px solid black;
-    border-radius: 10px;
+    border-radius: 20px;
 }
 button:hover {
     cursor: pointer;
@@ -19,10 +19,10 @@ button:hover {
  */
 
 .dropbutton {
+    border: 1px solid #fff;
     background-color: orange;
     padding: 16px;
     font-size: 20px;
-    border: none;
 }
 .dropdown {
     display: inline-block;
@@ -68,7 +68,7 @@ button:hover {
     background-color: #00B159;
 
     border-radius: 100px;
-    border: 4px solid #fff;
+    border: 1px solid #fff;
     padding: 10px;
     margin-top: 15px;
     margin-bottom: 40px;
@@ -85,8 +85,8 @@ button:hover {
 }
 
 .account {
-    border-radius: 50px;
-    border: 3px solid #fff;
+    border-radius: 100px;
+    border: 1px solid #fff;
     padding: 10px;
     width: 65%;
     margin-bottom: 20px;
