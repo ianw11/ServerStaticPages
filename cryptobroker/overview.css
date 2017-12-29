@@ -80,7 +80,7 @@ button:hover {
     text-align: center;
 }
 /* Landscape phone to portrait tablet */
-@media (max-width: 767px) {
+@media (max-width: 1079px) {
     .totals {
         width: 70%;
     }
@@ -102,7 +102,7 @@ button:hover {
     text-align: center;
 }
 /* Landscape phone to portrait tablet */
-@media (max-width: 767px) {
+@media (max-width: 1079px) {
     .account {
         width: 65%;
     }
