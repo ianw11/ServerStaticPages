@@ -10,6 +10,7 @@ window.onload = function() {
     document.getElementById('updateWalletsButton').onclick = updateWallets;
     document.getElementById('updateConversionsButton').onclick = updateConversions;
     document.getElementById('updateTransactions').onclick = updateTransactions;
+    //document.getElementById('refreshBackgroundButton').onclick = refreshBackground;
     document.getElementById('logoutButton').onclick = logout;
     document.getElementById('setNickname').onclick = setNickname;
     
@@ -44,6 +45,12 @@ window.onload = function() {
     }, function() {
         logout(false);
     });
+};
+
+function refreshBackground() {
+    var html = document.getElementsByTagName('html')[0];
+    html.style.backgroundImage = 'none';
+    html.style.backgroundImage = 'url("/cryptobackground")';
 };
 
 function logout() {
