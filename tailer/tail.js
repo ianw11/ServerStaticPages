@@ -19,6 +19,7 @@ window.onload = function() {
    socket.onclose = function(event) {
       console.log(event);
       text("Socket closed");
+      dropChildren(document.getElementById("availableFiles"));
       socket = null;
    };
    addSocketCallback("LIST", list);
