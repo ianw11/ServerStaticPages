@@ -1,5 +1,5 @@
-//var endpoint = 'localhost:8100';
-var endpoint = 'nectarsac.com';
+//var endpoint = 'ws://localhost:8100';
+var endpoint = 'wss://nectarsac.com';
 
 var socket;
 var _socket_callbacks = {};
@@ -8,7 +8,7 @@ var lines = [];
 var autoScroll = false;
 
 window.onload = function() {
-   socket = new WebSocket("ws://" + endpoint + "/logtailsocket");
+   socket = new WebSocket(endpoint + "/logtailsocket");
    
    socket.onopen = function() {
       sendSocketData(["LIST"]);
@@ -19,6 +19,7 @@ window.onload = function() {
    socket.onclose = function(event) {
       console.log(event);
       text("Socket closed");
+      socket = null;
    };
    addSocketCallback("LIST", list);
    addSocketCallback("TEXT", text);
