@@ -96,14 +96,19 @@ function addAccount() {
  * THE MAIN METHODS
  */
 
-function updateWallets() {
+function updateWallets(e) {
     var updateButton = document.getElementById('updateWalletsButton');
     updateButton.disabled = true;
 
     var output = document.getElementById('wallets');
     dropChildren(output);
+    
+    var forceUpdate = false;
+    if (e) {
+        forceUpdate = true;
+    }
         
-    sendRequest('GET', 'wallets', null, function(result) {
+    sendRequest('GET', 'wallets?forceWalletUpdate=' + forceUpdate, null, function(result) {
         var isUp = false;
         for (var ndx in result.data.accounts) {
             var account = result.data.accounts[ndx];
