@@ -142,7 +142,7 @@ function updateWallets(e) {
                 elem('tr')
                     .child(elem('th').innerHTML('CURRENCY').elem)
                     .child(elem('th').innerHTML('BALANCE').elem)
-                    .child(elem('th').innerHTML('USD CONVERSION (Last trade price)').elem)
+                    .child(elem('th').innerHTML('USD PRICE').elem)
                     .child(elem('th').innerHTML('USD TOTAL').elem)
                     .child(elem('th').innerHTML('Percent of Account').elem)
                     .appendTo(table);
@@ -239,7 +239,7 @@ function updateConversions() {
                 if (element === null) {
                     continue;
                 }
-                element.innerHTML = ((parseFloat(currencyTotalElem.innerHTML) / accountSum) * 100).toFixed(8) + "%";
+                element.innerHTML = ((parseFloat(currencyTotalElem.innerHTML) / accountSum) * 100).toFixed(4) + "%";
             }
         }
         
