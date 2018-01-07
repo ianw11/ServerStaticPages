@@ -223,7 +223,7 @@ function updateConversions() {
                 
                 var totalElem = document.getElementById(tag + 'total');
                 var balanceElem = document.getElementById(tag + 'balance');
-                var total = decimalPlaces(parseFloat(lastTradePrice) * parseFloat(balanceElem.innerHTML), 4);
+                var total = parseFloat(decimalPlaces(parseFloat(lastTradePrice) * parseFloat(balanceElem.innerHTML), 4));
                 totalElem.innerHTML = total;
                 accountSum += total;
             }
