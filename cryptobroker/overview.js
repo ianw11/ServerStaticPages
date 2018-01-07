@@ -155,7 +155,7 @@ function updateWallets(e) {
                     // THE ID IS <ACCOUNT_ID>+<CURRENCY>+balance
                     var balanceCell = elem('td').id(account.id + wallet.currency + 'balance')
                         .className('walletBalance')
-                        .innerHTML(wallet.balance)
+                        .innerHTML(decimalPlaces(wallet.balance, 4))
                         .elem;
                     balanceCell.currency = wallet.currency;
                     
