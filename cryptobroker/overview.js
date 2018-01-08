@@ -37,7 +37,12 @@ window.onload = function() {
         });
     };
     
-    sendRequest('GET', 'self', null, function(result) {
+    var selfUrlStr = 'self';
+    if (targetPersonId != null) {
+        selfUrlStr += '?targetPersonId=' + targetPersonId;
+    }
+    
+    sendRequest('GET', selfUrlStr, null, function(result) {
         var accountDiv = document.getElementById('account');
         var loggedInAs = result.data.loggedInAs;
         var viewing = result.data.viewing;
