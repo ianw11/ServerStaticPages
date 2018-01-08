@@ -2,10 +2,18 @@ var ENDPOINT = '/crypto/';
 
 var id;
 
+var targetPersonId = null;
+
 window.onload = function() {
+    var params = new URLSearchParams(location.search.slice(1));
+    targetPersonId = params.get("targetPersonId");
+    
     // The buttons that open or submit a new account
     document.getElementById('addAccountPopup').onclick = addAccountPopup;
     document.getElementById('addAccount').onclick = addAccount;
+    if (targetPersonId != null) {
+        document.getElementById('addAccountPopup').disabled = true;
+    }
     // The yellow update buttons
     document.getElementById('updateWalletsButton').onclick = updateWallets;
     document.getElementById('updateConversionsButton').onclick = updateConversions;
@@ -29,19 +37,24 @@ window.onload = function() {
         });
     };
     
-    // Request exchanges from server
-    sendRequest('GET', 'exchanges', null, function(result) {
-        var select = document.getElementById('exchangeSelect');
+    sendRequest('GET', 'self', null, function(result) {
         
-        var data = result.data;
-        for (var key in data) {
-            var option = document.createElement('option');
-            option.innerHTML = data[key];
-            option.value = key;
-            select.append(option);
-        }
-        
-        updateWallets();
+        // Request exchanges from server
+        sendRequest('GET', 'exchanges', null, function(result) {
+            var select = document.getElementById('exchangeSelect');
+            
+            var data = result.data;
+            for (var key in data) {
+                var option = document.createElement('option');
+                option.innerHTML = data[key];
+                option.value = key;
+                select.append(option);
+            }
+            
+            updateWallets();
+        }, function() {
+            logout(false);
+        });
     }, function() {
         logout(false);
     });
@@ -107,8 +120,13 @@ function updateWallets(e) {
     if (e) {
         forceUpdate = true;
     }
+    
+    var urlStr = 'wallets?forceWalletUpdate=' + forceUpdate;
+    if (targetPersonId != null) {
+        urlStr += "&targetPersonId=" + targetPersonId;
+    }
         
-    sendRequest('GET', 'wallets?forceWalletUpdate=' + forceUpdate, null, function(result) {
+    sendRequest('GET', urlStr, null, function(result) {
         var isUp = false;
         for (var ndx in result.data.accounts) {
             var account = result.data.accounts[ndx];
@@ -183,7 +201,6 @@ function updateWallets(e) {
             
             output.append(accountDiv);
         }
-        
         updateConversions();
         updateButton.disabled = false;
     }, function() {
@@ -202,7 +219,12 @@ function updateConversions() {
     loaderDiv.className = 'loader';
     walletTotals.append(loaderDiv);
     
-    sendRequest('GET', 'usdConversions', null, function(res) {
+    var urlStr = 'usdConversions';
+    if (targetPersonId != null) {
+        urlStr += "?targetPersonId=" + targetPersonId;
+    }
+    
+    sendRequest('GET', urlStr, null, function(res) {
         for (var tag in res.data) {
             var account = res.data[tag];
             
@@ -253,7 +275,7 @@ function updateConversions() {
 function updateTotals() {
     var walletTotals = document.getElementById('totals');
     
-    var totalDiv = this.elem('div').className('totals').elem;
+    var totalDiv = this.elem('div').elem;
     
     // First compute the total USD value based on the account total of each account
     var items = document.getElementsByClassName('accountTotal');
@@ -336,8 +358,13 @@ function updateTransactions() {
     document.getElementById('totalUsdDeposited').innerHTML = 'Updating';
     document.getElementById('totalUsdEarned').innerHTML = '';
     document.getElementById('percentGain').innerHTML = '';
+    
+    var urlStr = 'transactions';
+    if (targetPersonId != null) {
+        urlStr += "?targetPersonId=" + targetPersonId;
+    }
 
-    sendRequest('GET', 'transactions', null, function(res) {
+    sendRequest('GET', urlStr, null, function(res) {
         var totalUsdDeposited = 0;
         for (var id in res.data) {
             var transactions = res.data[id];

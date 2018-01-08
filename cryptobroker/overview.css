@@ -64,7 +64,7 @@ button:hover {
  * ACTUAL CONTENT STYLES
  */
 
-.totals {
+#totals {
     background-color: #00B159;
 
     border-radius: 20px;
