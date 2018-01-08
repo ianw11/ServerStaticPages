@@ -64,6 +64,12 @@ button:hover {
  * ACTUAL CONTENT STYLES
  */
 
+#account {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
 #totals {
     background-color: #00B159;
 

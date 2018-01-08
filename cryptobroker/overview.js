@@ -38,6 +38,15 @@ window.onload = function() {
     };
     
     sendRequest('GET', 'self', null, function(result) {
+        var accountDiv = document.getElementById('account');
+        var loggedInAs = result.data.loggedInAs;
+        var viewing = result.data.viewing;
+        var loggedInName = loggedInAs.first_name + ' ' + loggedInAs.last_name;
+        var viewingName = viewing.first_name + ' ' + viewing.last_name;
+        elem('p').content('Logged in as: ' + loggedInName).appendTo(accountDiv);
+        if (targetPersonId != null) {
+            elem('p').content('Viewing: ' + viewingName).appendTo(accountDiv);
+        }
         
         // Request exchanges from server
         sendRequest('GET', 'exchanges', null, function(result) {
