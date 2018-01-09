@@ -357,7 +357,7 @@ function updateTotals() {
                 .child(this.elem('td').content(key).elem)
                 .child(this.elem('td').content(totals[key]).elem)
                 .child(this.elem('td').content('$' + usd).elem)
-                .child(this.elem('td').content(((usd / usdTotal) * 100).toFixed(8) + "%").elem)
+                .child(this.elem('td').content(((usd / usdTotal) * 100).toFixed(4) + "%").elem)
                 .appendTo(table);
         }
         totalDiv.append(table);

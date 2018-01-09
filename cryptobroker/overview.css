@@ -17,7 +17,9 @@ button:hover {
 /*
  * DROPDOWN MENU STYLES
  */
-
+.menus {
+    position: fixed;
+}
 .dropbutton {
     border: 1px solid #fff;
     background-color: orange;
@@ -65,8 +67,9 @@ button:hover {
  */
 
 #account {
-    margin-left: auto;
-    margin-right: auto;
+    position: fixed;
+    right: 0;
+    background: white;
     text-align: center;
 }
 
