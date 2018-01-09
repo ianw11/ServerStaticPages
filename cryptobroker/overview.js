@@ -359,7 +359,7 @@ function updateTotals() {
             this.elem('tr')
                 .child(this.elem('td').content(key).elem)
                 .child(this.elem('td').content(decimalPlaces(totals[key], 4)).elem)
-                .child(this.elem('td').content('$' + usd).elem)
+                .child(this.elem('td').content('$' + decimalPlaces(usd, 2)).elem)
                 .child(this.elem('td').content(((usd / usdTotal) * 100).toFixed(4) + "%").elem)
                 .appendTo(table);
         }
