@@ -90,7 +90,7 @@ button:hover {
 }
 /* Landscape phone to portrait tablet */
 @media (max-width: 1079px) {
-    .totals {
+    #totals {
         width: 70%;
     }
 }
