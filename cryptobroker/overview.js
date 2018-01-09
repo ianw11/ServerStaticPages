@@ -350,12 +350,15 @@ function updateTotals() {
             var elems = document.getElementsByClassName(key + 'usd');
             for (var ndx = 0; ndx < elems.length; ++ndx) {
                 var element = elems[ndx];
+                if (element.innerHTML === '') {
+                    continue;
+                }
                 usd += parseFloat(element.innerHTML);
             }
             
             this.elem('tr')
                 .child(this.elem('td').content(key).elem)
-                .child(this.elem('td').content(totals[key]).elem)
+                .child(this.elem('td').content(decimalPlaces(totals[key], 4)).elem)
                 .child(this.elem('td').content('$' + usd).elem)
                 .child(this.elem('td').content(((usd / usdTotal) * 100).toFixed(4) + "%").elem)
                 .appendTo(table);
