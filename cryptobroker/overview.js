@@ -179,9 +179,12 @@ function updateWallets(e) {
                     .child(elem('th').innerHTML('Percent of Account').elem)
                     .appendTo(table);
                 
+                var timestamp = new Date().getTime();
+                
                 // With the header done, build the rows
                 for (var ndx in account.wallets) {
-                    var wallet = account.wallets[ndx];
+                    var walletInfo = account.wallets[ndx];
+                    var wallet = walletInfo.wallet;
                     
                     // Balance Cell
                     // THE ID IS <ACCOUNT_ID>+<CURRENCY>+balance
@@ -192,7 +195,7 @@ function updateWallets(e) {
                     balanceCell.currency = wallet.currency;
                     
                     // Build the full row
-                    elem('tr')
+                    elem('tr').title("Last Updated: " + walletInfo.lastUpdatedStr)
                         .child(elem('td').innerHTML(wallet.currency).elem)
                         .child(balanceCell)
                         // THE ID IS <ACCOUNT_ID>+<CURRENCY>
@@ -204,7 +207,6 @@ function updateWallets(e) {
                         .child(elem('td').id(account.id + wallet.currency + 'percent').elem)
                         .appendTo(table);
                 }
-            
             }
             
             // Space then the transactions accordion

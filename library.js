@@ -34,6 +34,10 @@ function elem(type) {
         content: function(content) {
             return this.innerHTML(content);
         },
+        title: function(title) {
+            this.elem.title = title;
+            return this;
+        },
         label: function(labelElem) {
             labelElem.htmlFor = this.elem;
             return this;
