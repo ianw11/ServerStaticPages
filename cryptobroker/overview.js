@@ -478,7 +478,7 @@ function updateTransactions() {
         document.getElementById('totalUsdDeposited').innerHTML = '$' + totalUsdDeposited;
         var accountTotal = document.getElementById('usdValue').total;
         var delta = accountTotal - totalUsdDeposited;
-        document.getElementById('totalUsdEarned').innerHTML = '$' + delta;
+        document.getElementById('totalUsdEarned').innerHTML = '$' + decimalPlaces(delta, 2);
         var percentGain = decimalPlaces((delta / totalUsdDeposited) * 100, 4);
         document.getElementById('percentGain').innerHTML = '<b>' + percentGain + '%</b>';
     });
