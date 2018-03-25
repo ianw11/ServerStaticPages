@@ -475,7 +475,7 @@ function updateTransactions() {
         totalUsdDeposited = decimalPlaces(totalUsdDeposited, 4);
         
         // Finish out by updating the account's gain percentage (as a result of USD deposited)
-        document.getElementById('totalUsdDeposited').innerHTML = '$' + totalUsdDeposited;
+        document.getElementById('totalUsdDeposited').innerHTML = '$' + decimalPlaces(totalUsdDeposited, 2);
         var accountTotal = document.getElementById('usdValue').total;
         var delta = accountTotal - totalUsdDeposited;
         document.getElementById('totalUsdEarned').innerHTML = '$' + decimalPlaces(delta, 2);
