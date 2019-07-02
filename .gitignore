@@ -1,3 +1,4 @@
 apks/
 draft/drafts/
 .DS_Store
+.well-known/

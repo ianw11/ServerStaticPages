@@ -21,7 +21,7 @@ window.onload = function() {
    });
    
    // Set up WebSocket
-   socket = new WebSocket("ws://"+endpoint+"/gamelobbysocket");
+   socket = new WebSocket("wss://"+endpoint+"/gamelobbysocket");
    socket.onopen = function(event) {
       console.log("Socket opened");
       console.log(event);
