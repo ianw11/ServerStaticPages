@@ -7,7 +7,11 @@ var startingEth;
 var currentPrice;
 var interestPercent;
 var durationYears;
+var durationMonths;
 var targetPrice;
+
+var showLockup;
+var showUnlock;
 
 var outputDiv;
 
@@ -36,9 +40,9 @@ window.onload = () => {
     }
 
     const inputMonths = document.getElementById('inputMonths');
-    durationYears = parseFloat(inputMonths.value) / 12;
+    durationMonths = parseFloat(inputMonths.value);
     inputMonths.onchange = (e) => {
-        durationYears = parseFloat(e.target.value) / 12;
+        durationMonths = parseFloat(e.target.value);
         notify();
     }
 
@@ -49,11 +53,21 @@ window.onload = () => {
         notify();
     }
 
+    document.getElementById('showLockup').onchange = (e) => {
+        showLockup = e.target.checked;
+        notify();
+    }
+
+    document.getElementById('showUnlock').onchange = (e) => {
+        showUnlock = e.target.checked;
+        notify();
+    }
+
     notify();
 };
 
 const notify = () => {
-    if (!startingEth || !currentPrice || !interestPercent || !durationYears || ! targetPrice) {
+    if (!startingEth || !currentPrice || !interestPercent || !durationMonths || ! targetPrice) {
         return;
     }
 
@@ -61,35 +75,39 @@ const notify = () => {
         outputDiv.removeChild(outputDiv.firstChild);
     }
 
+    durationYears = durationMonths / 12;
+
     let ethAmount = startingEth;
     const stages = [];
+    let ethSum = ethAmount;
     while (canReLeverage(ethAmount, currentPrice)) {
         const stageData = buildStage(ethAmount);
         ethAmount = stageData.eth;
         stages.push(stageData);
+
+        ethSum += ethAmount;
     }
 
-    outputDiv.append(document.createElement('hr'));
+    insertHR(outputDiv);
+
+    const midwayInformation = createH2();
+    midwayInformation.innerHTML = `${fixed(ethSum)} ETH under control now || ${fixed(ethAmount)} ETH available to use<br/><br/>Next steps are to unlock ETH when target price is hit`;
+    outputDiv.append(midwayInformation);
+
+    insertHR(outputDiv);
 
     for (let i = stages.length - 1; i >= 0; --i) {
         const stageData = stages[i];
         ethAmount = unrollStage(stageData, ethAmount);
     }
 
-    outputDiv.append(document.createElement('hr'));
+    insertHR(outputDiv);
 
-    const finalDiv = document.createElement('div');
-    const finalHeader = document.createElement('h2');
-    finalHeader.innerHTML = `At the end of the day, ${fixed(startingEth)} ETH is turned into ${fixed(ethAmount)} ETH`;
-    finalDiv.append(finalHeader);
-    const finalDetails = document.createElement('h3');
-    finalDetails.innerHTML = `Assuming it took ${durationYears} years for ETH to reach ${targetPrice}, this means the total return is ${fixed( (((ethAmount - startingEth)/startingEth)/durationYears)*100.0 )}%`;
-    finalDiv.append(finalDetails);
-    outputDiv.append(finalDiv);
+    buildResults(ethAmount);
 }
 
 const buildStage = (inputEth) => {
-    const dai = inputEth * currentPrice * DAI_PRODUCTION_RATIO;
+    const dai = Math.floor(inputEth * currentPrice * DAI_PRODUCTION_RATIO);
     const outputEth = dai / currentPrice;
 
     const effectivePercentage = (interestPercent / 100.0) * durationYears;
@@ -98,17 +116,19 @@ const buildStage = (inputEth) => {
     const repayment = dai + interest;
 
 
-    const div = document.createElement('div');
-    
-    const header = document.createElement('h2');
-    header.innerHTML = `${inputEth} ETH generates ${dai} DAI aka ${outputEth} ETH`
-    div.append(header);
+    if (showLockup) {
+        const div = createDiv();
+        
+        const header = createH2();
+        header.innerHTML = `${fixed(inputEth)} ETH generates ${dai} DAI (${fixed(outputEth)} ETH)`
+        div.append(header);
 
-    const details = document.createElement('h3');
-    details.innerHTML = `At ${effectivePercentage * 100.0}% over ${durationYears} years, total interest is: ${interest} for a repayment of ${repayment} DAI`
-    div.append(details);
+        const details = createH3();
+        details.innerHTML = `Total repayment of ${fixed(repayment)} DAI || Total interest: ${fixed(interest)} DAI (${fixed(effectivePercentage * 100.0)}% over ${fixed(durationYears)} years)`
+        div.append(details);
 
-    outputDiv.append(div);
+        outputDiv.append(div);
+    }
 
     return {
         lockedEth: inputEth,
@@ -130,16 +150,54 @@ const unrollStage = (stageData, ethAmount) => {
     ethAmount -= ethToLiquidate;
     ethAmount += lockedEth;
 
-    const div = document.createElement('div');
+    if (showUnlock) {
+        const div = createDiv();
 
-    const header = document.createElement('h2');
-    header.innerHTML = `${fixed(ethToLiquidate)} ETH (${fixed(repayment)} DAI) is taken from ${fixed(startingEthAmount)} to UNLOCK ${fixed(lockedEth)} bringing the TOTAL TO ${fixed(ethAmount)} ETH`;
-    div.append(header);
+        const header = createH2();
+        header.innerHTML = `${fixed(ethToLiquidate)} ETH unlocks ${fixed(lockedEth)} ETH`;
+        div.append(header);
 
-    outputDiv.append(div);
+        const details = createH3();
+        details.innerHTML = `Equivalent to ${fixed(repayment)} DAI to unlock || Starting ETH: ${fixed(startingEthAmount)} || Ending ETH: ${fixed(ethAmount)}`;
+        div.append(details);
+
+        outputDiv.append(div);
+    }
 
     return ethAmount;
 }
+
+const buildResults = (ethAmount) => {
+    const ethGained = ethAmount - startingEth;
+    const usdGained = ethGained * targetPrice;
+    const usdPerMonth = usdGained / durationMonths;
+
+    const finalDiv = createDiv();
+
+    const finalHeader = createH2();
+    finalHeader.innerHTML = `At the end of the day, ${fixed(startingEth)} ETH is turned into ${fixed(ethAmount)} ETH`;
+    finalDiv.append(finalHeader);
+
+    const gainDetails = createH3();
+    gainDetails.innerHTML = `${fixed(ethGained)} ETH gained || ${fixed(usdGained)} USD gained or ${fixed(usdPerMonth)} per month`;
+    finalDiv.append(gainDetails);
+
+    const finalDetails = createH3();
+    finalDetails.innerHTML = `Assuming it took ${fixed(durationYears)} years for ETH to reach ${targetPrice}, this means the total return is ${fixed( (((ethAmount - startingEth)/startingEth)/durationYears)*100.0 )}%`;
+    finalDiv.append(finalDetails);
+
+    outputDiv.append(finalDiv);
+}
+
+const insertHR = (parent) => parent.append(createHR());
+
+const createHR = () => document.createElement('hr');
+
+const createDiv = () => document.createElement('div');
+
+const createH2 = () => document.createElement('h2');
+
+const createH3 = () => document.createElement('h3');
 
 const fixed = (num) => num.toFixed(PRECISION);
 
