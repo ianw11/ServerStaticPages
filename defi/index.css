@@ -12,6 +12,10 @@ hr {
     font-size: 24px;
 }
 
+.tiny {
+    font-size: 6px;
+}
+
 input {
     font-size: 24;
     width: 50px;

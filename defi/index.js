@@ -5,8 +5,6 @@ https://community-development.makerdao.com/makerdao-mcd-faqs/faqs/liquidation
 const MINIMUM_DAI = 20;
 const MINIMUM_COLLATERALIZATION_RATIO = 1.5;
 
-const TRADE_FEE_PERCENTAGE = .99;
-
 const PRECISION = 6;
 
 var startingEth;
@@ -19,6 +17,8 @@ var targetPrice;
 var showLockup;
 var showUnlock;
 var liquidationRatio = 2.5;
+
+var tradeFeePercentage = .99;
 
 var outputDiv;
 
@@ -39,6 +39,8 @@ window.onload = () => {
         liquidationRatio = parseFloat(e.target.value) / 100;
         outputPercentage.innerHTML = `${fixed2(1 / liquidationRatio) * 100}`;
     });
+
+    initElement('inputPercentageCut', (e) => tradeFeePercentage = parseFloat(e.target.value) / 1000);
 
     notify();
 };
@@ -96,7 +98,7 @@ const buildStage = (inputEth) => {
     const lockedEth = inputEth;
 
     const dai = Math.floor(inputEth * currentPrice / liquidationRatio);
-    const outputEth = (dai / currentPrice) * TRADE_FEE_PERCENTAGE;
+    const outputEth = (dai / currentPrice) * tradeFeePercentage;
 
     const effectivePercentage = (interestPercent / 100.0) * durationYears;
     const interest = dai * effectivePercentage;
