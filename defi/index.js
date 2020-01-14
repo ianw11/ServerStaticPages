@@ -1,4 +1,3 @@
-const DAI_PRODUCTION_RATIO = .44;
 const MINIMUM_DAI = 20;
 
 const PRECISION = 6;
@@ -12,6 +11,7 @@ var targetPrice;
 
 var showLockup;
 var showUnlock;
+var productionRatio = .44;
 
 var outputDiv;
 
@@ -63,11 +63,17 @@ window.onload = () => {
         notify();
     }
 
+    const inputProductionRatio = document.getElementById('inputProductionRatio');
+    inputProductionRatio.onchange = (e) => {
+        productionRatio = parseFloat(e.target.value) / 100;
+        notify();
+    }
+
     notify();
 };
 
 const notify = () => {
-    if (!startingEth || !currentPrice || !interestPercent || !durationMonths || ! targetPrice) {
+    if (!startingEth || !currentPrice || !interestPercent || !durationMonths || !targetPrice || !productionRatio) {
         return;
     }
 
@@ -107,7 +113,7 @@ const notify = () => {
 }
 
 const buildStage = (inputEth) => {
-    const dai = Math.floor(inputEth * currentPrice * DAI_PRODUCTION_RATIO);
+    const dai = Math.floor(inputEth * currentPrice * productionRatio);
     const outputEth = dai / currentPrice;
 
     const effectivePercentage = (interestPercent / 100.0) * durationYears;
@@ -201,4 +207,4 @@ const createH3 = () => document.createElement('h3');
 
 const fixed = (num) => num.toFixed(PRECISION);
 
-const canReLeverage = (eth, price) => eth*price*DAI_PRODUCTION_RATIO >= MINIMUM_DAI;
+const canReLeverage = (eth, price) => eth*price*productionRatio >= MINIMUM_DAI;

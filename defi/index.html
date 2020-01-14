@@ -5,20 +5,29 @@
 <body>
     <div>
         Starting Eth:
-        <input id='inputStartingEth' type='number' value='1.2'>
+        <input id='inputStartingEth' type='number' value='1.2' min='0'>
         Current ETH/DAI price:
-        <input id='inputPrice' type='number' value='145'>
+        <input id='inputPrice' type='number' value='145' min='0'>
         Current loan percent:
-        <input id='inputPercent' type='number' value='5'>
-        <br>
+        <input id='inputPercent' type='number' value='6' max='100' min='0'>
+        <br />
         Number of MONTHS:
-        <input id='inputMonths' type='number' value='1'>
+        <input id='inputMonths' type='number' value='1' min='1'>
         Target ETH/DAI price:
-        <input id='inputEndingPrice' type='number'>
-        Show Lockup Steps:
-        <input id='showLockup' type='checkbox'>
-        Show Unlock Steps:
-        <input id='showUnlock' type='checkbox'>
+        <input id='inputEndingPrice' type='number' min='0'>
+        <br />
+        <span style='background: lightgrey'>
+            <label for='showLockup'>Show Lockup Steps:</label>
+            <input id='showLockup' type='checkbox'>
+        </span>
+        <span style='background: grey'>
+            <label for='showUnlock'>Show Unlock Steps:</label>
+            <input id='showUnlock' type='checkbox'>
+        </span>
+        <span style='background: lightgrey'>
+            Collateral Percent:
+            <input id='inputProductionRatio' type='number' value='44' max='66' min='1'>
+        </span>
     </div>
     <hr/>
     <div id='output'>
