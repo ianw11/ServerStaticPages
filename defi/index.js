@@ -85,7 +85,7 @@ const notify = () => {
     outputDiv.append(midwayInformation);
 
     const midwayCloser = createH3();
-    midwayCloser.innerHTML = `Total DAI repayment: ${totalDaiRepayment}`;
+    midwayCloser.innerHTML = `Total DAI repayment: ${fixed(totalDaiRepayment)}`;
     outputDiv.append(midwayCloser);
 
     insertHR(outputDiv);
