@@ -1,4 +1,11 @@
+/*
+https://community-development.makerdao.com/makerdao-mcd-faqs/faqs/liquidation
+*/
+
 const MINIMUM_DAI = 20;
+const MINIMUM_COLLATERALIZATION_RATIO = 1.5;
+
+const TRADE_FEE_PERCENTAGE = .99;
 
 const PRECISION = 6;
 
@@ -11,69 +18,42 @@ var targetPrice;
 
 var showLockup;
 var showUnlock;
-var productionRatio = .44;
+var liquidationRatio = 2.5;
 
 var outputDiv;
 
 window.onload = () => {
     outputDiv = document.getElementById('output');
 
-    const inputStartingEth = document.getElementById('inputStartingEth');
-    startingEth = parseFloat(inputStartingEth.value);
-    inputStartingEth.onchange = (e) => {
-        startingEth = parseFloat(e.target.value);
-        notify();
-    }
+    initElement('inputStartingEth', (e) => startingEth = parseFloat(e.target.value));
+    initElement('inputPrice', (e) => currentPrice = parseFloat(e.target.value));
+    initElement('inputPercent', (e) => interestPercent = parseFloat(e.target.value));
+    initElement('inputMonths', (e) => durationMonths = parseFloat(e.target.value));
+    initElement('inputEndingPrice', (e) => targetPrice = parseFloat(e.target.value));
 
-    const inputPrice = document.getElementById('inputPrice');
-    currentPrice = parseFloat(inputPrice.value);
-    inputPrice.onchange = (e) => {
-        currentPrice = parseFloat(e.target.value);
-        notify();
-    }
+    initElement('showLockup', (e) => showLockup = e.target.checked);
+    initElement('showUnlock', (e) => showUnlock = e.target.checked);
 
-    const inputPercent = document.getElementById('inputPercent');
-    interestPercent = parseFloat(inputPercent.value);
-    inputPercent.onchange = (e) => {
-        interestPercent = parseFloat(e.target.value);
-        notify();
-    }
-
-    const inputMonths = document.getElementById('inputMonths');
-    durationMonths = parseFloat(inputMonths.value);
-    inputMonths.onchange = (e) => {
-        durationMonths = parseFloat(e.target.value);
-        notify();
-    }
-
-    const inputEndingPrice = document.getElementById('inputEndingPrice');
-    targetPrice = parseFloat(inputEndingPrice.value);
-    inputEndingPrice.onchange = (e) => {
-        targetPrice = parseFloat(e.target.value);
-        notify();
-    }
-
-    document.getElementById('showLockup').onchange = (e) => {
-        showLockup = e.target.checked;
-        notify();
-    }
-
-    document.getElementById('showUnlock').onchange = (e) => {
-        showUnlock = e.target.checked;
-        notify();
-    }
-
-    const inputProductionRatio = document.getElementById('inputProductionRatio');
-    inputProductionRatio.onchange = (e) => {
-        productionRatio = parseFloat(e.target.value) / 100;
-        notify();
-    }
+    const outputPercentage = document.getElementById('outputPercentage');
+    initElement('inputLiquidationRatio', (e) => {
+        liquidationRatio = parseFloat(e.target.value) / 100;
+        outputPercentage.innerHTML = `${fixed2(1 / liquidationRatio) * 100}`;
+    });
 
     notify();
 };
 
+const initElement = (tag, callback) => {
+    const elem = document.getElementById(tag);
+    callback({target: elem});
+    elem.onchange = (e) => {
+        callback(e);
+        notify();
+    }
+};
+
 const notify = () => {
-    if (!startingEth || !currentPrice || !interestPercent || !durationMonths || !targetPrice || !productionRatio) {
+    if (!startingEth || !currentPrice || !interestPercent || !durationMonths || !targetPrice || !liquidationRatio) {
         return;
     }
 
@@ -113,31 +93,34 @@ const notify = () => {
 }
 
 const buildStage = (inputEth) => {
-    const dai = Math.floor(inputEth * currentPrice * productionRatio);
-    const outputEth = dai / currentPrice;
+    const lockedEth = inputEth;
+
+    const dai = Math.floor(inputEth * currentPrice / liquidationRatio);
+    const outputEth = (dai / currentPrice) * TRADE_FEE_PERCENTAGE;
 
     const effectivePercentage = (interestPercent / 100.0) * durationYears;
     const interest = dai * effectivePercentage;
 
     const repayment = dai + interest;
 
+    const liquidationPrice = ((1.0*dai) * MINIMUM_COLLATERALIZATION_RATIO)/lockedEth;
 
     if (showLockup) {
         const div = createDiv();
         
         const header = createH2();
-        header.innerHTML = `${fixed(inputEth)} ETH generates ${dai} DAI (${fixed(outputEth)} ETH)`
+        header.innerHTML = `${fixed(lockedEth)} ETH generates ${dai} DAI (${fixed(outputEth)} ETH)`
         div.append(header);
 
         const details = createH3();
-        details.innerHTML = `Total repayment of ${fixed(repayment)} DAI || Total interest: ${fixed(interest)} DAI (${fixed(effectivePercentage * 100.0)}% over ${fixed(durationYears)} years)`
+        details.innerHTML = `Total repayment of ${fixed2(repayment)} DAI || Total interest: ${fixed2(interest)} DAI (${fixed2(effectivePercentage * 100.0)}% over ${fixed2(durationYears)} years) || Liquidation Price: $${fixed2(liquidationPrice)}`
         div.append(details);
 
         outputDiv.append(div);
     }
 
     return {
-        lockedEth: inputEth,
+        lockedEth: lockedEth,
         eth: outputEth,
         dai: dai,
         effectivePercentage: effectivePercentage,
@@ -164,7 +147,7 @@ const unrollStage = (stageData, ethAmount) => {
         div.append(header);
 
         const details = createH3();
-        details.innerHTML = `Equivalent to ${fixed(repayment)} DAI to unlock || Starting ETH: ${fixed(startingEthAmount)} || Ending ETH: ${fixed(ethAmount)}`;
+        details.innerHTML = `Equivalent to ${fixed2(repayment)} DAI to unlock || Starting ETH: ${fixed(startingEthAmount)} || Ending ETH: ${fixed(ethAmount)}`;
         div.append(details);
 
         outputDiv.append(div);
@@ -185,11 +168,11 @@ const buildResults = (ethAmount) => {
     finalDiv.append(finalHeader);
 
     const gainDetails = createH3();
-    gainDetails.innerHTML = `${fixed(ethGained)} ETH gained || ${fixed(usdGained)} USD gained or ${fixed(usdPerMonth)} per month`;
+    gainDetails.innerHTML = `${fixed(ethGained)} ETH gained || ${fixed2(usdGained)} USD gained or ${fixed2(usdPerMonth)} per month`;
     finalDiv.append(gainDetails);
 
     const finalDetails = createH3();
-    finalDetails.innerHTML = `Assuming it took ${fixed(durationYears)} years for ETH to reach ${targetPrice}, this means the total return is ${fixed( (((ethAmount - startingEth)/startingEth)/durationYears)*100.0 )}%`;
+    finalDetails.innerHTML = `Assuming it took ${fixed2(durationYears)} years for ETH to reach ${targetPrice}, this means the total return is ${fixed2( (((ethAmount - startingEth)/startingEth)/durationYears)*100.0 )}%`;
     finalDiv.append(finalDetails);
 
     outputDiv.append(finalDiv);
@@ -197,14 +180,23 @@ const buildResults = (ethAmount) => {
 
 const insertHR = (parent) => parent.append(createHR());
 
-const createHR = () => document.createElement('hr');
+const createHR = () => elem('hr');
 
-const createDiv = () => document.createElement('div');
+const createDiv = (styleClass) => elem('div', styleClass);
 
-const createH2 = () => document.createElement('h2');
+const createH2 = (styleClass) => elem('h2', styleClass);
 
-const createH3 = () => document.createElement('h3');
+const createH3 = (styleClass) => elem('h3', styleClass);
+
+const elem = (tag, styleClass = null) => {
+    const e = document.createElement(tag);
+    if (styleClass) {
+        e.classList.add(styleClass);
+    }
+    return e;
+}
 
 const fixed = (num) => num.toFixed(PRECISION);
+const fixed2 = (num) => num.toFixed(2);
 
-const canReLeverage = (eth, price) => eth*price*productionRatio >= MINIMUM_DAI;
+const canReLeverage = (eth, price) => eth*price/liquidationRatio >= MINIMUM_DAI;

@@ -1,0 +1,51 @@
+* {
+    text-align: center;
+    float: center;
+    width: max-content;
+}
+
+hr {
+    width: 100%;
+}
+
+.large {
+    font-size: 24px;
+}
+
+input {
+    font-size: 24;
+    width: 50px;
+}
+
+.inputmedium {
+    width: 75px;
+}
+
+.inputwide {
+    width: 100px;
+}
+
+input[type=checkbox] {
+    -webkit-transform: scale(2);
+    transform: scale(2);
+}
+
+.lightgreen {
+    background: lightgreen;
+}
+
+.lightgrey {
+    background: lightgrey;
+}
+
+.header {
+    padding-bottom: 5px;
+}
+
+.alert {
+    background: pink;
+}
+
+.warn {
+    background: lightyellow;
+}
