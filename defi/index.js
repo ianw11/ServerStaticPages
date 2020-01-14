@@ -158,6 +158,8 @@ const unrollStage = (stageData, ethAmount) => {
 
 const buildResults = (ethAmount) => {
     const ethGained = ethAmount - startingEth;
+    const ethPercent = (ethGained / startingEth) * 100.0;
+
     const usdGained = ethGained * targetPrice;
     const usdPerMonth = usdGained / durationMonths;
 
@@ -168,26 +170,24 @@ const buildResults = (ethAmount) => {
     finalDiv.append(finalHeader);
 
     const gainDetails = createH3();
-    gainDetails.innerHTML = `${fixed(ethGained)} ETH gained || ${fixed2(usdGained)} USD gained or ${fixed2(usdPerMonth)} per month`;
+    gainDetails.innerHTML = `${fixed(ethGained)} ETH gained (${fixed2(ethPercent)}% in ${durationMonths} months) || $${fixed2(usdGained)} gained, or $${fixed2(usdPerMonth)} per month`;
     finalDiv.append(gainDetails);
 
+    /*
     const finalDetails = createH3();
     finalDetails.innerHTML = `Assuming it took ${fixed2(durationYears)} years for ETH to reach ${targetPrice}, this means the total return is ${fixed2( (((ethAmount - startingEth)/startingEth)/durationYears)*100.0 )}%`;
     finalDiv.append(finalDetails);
+    */
 
     outputDiv.append(finalDiv);
 }
 
 const insertHR = (parent) => parent.append(createHR());
-
 const createHR = () => elem('hr');
 
 const createDiv = (styleClass) => elem('div', styleClass);
-
 const createH2 = (styleClass) => elem('h2', styleClass);
-
 const createH3 = (styleClass) => elem('h3', styleClass);
-
 const elem = (tag, styleClass = null) => {
     const e = document.createElement(tag);
     if (styleClass) {
