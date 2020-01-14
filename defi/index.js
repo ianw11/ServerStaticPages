@@ -68,19 +68,25 @@ const notify = () => {
     let ethAmount = startingEth;
     const stages = [];
     let ethSum = ethAmount;
+    let totalDaiRepayment = 0;
     while (canReLeverage(ethAmount, currentPrice)) {
         const stageData = buildStage(ethAmount);
         ethAmount = stageData.eth;
         stages.push(stageData);
 
         ethSum += ethAmount;
+        totalDaiRepayment += stageData.repayment;
     }
 
     insertHR(outputDiv);
 
     const midwayInformation = createH2();
-    midwayInformation.innerHTML = `${fixed(ethSum)} ETH under control now || ${fixed(ethAmount)} ETH available to use<br/><br/>Next steps are to unlock ETH when target price is hit`;
+    midwayInformation.innerHTML = `${fixed(ethSum)} ETH under control now || ${fixed(ethAmount)} ETH available to use`;
     outputDiv.append(midwayInformation);
+
+    const midwayCloser = createH3();
+    midwayCloser.innerHTML = `Total DAI repayment: ${totalDaiRepayment}`;
+    outputDiv.append(midwayCloser);
 
     insertHR(outputDiv);
 
@@ -136,7 +142,7 @@ const unrollStage = (stageData, ethAmount) => {
     const {repayment, lockedEth} = stageData;
     const ethToLiquidate = repayment / targetPrice;
     if (ethToLiquidate > ethAmount) {
-        throw new Exception('Unable to liquidate');
+        throw Exception('Unable to liquidate');
     }
     ethAmount -= ethToLiquidate;
     ethAmount += lockedEth;
@@ -161,6 +167,7 @@ const unrollStage = (stageData, ethAmount) => {
 const buildResults = (ethAmount) => {
     const ethGained = ethAmount - startingEth;
     const ethPercent = (ethGained / startingEth) * 100.0;
+    const annualizedPercent = ethPercent / durationYears;
 
     const usdGained = ethGained * targetPrice;
     const usdPerMonth = usdGained / durationMonths;
@@ -172,7 +179,7 @@ const buildResults = (ethAmount) => {
     finalDiv.append(finalHeader);
 
     const gainDetails = createH3();
-    gainDetails.innerHTML = `${fixed(ethGained)} ETH gained (${fixed2(ethPercent)}% in ${durationMonths} months) || $${fixed2(usdGained)} gained, or $${fixed2(usdPerMonth)} per month`;
+    gainDetails.innerHTML = `${fixed(ethGained)} ETH gained (${fixed2(ethPercent)}% in ${durationMonths} months or ${fixed2(annualizedPercent)}% annualized) || $${fixed2(usdGained)} gained, or $${fixed2(usdPerMonth)} per month`;
     finalDiv.append(gainDetails);
 
     /*
