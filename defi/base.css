@@ -1,0 +1,12 @@
+html {
+    background-color: white;
+}
+
+.hidden {
+    display: none;
+}
+
+.red {
+    background-color: red;
+    font-weight: bold;
+}

@@ -96,6 +96,9 @@ function sendRequest(method, url, body, successCallback, failCallback) {
                 }
             }
         }
+    } 
+    if (typeof(body) === 'object') {
+        console.error("Warning: sending JS object in request instead of JSON");
     }
     if (DEBUG) {
         console.log("Making " + method +" request to: " + ENDPOINT + url);

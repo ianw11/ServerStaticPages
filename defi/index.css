@@ -1,10 +1,17 @@
-* {
-    text-align: center;
-    width: max-content;
+.alert {
+    background: pink;
 }
 
-hr {
-    width: 100%;
+.warn {
+    background: lightyellow;
+}
+
+.lightgreen {
+    background: lightgreen;
+}
+
+.lightgrey {
+    background: lightgrey;
 }
 
 .large {
@@ -24,8 +31,12 @@ input {
     width: 75px;
 }
 
+.inputprice {
+    width: 115px;
+}
+
 .inputwide {
-    width: 100px;
+    width: 400px;
 }
 
 input[type=checkbox] {
@@ -33,22 +44,22 @@ input[type=checkbox] {
     transform: scale(2);
 }
 
-.lightgreen {
-    background: lightgreen;
-}
-
-.lightgrey {
-    background: lightgrey;
-}
-
 .header {
     padding-bottom: 5px;
 }
 
-.alert {
-    background: pink;
+.container {
+    display: flex;
+    align-items: center;
 }
 
-.warn {
-    background: lightyellow;
+.column {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.vault {
+    background: lightblue;
+    margin-bottom: 5px;
 }
