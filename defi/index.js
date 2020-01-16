@@ -137,8 +137,11 @@ const initSession = () => {
         });
     };
 
+    const login = () => {
+        sendRequest('POST', 'login', credentials(), loginCallback, loginErrorCallback);
+    };
+
     const loginCallback = (success) => {
-        console.log(success);
         toggle(document.getElementById('login'));
         toggle(document.getElementById('signedIn'));
         refreshSavedVaults();
@@ -147,12 +150,10 @@ const initSession = () => {
     const loginErrorCallback = (err) => { console.error(err); }
 
     document.getElementById('buttonRegister').onclick = (e) => {
-        sendRequest('POST', 'register', credentials(), loginCallback, loginErrorCallback);
+        sendRequest('POST', 'register', credentials(), login, loginErrorCallback);
     };
 
-    document.getElementById('buttonLogin').onclick = (e) => {
-        sendRequest('POST', 'login', credentials(), loginCallback, loginErrorCallback);
-    };
+    document.getElementById('buttonLogin').onclick = login;
 
     document.getElementById('buttonRefresh').onclick = refreshSavedVaults;
 
