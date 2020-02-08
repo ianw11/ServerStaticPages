@@ -30,7 +30,7 @@ var targetPrice;
 
 var showLockup;
 var showUnlock;
-var liquidationRatio = 2.5;
+var liquidationRatio = 2.25;
 
 var tradeFeePercentage = .99;
 
@@ -40,25 +40,25 @@ var nickname;
 window.onload = () => {
     outputDiv = document.getElementById('output');
 
-    inputStartingEth = initElement('inputStartingEth', (e) => startingEth = parseFloat(e.target.value));
-    inputPrice = initElement('inputPrice', (e) => currentPrice = parseFloat(e.target.value));
-    inputPercent = initElement('inputPercent', (e) => interestPercent = parseFloat(e.target.value));
-    inputMonths = initElement('inputMonths', (e) => durationMonths = parseFloat(e.target.value));
-    initElement('inputEndingPrice', (e) => targetPrice = parseFloat(e.target.value));
+    inputStartingEth = initElement('inputStartingEth', (e) => startingEth = parseFloat(e.value));
+    inputPrice = initElement('inputPrice', (e) => currentPrice = parseFloat(e.value));
+    inputPercent = initElement('inputPercent', (e) => interestPercent = parseFloat(e.value));
+    inputMonths = initElement('inputMonths', (e) => durationMonths = parseFloat(e.value));
+    initElement('inputEndingPrice', (e) => targetPrice = parseFloat(e.value));
 
-    initElement('showLockup', (e) => showLockup = e.target.checked);
-    initElement('showUnlock', (e) => showUnlock = e.target.checked);
+    initElement('showLockup', (e) => showLockup = e.checked);
+    initElement('showUnlock', (e) => showUnlock = e.checked);
 
     const outputPercentage = document.getElementById('outputPercentage');
     inputLiquidationRatio = initElement('inputLiquidationRatio', (e) => {
-        liquidationRatio = parseFloat(e.target.value) / 100;
+        liquidationRatio = parseFloat(e.value) / 100;
         outputPercentage.innerHTML = `${fixed2(1 / liquidationRatio) * 100}`;
     });
 
     inputPercentageCut = initElement('inputPercentageCut',
-        (e) => tradeFeePercentage = parseFloat(e.target.value) / 1000);
+        (e) => tradeFeePercentage = parseFloat(e.value) / 1000);
 
-    inputNickname = initElement('inputNickname', (e) => nickname = e.target.value);
+    inputNickname = initElement('inputNickname', (e) => nickname = e.value);
 
     notify();
 
@@ -67,9 +67,9 @@ window.onload = () => {
 
 const initElement = (tag, callback) => {
     const elem = document.getElementById(tag);
-    callback({target: elem});
+    callback(elem);
     elem.onchange = (e) => {
-        callback(e);
+        callback(e.target);
         notify();
     }
     return elem;
