@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Race Weekend Setup</title>
+<link rel="stylesheet" type="text/css" href="assetto/index.css">
+</head>
+
+<body>
+	
+	<div id="setup">
+		<div id="header">
+			<img src="assetto/media/accLogo.png" height="86" width="271" alt="ACC Registered Logo">
+			<h1>Nectarsac's Assetto Corsa Competizione Server</h1>
+		</div>	
+		
+		<div id="center-page">
+			<div id="serverStatus" class="row">
+				<div id="serverOn" class="serverPower">
+					<h3>THE SERVER IS ONLINE!</h3>
+						<ul>
+							<li>Track: XzandvoortX</li>
+							<li>Current Session: XpracticeX</li>
+							<li>Drivers Connected: XX</li>
+						</ul>
+				</div>
+				<div id="serverOff" class="serverPower">
+					<h2>TURN IT OFF</h2>
+				</div>
+			</div>
+		
+			
+			<form name="accServer" class="accServer">
+			<div id="main-forms" class="row">
+				<div id="rules-select" class="column-select" class="side_select">
+					
+					
+						<fieldset id="assistRules" class="fieldsets">
+							<h3 class="ruleTags">Ideal Line:</h3>
+							<input type="radio" id="lineOn" class="On" name="disableIdealLine" value="0" checked>
+									<label for="lineOn">
+										Available
+									</label>		
+							<input type="radio" id="lineOff" class="Off" name="disableIdealLine" value="1">
+									<label for="lineOff">
+										Unavailable
+									</label><br>
+									
+							<h3 class="ruleTags">Autosteering:</h3>
+							<input type="radio" id="steerOn" class="On" name="disableAutosteer" value="0" checked>
+									<label for="steerOn">
+										Available
+									</label>		
+							<input type="radio" id="steerOff" class="Off" name="disableAutosteer" value="1">
+									<label for="steerOff">
+										Unavailable
+									</label><br>
+							
+							<h3 class="ruleTags">Automatic Pit Limiters:</h3>
+							<input type="radio" id="pitOn" class="On" name="disableAutoPitLimiter" value="0" checked>
+									<label for="pitOn">
+										Available
+									</label>		
+							<input type="radio" id="pitOff" class="Off" name="disableAutoPitLimiter" value="1">
+									<label for="pitOff">
+										Unavailable
+									</label><br>
+							
+							<h3 class="ruleTags">Automatic Transmissions:</h3>
+							<input type="radio" id="transOn" class="On" name="disableAutoGear" value="0" checked>
+									<label for="transOn">
+										Available
+									</label>		
+							<input type="radio" id="transOff" class="Off" name="disableAutoGear" value="1">
+									<label for="transOff">
+										Unavailable
+									</label><br>
+									
+							<h3  id="gearingAddOn" class="ruleTags">Automatic Clutches:</h3>
+							<input type="radio" id="clutchOn" class="On" name="disableAutoClutch" value="0" checked>
+									<label for="clutchOn">
+										Available
+									</label>		
+							<input type="radio" id="clutchOff" class="Off" name="disableAutoClutch" value="1">
+									<label for="clutchOff">
+										Unavailable
+									</label><br>	
+							
+							<h3 class="ruleTags">Stability Control Min:</h3>
+							<input type="range" id="stabMin" name="stabilityControlLevelMin" min="0" max="100" step="10" list="ticks" value="0"><br>
+							<h3 class="ruleTags">Stability Control Max:</h3>
+							<input type="range" id="stabMax" name="stabilityControlLevelMax" min="0" max="100" step="10" list="ticks" value="50"><br>
+									<datalist id="ticks">
+										<option value="0" label="0"></option>
+										<option value="50" label="50"></option>
+										<option value="100" label="100"></option>
+									</datalist>
+									
+							<input type="number" id="hiddenEngine" class="hidden" name="disableAutoEngineStart" value="0">
+							<input type="number" id="hiddenWiper" class="hidden" name="disableAutoWiper" value="0">
+							<input type="number" id="hiddenLights" class="hidden" name="disableAutoLights" value="0">
+						</fieldset>
+				</div>		
+			
+			
+			
+				<div id="event-select" class="column-select">
+					<fieldset id="event" class="fieldsets">
+						<label for="track">
+							Track Name*
+						</label><br>
+							<select id="track-select" name="track" class="track-select" required>
+								<option name="track" value="barcelona">Barcelona</option>
+								<option name="track" value="brands_hatch" selected>Brand's Hatch</option>
+								<option name="track" value="hungaroring">Hungaroring</option>
+								<option name="track" value="misano">Misano</option>
+								<option name="track" value="monza">Monza</option>
+								<option name="track" value="nurburgring">Nurburgring</option>
+								<option name="track" value="paul_ricard">Paul Ricard</option>
+								<option name="track" value="silverstone">Silverstone</option>
+								<option name="track" value="spa">Spa-Francorchamps</option>
+								<option name="track" value="zandvoort">Zandvoort</option>
+								<option name="track" value="zolder">Zolder</option>
+							</select><br>
+						
+						<label for="ambientTemp">
+							Ambient Temperature
+						</label><br>
+							<input type="number" id="ambientTemp" name="ambientTemp" placeholder="in celsius" value="24"><br>
+						
+						<label for="rain">
+							Rain Amount
+						</label><br>
+							<input type="number" id="rain" name="rain" placeholder="0.0-1.0" value="0.0" step="0.1" min="0.0" max="1.0"><br>
+						
+						<label for="prac">
+							Practice Session Length
+						</label><br>
+							<input type="number" id="prac" name="sessionDurationMinutes" placeholder="0-99 (in minutes)" value="20"><br>
+						
+						<label for="qualy">
+							Qualification Session Length
+						</label><br>
+							<input type="number" id="qualy" name="sessionDurationMinutes" placeholder="0-99 (in minutes)" value="10"><br>
+						
+						<label for="race">
+							Race Session Length
+						</label><br>
+							<input type="number" id="race" name="sessionDurationMinutes" placeholder="0-99 (in minutes)" value="15"><br>
+					
+						<input type="number" id="preRaceWait" class="hidden" name="preRaceWaitingTimeSeconds" value="90">
+						<input type="number" id="postRaceWait" class="hidden" name="sessionOverTimeSeconds" value="120">
+						<input type="number" id="cloudLevel" class="hidden" name="cloudLevel" value="0.1">
+						<input type="number" id="weatherRandomness" class="hidden" name="weatherRandomness" value="1">
+					
+						<input type="number" id="pHour" class="hidden session practice" name="hourOfDay" value="6">
+						<input type="number" id="pDay" class="hidden session practice" name="dayOfWeekend" value="2">
+						<input type="number" id="pTime" class="hidden session practice" name="timeMultiplier" value="1">
+						<input type="text" id="pSession" class="hidden session practice" name="sessionType" value="P">
+					
+						<input type="number" id="qHour" class="hidden session qualy" name="hourOfDay" value="13">
+						<input type="number" id="qDay" class="hidden session qualy" name="dayOfWeekend" value="2">
+						<input type="number" id="qTime" class="hidden session qualy" name="timeMultiplier" value="1">
+						<input type="text" id="qSession" class="hidden session qualy" name="sessionType" value="Q">
+					
+						<input type="number" id="rHour" class="hidden session race" name="hourOfDay" value="18">
+						<input type="number" id="rDay" class="hidden session race" name="dayOfWeekend" value="3">
+						<input type="number" id="rTime" class="hidden session race" name="timeMultiplier" value="1">
+						<input type="text" id="rSession" class="hidden session race" name="sessionType" value="R">
+					
+						<input type="hidden" id="configVers" class="hidden" name="configVersion" value="1">
+					</fieldset>
+				</div>
+			
+			
+			
+				<div id="settings-select" class="column-select" class="side_select">
+						<fieldset id="settings" class="fieldsets">
+							<label for="password">
+								Server Join Password
+							</label><br>
+							<input type="text" id="password" class="blankSpot" name="password" value=""><br>
+							
+							<label for="spectatorPassword">
+								Server Spectator Password
+							</label><br>
+							<input type="text" id="spectatorPassword" class="blankSpot" name="spectatorPassword" value=""><br>
+							
+							<label for="maxCarSlots">
+								Number of Grid Spots
+							</label><br>
+							<input type="number" id="maxCarSlots" name="maxCarSlots" placeholder="1-30" value="10" min="0" max="50" step="1"><br>
+						
+							<input type="text" id="serverName" class="hidden blankSpot" name="serverName" value="Nectarsac's Assetto Corsa Competizione Server">
+							<input type="text" id="adminPass" class="hidden blankSpot" name="adminPassword" value="IanIsMyBigCodeDaddy">
+							<input type="number" id="trackMedals" class="hidden" name="trackMedalsRequirement" value="0">
+							<input type="number" id="safetyRate" class="hidden" name="safetyRatingRequirement" value="-1">
+							<input type="number" id="racecraftRate" class="hidden" name="racecraftRatingRequirement" value="-1">
+							<input type="number" id="randomTrack" class="hidden" name="randomizeTrackWhenEmpty" value="1">
+							<input type="number" id="configVers1" class="hidden" name="configVersion" value="1">
+							
+						</fieldset>
+					</div>
+			</div>
+			
+			<input type="submit" name="accServer" id="submitbtn">
+			</form>	
+			
+		</div>
+				
+			<div class="results">
+				<h2>form data results</h2>
+				<pre class="pre_text">
+					<code id="assistRules_data"></code>
+					<code id="event_data"></code>
+					<code id="settings_data"></code>
+				</pre>
+			</div>
+		
+	</div>
+
+
+<script src="assetto/form_handler.js"></script>
+</body>
+
+</html>
+
