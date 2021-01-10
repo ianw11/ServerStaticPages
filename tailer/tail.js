@@ -1,5 +1,5 @@
-var endpoint = 'ws://localhost:8100';
-//var endpoint = 'wss://nectarsac.com';
+//var endpoint = 'ws://localhost:8100';
+var endpoint = 'wss://nectarsac.com';
 
 var socket;
 var _socket_callbacks = {};
