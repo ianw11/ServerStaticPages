@@ -57,7 +57,7 @@ function list(args) {
 
 function text(args) {
    var maxLines = document.getElementById('maxLines').value;
-   var dataArr = splitNewline(args);
+   var dataArr = sanitizeLine(args.join("|"));
    for (var ndx in dataArr) {
       var line = dataArr[ndx];
       if (line.length === 0) {
@@ -65,8 +65,10 @@ function text(args) {
       }
       lines.push(line);
    }
-   while(lines.length > maxLines) {
-      lines.splice(0, 1);
+   if (lines.length > maxLines) {
+      // Remove the first n elements where n is the number in excess
+      // Eg 12 in array 10 capacity then: 12-10 => 2 and we remove elements 0 and 1 or [0, 2)
+      lines.splice(0, lines.length - maxLines);
    }
    displayLines();
 };
@@ -102,14 +104,9 @@ function displayLines() {
    }
 };
 
-function splitNewline(arr) {
-   var str = "";
-   for (var ndx in arr) {
-      // Have to add back in any pipes that were stripped out
-      str += arr[ndx] + "|";
-   }
+function sanitizeLine(oldStr) {
    // Also clean up anything that might look like real html
-   str = str.split("<").join("");
+   var str = oldStr.split("<").join("");
    return str.split("NEWLINE");
 };
 
