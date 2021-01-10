@@ -1,5 +1,5 @@
-//var endpoint = 'ws://localhost:8100';
-var endpoint = 'wss://nectarsac.com';
+var endpoint = 'ws://localhost:8100';
+//var endpoint = 'wss://nectarsac.com';
 
 var socket;
 var _socket_callbacks = {};
@@ -64,9 +64,9 @@ function text(args) {
          continue;
       }
       lines.push(line);
-      while(lines.length > maxLines) {
-         lines.splice(0, 1);
-      }
+   }
+   while(lines.length > maxLines) {
+      lines.splice(0, 1);
    }
    displayLines();
 };
@@ -105,8 +105,11 @@ function displayLines() {
 function splitNewline(arr) {
    var str = "";
    for (var ndx in arr) {
-      str += arr[ndx];
+      // Have to add back in any pipes that were stripped out
+      str += arr[ndx] + "|";
    }
+   // Also clean up anything that might look like real html
+   str = str.split("<").join("");
    return str.split("NEWLINE");
 };
 
